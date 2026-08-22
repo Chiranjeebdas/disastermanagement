@@ -1,0 +1,330 @@
+/* MapStyles.css */
+
+.map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Customizing Leaflet Controls for Dark Theme */
+.leaflet-bar {
+  border: 1px solid var(--color-border) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+  border-radius: 6px !important;
+  overflow: hidden;
+}
+
+.leaflet-bar a {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--color-surface-hover) !important;
+  color: var(--color-accent) !important;
+}
+
+.leaflet-bar a:last-child {
+  border-bottom: none !important;
+}
+
+/* Custom Marker Styles */
+.custom-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--color-surface);
+  border: 2px solid;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  color: white;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-marker:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+  z-index: 1000 !important;
+}
+
+.marker-user {
+  border-color: var(--color-accent);
+  background-color: rgba(0, 229, 255, 0.1);
+  color: var(--color-accent);
+}
+
+.marker-hospital {
+  border-color: var(--color-safe);
+  background-color: rgba(0, 204, 102, 0.1);
+  color: var(--color-safe);
+}
+
+.marker-police {
+  border-color: var(--color-info);
+  background-color: rgba(51, 153, 255, 0.1);
+  color: var(--color-info);
+}
+
+.marker-fire {
+  border-color: var(--color-danger);
+  background-color: rgba(255, 77, 77, 0.1);
+  color: var(--color-danger);
+}
+
+.marker-safe {
+  border-color: var(--color-safe);
+  background-color: rgba(52, 199, 89, 0.1);
+  color: var(--color-safe);
+}
+
+.marker-alert-critical {
+  border-color: #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.15);
+  color: #ff4d4d;
+  animation: pulse-critical 2s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+.marker-alert-warning {
+  border-color: #ffb84d;
+  background-color: rgba(255, 184, 77, 0.15);
+  color: #ffb84d;
+}
+
+.marker-alert-advisory {
+  border-color: #00e5ff;
+  background-color: rgba(0, 229, 255, 0.15);
+  color: #00e5ff;
+}
+
+@keyframes pulse-critical {
+  0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+}
+
+/* Leaflet Popup Customization */
+.leaflet-popup-content-wrapper {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border);
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: inherit !important;
+}
+
+.leaflet-popup-tip-container {
+  overflow: visible !important;
+}
+
+.leaflet-popup-tip {
+  background-color: var(--color-surface) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  border-right: 1px solid var(--color-border) !important;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.3) !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--color-text-secondary) !important;
+  padding: 4px 12px 0 0 !important;
+  z-index: 10;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--color-text) !important;
+}
+
+/* Custom Popup DOM Styles */
+.map-popup-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: 4px;
+}
+
+.map-popup-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.map-popup-type {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.map-popup-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.map-popup-distance {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+.map-popup-metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-border);
+  margin-bottom: 12px;
+}
+
+.map-popup-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.meta-label {
+  color: var(--color-text-secondary);
+}
+
+.meta-value {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.map-popup-action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background-color: rgba(0, 229, 255, 0.1);
+  color: var(--color-accent);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.map-popup-action-btn:hover {
+  background-color: rgba(0, 229, 255, 0.2);
+}
+
+/* Legend DOM Styles */
+.map-legend-container {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 400;
+  background-color: rgba(13, 15, 16, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid #202428;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+
+.map-legend-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #8a8f98;
+  margin: 0 0 12px 0;
+}
+
+.map-legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.map-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid;
+}
+
+.legend-alert-critical { border-color: #ff4d4d; background-color: rgba(255, 77, 77, 0.2); }
+.legend-alert-warning { border-color: #ffb84d; background-color: rgba(255, 184, 77, 0.2); }
+.legend-alert-advisory { border-color: #00e5ff; background-color: rgba(0, 229, 255, 0.2); }
+.legend-police { border-color: #3399ff; background-color: rgba(51, 153, 255, 0.2); }
+.legend-user { border-color: #00e5ff; background-color: rgba(0, 229, 255, 0.2); box-shadow: 0 0 8px rgba(0, 229, 255, 0.4); }
+
+/* Custom Controls DOM Styles */
+.map-custom-controls {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.map-control-group {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(13, 15, 16, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid #202428;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.map-control-btn {
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid #202428;
+  color: #8a8f98;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.map-control-btn:last-child {
+  border-bottom: none;
+}
+
+.map-control-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-text);
+}
+
+.map-legend-label {
+  font-size: 12px;
+  color: var(--color-text);
+  font-weight: 500;
+}
+

@@ -1,0 +1,72 @@
+/* Environment Panel */
+.environment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.env-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.env-icon {
+  color: var(--color-accent);
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.env-data {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.env-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.env-value {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.condition-full {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+
+.condition-row {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.condition-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.condition-text {
+  font-size: 1.25rem;
+  color: var(--color-accent);
+}
+
+.env-source {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+}

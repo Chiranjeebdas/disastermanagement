@@ -1,0 +1,50 @@
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Landing from './pages/Landing';
+import AppLayout from './layouts/AppLayout';
+import { LoaderOne } from './components/ui/loader';
+
+// Lazy loaded routes
+const Home = lazy(() => import('./pages/Home'));
+const PlaceholderModule = lazy(() => import('./pages/PlaceholderModule'));
+const Alerts = lazy(() => import('./pages/Alerts').then(module => ({ default: module.Alerts })));
+const DisasterMap = lazy(() => import('./pages/DisasterMap').then(module => ({ default: module.DisasterMap })));
+const LiveTelemetry = lazy(() => import('./pages/LiveTelemetry').then(module => ({ default: module.LiveTelemetry })));
+const ReportIncident = lazy(() => import('./pages/ReportIncident').then(module => ({ default: module.ReportIncident })));
+const VolunteerDashboard = lazy(() => import('./pages/VolunteerDashboard').then(module => ({ default: module.VolunteerDashboard })));
+const SettingsDashboard = lazy(() => import('./pages/Settings').then(module => ({ default: module.SettingsDashboard })));
+
+const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Suspense fallback={
+        <div className="flex items-center justify-center h-screen bg-bg">
+          <LoaderOne />
+        </div>
+      }>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          
+          <Route path="/app" element={<AppLayout />}>
+            <Route index element={<Home />} />
+            <Route path="alerts" element={<Alerts />} />
+            <Route path="map" element={<DisasterMap />} />
+            <Route path="telemetry" element={<LiveTelemetry />} />
+            <Route path="report" element={<ReportIncident />} />
+            <Route path="volunteer" element={<VolunteerDashboard />} />
+            <Route path="notifications" element={<PlaceholderModule />} />
+            <Route path="settings" element={<SettingsDashboard />} />
+            
+            {/* Catch-all redirect to /app */}
+            <Route path="*" element={<Navigate to="/app" replace />} />
+          </Route>
+          
+          {/* Global Catch-all redirect to / */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+};
+
+export default App;

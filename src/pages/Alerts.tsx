@@ -1,0 +1,203 @@
+import React, { useState, useMemo } from 'react';
+
+import { useAlerts } from '../hooks/useAlerts';
+import { AlertSummary } from '../components/alerts/AlertSummary';
+import { AlertFilterBar } from '../components/alerts/AlertFilterBar';
+import type { SortOption, TimeFilter } from '../components/alerts/AlertFilterBar';
+import { AlertCard } from '../components/alerts/AlertCard';
+import { AlertDrawer } from '../components/alerts/AlertDrawer';
+import type { AlertSeverity, AlertType } from '../types/alert';
+import { ShieldCheck, WifiOff, RefreshCw } from 'lucide-react';
+import '../styles/Alerts.css';
+
+export const Alerts: React.FC = () => {
+  const { alerts, isOffline, acknowledgeAlert } = useAlerts();
+  
+  // State for filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [severityFilter, setSeverityFilter] = useState<AlertSeverity | 'All'>('All');
+  const [typeFilter, setTypeFilter] = useState<AlertType | 'All'>('All');
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('All');
+  const [sortOption, setSortOption] = useState<SortOption>('Latest');
+  
+  // State for drawer
+  const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
+
+  // Derive counts
+  const severityCounts = useMemo(() => {
+    const counts = { Critical: 0, Warning: 0, Advisory: 0, Resolved: 0 };
+    alerts.forEach(a => {
+      counts[a.severity] = (counts[a.severity] || 0) + 1;
+    });
+    return counts as Record<AlertSeverity, number>;
+  }, [alerts]);
+
+  // Filter & Sort Logic
+  const filteredAndSortedAlerts = useMemo(() => {
+    let result = [...alerts];
+
+    // Search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(a => 
+        a.title.toLowerCase().includes(q) || 
+        a.location.toLowerCase().includes(q) ||
+        a.description.toLowerCase().includes(q)
+      );
+    }
+
+    // Severity Filter
+    if (severityFilter !== 'All') {
+      result = result.filter(a => a.severity === severityFilter);
+    }
+
+    // Type Filter
+    if (typeFilter !== 'All') {
+      result = result.filter(a => a.type === typeFilter);
+    }
+
+    // Time Filter
+    if (timeFilter !== 'All') {
+      const now = new Date().getTime();
+      const oneHour = 60 * 60 * 1000;
+      const oneDay = 24 * oneHour;
+      const sevenDays = 7 * oneDay;
+
+      result = result.filter(a => {
+        const diff = now - new Date(a.detectedAt).getTime();
+        if (timeFilter === 'Last hour') return diff <= oneHour;
+        if (timeFilter === 'Last 24 hours') return diff <= oneDay;
+        if (timeFilter === 'Last 7 days') return diff <= sevenDays;
+        return true;
+      });
+    }
+
+    // Sorting
+    result.sort((a, b) => {
+      if (sortOption === 'Latest') {
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }
+      if (sortOption === 'Highest Severity') {
+        const severityRank: Record<AlertSeverity, number> = { Critical: 4, Warning: 3, Advisory: 2, Resolved: 1 };
+        const rankDiff = severityRank[b.severity] - severityRank[a.severity];
+        // fallback to latest if severity is same
+        return rankDiff !== 0 ? rankDiff : new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }
+      if (sortOption === 'Nearest') {
+        // Since we don't have user live location in this mock data structure perfectly mapped,
+        // we sort by affected radius size as a proxy for "scale" for demo purposes.
+        return (a.affectedRadiusKm || 999) - (b.affectedRadiusKm || 999);
+      }
+      return 0;
+    });
+
+    return result;
+  }, [alerts, searchQuery, severityFilter, typeFilter, timeFilter, sortOption]);
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setSeverityFilter('All');
+    setTypeFilter('All');
+    setTimeFilter('All');
+    setSortOption('Latest');
+  };
+
+  const selectedAlert = useMemo(
+    () => alerts.find(a => a.id === selectedAlertId) || null,
+    [alerts, selectedAlertId]
+  );
+
+  return (
+    <div className="alerts-page-wrapper">
+        
+        {/* Header Area */}
+        <div className="alerts-header">
+          <div className="alerts-header-left">
+            <h1 className="alerts-title">Alert Center</h1>
+            <p className="alerts-subtitle">Verified disaster intelligence and active warnings</p>
+          </div>
+
+          {/* Live/Offline Status */}
+          <div className="alerts-header-right">
+            <button className="btn-refresh" aria-label="Refresh alerts">
+              <RefreshCw size={14} />
+            </button>
+            <div className={`alerts-live-indicator ${isOffline ? 'offline' : ''}`}>
+              {isOffline ? (
+                <>
+                  <WifiOff size={14} /> OFFLINE
+                </>
+              ) : (
+                <>
+                  <span className="pulse-dot"></span> LIVE
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <hr className="alerts-divider" />
+
+        {isOffline && (
+          <div className="offline-banner">
+             <WifiOff size={18} className="text-danger" />
+             <div>
+               <span className="offline-banner-title">OFFLINE MODE </span>
+               <span className="offline-banner-text">Showing the latest locally cached alerts.</span>
+             </div>
+          </div>
+        )}
+
+        {/* Summary Strip */}
+        <AlertSummary counts={severityCounts} />
+
+        {/* Filter Bar */}
+        <AlertFilterBar 
+          searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+          severityFilter={severityFilter} setSeverityFilter={setSeverityFilter}
+          typeFilter={typeFilter} setTypeFilter={setTypeFilter}
+          timeFilter={timeFilter} setTimeFilter={setTimeFilter}
+          sortOption={sortOption} setSortOption={setSortOption}
+          onReset={handleResetFilters}
+        />
+
+        {/* Active Alerts Header */}
+        <div className="active-alerts-header">
+          <h2 className="active-alerts-title">ACTIVE ALERTS</h2>
+          <p className="active-alerts-subtitle">Verified events requiring attention</p>
+        </div>
+
+        {/* Main Feed */}
+        <div className="alerts-feed">
+          {filteredAndSortedAlerts.length > 0 ? (
+            filteredAndSortedAlerts.map(alert => (
+              <AlertCard 
+                key={alert.id} 
+                alert={alert} 
+                onClick={(a) => setSelectedAlertId(a.id)} 
+              />
+            ))
+          ) : (
+            <div className="empty-alerts-card">
+              <div className="empty-icon-wrapper">
+                <ShieldCheck size={48} />
+              </div>
+              <h3 className="empty-title">NO MATCHING ALERTS</h3>
+              <p className="empty-desc">No alerts match your current filters.</p>
+              <button onClick={handleResetFilters} className="filter-clear-btn" style={{ minWidth: '120px' }}>
+                Clear Filters
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Drawer */}
+        <AlertDrawer 
+          alert={selectedAlert}
+          isOpen={!!selectedAlertId}
+          onClose={() => setSelectedAlertId(null)}
+          onAcknowledge={acknowledgeAlert}
+        />
+      </div>
+  );
+};
