@@ -41,6 +41,8 @@ export const useWeather = (latitude?: number, longitude?: number) => {
 
   const fetchWeather = async (lat: number, lon: number) => {
     setWeather(prev => ({ ...prev, loading: true, error: null }));
+    const cacheKey = `drishti_weather_${lat.toFixed(2)}_${lon.toFixed(2)}`;
+
     try {
       // Using Open-Meteo free API
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_direction_10m&timezone=auto`;
@@ -53,22 +55,44 @@ export const useWeather = (latitude?: number, longitude?: number) => {
       const data = await response.json();
       const current = data.current;
 
+      const weatherData: WeatherData = {
+        temperature: current.temperature_2m,
+        feelsLike: current.apparent_temperature,
+        humidity: current.relative_humidity_2m,
+        windSpeed: current.wind_speed_10m,
+        windDirection: current.wind_direction_10m,
+        precipitation: current.precipitation,
+        weatherCode: current.weather_code,
+        isDay: current.is_day === 1,
+      };
+
+      // Cache to localStorage for offline use
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({ data: weatherData, timestamp: Date.now() }));
+      } catch {}
+
       setWeather({
-        data: {
-          temperature: current.temperature_2m,
-          feelsLike: current.apparent_temperature,
-          humidity: current.relative_humidity_2m,
-          windSpeed: current.wind_speed_10m,
-          windDirection: current.wind_direction_10m,
-          precipitation: current.precipitation,
-          weatherCode: current.weather_code,
-          isDay: current.is_day === 1,
-        },
+        data: weatherData,
         loading: false,
         error: null,
         lastUpdated: new Date(),
       });
     } catch (err) {
+      // Try to load from localStorage cache when offline
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const { data: cachedData, timestamp } = JSON.parse(cached);
+          setWeather({
+            data: cachedData,
+            loading: false,
+            error: null,
+            lastUpdated: new Date(timestamp),
+          });
+          return;
+        }
+      } catch {}
+
       setWeather(prev => ({
         ...prev,
         loading: false,

@@ -13,12 +13,30 @@ interface LocationState {
 }
 
 export const useLocation = () => {
-  const [location, setLocation] = useState<LocationState>({
-    coords: null,
-    status: 'prompt', // default
-    lastUpdated: null,
-    error: null,
-  });
+  // Try loading cached location on init
+  const getInitialState = (): LocationState => {
+    try {
+      const cached = localStorage.getItem('drishti_location');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        return {
+          coords: parsed.coords,
+          status: 'granted',
+          address: parsed.address || null,
+          lastUpdated: parsed.timestamp ? new Date(parsed.timestamp) : null,
+          error: null,
+        };
+      }
+    } catch {}
+    return {
+      coords: null,
+      status: 'prompt',
+      lastUpdated: null,
+      error: null,
+    };
+  };
+
+  const [location, setLocation] = useState<LocationState>(getInitialState());
 
   const requestLocation = () => {
     if (!navigator.geolocation) {
@@ -58,7 +76,7 @@ export const useLocation = () => {
               }
             }
             
-            setLocation({
+            const newState: LocationState = {
               coords: {
                 latitude: lat,
                 longitude: lon,
@@ -68,11 +86,22 @@ export const useLocation = () => {
               status: 'granted',
               lastUpdated: new Date(),
               error: null,
-            });
+            };
+
+            // Cache for offline use
+            try {
+              localStorage.setItem('drishti_location', JSON.stringify({
+                coords: newState.coords,
+                address: newState.address,
+                timestamp: Date.now(),
+              }));
+            } catch {}
+
+            setLocation(newState);
           })
           .catch(() => {
             // Fallback if geocoding fails
-            setLocation({
+            const newState: LocationState = {
               coords: {
                 latitude: lat,
                 longitude: lon,
@@ -82,7 +111,17 @@ export const useLocation = () => {
               status: 'granted',
               lastUpdated: new Date(),
               error: null,
-            });
+            };
+
+            try {
+              localStorage.setItem('drishti_location', JSON.stringify({
+                coords: newState.coords,
+                address: null,
+                timestamp: Date.now(),
+              }));
+            } catch {}
+
+            setLocation(newState);
           });
       },
       (error) => {
@@ -102,6 +141,10 @@ export const useLocation = () => {
             newStatus = 'unavailable';
             break;
         }
+        // If offline and we have cached location, keep using it
+        if (!navigator.onLine && location.coords) {
+          return;
+        }
         setLocation(prev => ({ ...prev, status: newStatus, error: errorMsg, address: null }));
       },
       {
@@ -113,8 +156,12 @@ export const useLocation = () => {
   };
 
   useEffect(() => {
-    // Automatically request location on load to fetch real-time data
-    requestLocation();
+    // If we have cached coords, don't block — still try refreshing in background
+    if (location.coords && navigator.onLine) {
+      requestLocation();
+    } else if (!location.coords) {
+      requestLocation();
+    }
   }, []);
 
   return { location, requestLocation };

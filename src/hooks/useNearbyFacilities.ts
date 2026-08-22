@@ -79,13 +79,26 @@ export const useNearbyFacilities = (lat?: number, lon?: number, radiusKm: number
     const controller = new AbortController();
 
     const fetchFacilities = async () => {
-      // Check cache first
+      // Check sessionStorage cache first (fast, same-session)
       const cacheKey = `facilities_${lat}_${lon}_${radiusKm}`;
+      const offlineCacheKey = `drishti_facilities_offline`;
       const cached = sessionStorage.getItem(cacheKey);
       if (cached) {
         setFacilities(JSON.parse(cached));
         setLoading(false);
         return;
+      }
+
+      // If offline, try localStorage persistent cache
+      if (!navigator.onLine) {
+        try {
+          const offlineCached = localStorage.getItem(offlineCacheKey);
+          if (offlineCached) {
+            setFacilities(JSON.parse(offlineCached));
+            setLoading(false);
+            return;
+          }
+        } catch {}
       }
 
       try {
@@ -172,6 +185,10 @@ out center body;`;
         // Removed slow 100km fallback to prevent freezing the server
         setFacilities(results);
         sessionStorage.setItem(cacheKey, JSON.stringify(results));
+        // Also persist to localStorage for offline use
+        try {
+          localStorage.setItem(offlineCacheKey, JSON.stringify(results));
+        } catch {}
         setError(null);
 
       } catch (err: any) {
