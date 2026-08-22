@@ -32,7 +32,7 @@ const AppLayout: React.FC = () => {
           onMobileMenuClick={toggleMobileMenu} 
         />
         <main className="app-content relative overflow-x-hidden">
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             <PageTransition key={location.pathname}>
               {currentOutlet}
             </PageTransition>

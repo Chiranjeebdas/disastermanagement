@@ -1,32 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { 
   Activity, 
   Wind, 
   Droplets, 
   Thermometer, 
-  CloudRain, 
-  RefreshCw,
+  CloudRain,
   AlertTriangle,
-  ShieldCheck,
-  Radio,
-  ServerCrash,
-  BarChart2
+  ShieldCheck
 } from 'lucide-react';
 import { useLocation } from '../hooks/useLocation';
 import { useWeather } from '../hooks/useWeather';
 import { DisasterProbabilityChart } from '../components/dashboard/DisasterProbabilityChart';
 import { ConfidenceRadarChart } from '../components/dashboard/ConfidenceRadarChart';
 import { EnvironmentPanel } from '../components/dashboard/EnvironmentPanel';
+import { ClimateNewsFeed } from '../components/dashboard/ClimateNewsFeed';
 import '../styles/LiveTelemetry.css';
-
-// Helper for formatting time difference
-const getRelativeTime = (date: Date | null) => {
-  if (!date) return 'Waiting for data...';
-  const diffInSeconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-  if (diffInSeconds < 60) return `Updated ${diffInSeconds}s ago`;
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  return `Updated ${diffInMinutes}m ago`;
-};
 
 // Types for signals
 type AnomalyStatus = 'NORMAL' | 'MONITORING' | 'ELEVATED' | 'ANOMALY' | 'CRITICAL';
@@ -42,13 +30,10 @@ interface Signal {
 
 export const LiveTelemetry: React.FC = () => {
   const { location, requestLocation } = useLocation();
-  const { data: weather, loading: weatherLoading, lastUpdated, error, forceRefresh } = useWeather(
+  const { data: weather } = useWeather(
     location.coords?.latitude,
     location.coords?.longitude
   );
-
-  const [timeAgo, setTimeAgo] = useState('Waiting for data...');
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Auto-request location on mount if not prompted
   useEffect(() => {
@@ -56,22 +41,6 @@ export const LiveTelemetry: React.FC = () => {
       requestLocation();
     }
   }, [location.status, requestLocation]);
-
-  // Update "time ago" string every second
-  useEffect(() => {
-    if (!lastUpdated) return;
-    const interval = setInterval(() => {
-      setTimeAgo(getRelativeTime(lastUpdated));
-    }, 1000);
-    setTimeAgo(getRelativeTime(lastUpdated));
-    return () => clearInterval(interval);
-  }, [lastUpdated]);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    forceRefresh();
-    setTimeout(() => setIsRefreshing(false), 800); // minimum visual spin time
-  };
 
   // Compute Anomaly Statuses based on simple rules
   const getTempStatus = (temp: number): AnomalyStatus => {
@@ -152,35 +121,10 @@ export const LiveTelemetry: React.FC = () => {
     }
   };
 
-  // Determine global anomaly state
-  const globalStatus = signals.reduce((acc, curr) => {
-    if (curr.status === 'CRITICAL' || acc === 'CRITICAL') return 'CRITICAL';
-    if (curr.status === 'ANOMALY' || acc === 'ANOMALY') return 'ANOMALY';
-    if (curr.status === 'ELEVATED' || acc === 'ELEVATED') return 'ELEVATED';
-    return 'MONITORING';
-  }, 'MONITORING' as AnomalyStatus);
+
 
   return (
     <div className="telemetry-container">
-      {/* Header */}
-      <header className="telemetry-header justify-end">
-        <div className="telemetry-status-group">
-          <div className="telemetry-live-badge">
-            <div className="live-pulse" />
-            LIVE
-          </div>
-          <span className="text-xs text-text-secondary">{timeAgo}</span>
-          <button 
-            className="telemetry-refresh-btn" 
-            onClick={handleRefresh}
-            disabled={isRefreshing || weatherLoading}
-          >
-            <RefreshCw size={14} className={isRefreshing || weatherLoading ? 'animate-spin' : ''} />
-            REFRESH
-          </button>
-        </div>
-      </header>
-
       {/* Dashboard Widgets */}
       <div className="telemetry-widgets-grid">
         <div className="telemetry-widget-container">
@@ -301,7 +245,6 @@ export const LiveTelemetry: React.FC = () => {
                     </span>
                   </div>
                   <div className="signal-meta">
-                    <span>{timeAgo}</span>
                     <span>{signal.source}</span>
                   </div>
                 </div>
@@ -312,104 +255,13 @@ export const LiveTelemetry: React.FC = () => {
               )}
             </div>
           </section>
-
-          {/* Trend Charts - Empty State */}
-          <section className="telemetry-section flex-1 min-h-[300px]">
-            <header>
-              <h2 className="section-title">TREND CHARTS</h2>
-              <p className="section-subtitle">Time-series environmental analysis</p>
-            </header>
-            
-            <div className="telemetry-empty-state flex-1">
-              <BarChart2 size={48} className="empty-state-icon" />
-              <h3 className="empty-state-title">Historical Data Unavailable</h3>
-              <p className="empty-state-desc">
-                DRISHTI is currently receiving live point-in-time measurements only. Historical trend processing module is offline.
-              </p>
-            </div>
-          </section>
         </div>
 
         {/* Right Column */}
-        <div className="side-panels">
-          {/* Anomaly Monitor */}
-          <section className="telemetry-section">
-            <header>
-              <h2 className="section-title text-danger">ANOMALY MONITOR</h2>
-              <p className="section-subtitle">Automated threat detection</p>
-            </header>
-            
-            <div className="flex flex-col items-center justify-center py-6 gap-4 border border-dashed border-border rounded-lg mt-2">
-              <span className={`signal-badge ${getStatusBadgeClass(globalStatus)} !text-sm !px-4 !py-2 !gap-2`}>
-                {getStatusIcon(globalStatus)}
-                SYSTEM {globalStatus}
-              </span>
-              <p className="text-xs text-text-secondary text-center px-4">
-                {globalStatus === 'MONITORING' 
-                  ? 'All environmental telemetry channels are operating within expected safe baseline thresholds.'
-                  : 'Anomalous environmental signals detected. Please review signal panel for specifics.'}
-              </p>
-            </div>
-          </section>
-
-          {/* Signal Health */}
-          <section className="telemetry-section">
-            <header>
-              <h2 className="section-title">DATA HEALTH</h2>
-              <p className="section-subtitle">Telemetry source connectivity</p>
-            </header>
-            
-            <div className="flex flex-col mt-2">
-              <div className="health-item">
-                <span className="health-name flex items-center gap-2">
-                  <Radio size={14} className="text-accent" />
-                  Weather Service
-                </span>
-                <span className="health-status">
-                  <div className={`health-dot ${weather && !error ? 'online' : 'offline'}`} />
-                  {weather && !error ? 'Online' : 'Unavailable'}
-                </span>
-              </div>
-              
-              <div className="health-item">
-                <span className="health-name flex items-center gap-2">
-                  <Activity size={14} className="text-accent" />
-                  Env. Signals
-                </span>
-                <span className="health-status">
-                  <div className={`health-dot ${weather && !error ? 'online' : 'offline'}`} />
-                  {weather && !error ? 'Online' : 'Unavailable'}
-                </span>
-              </div>
-
-              <div className="health-item">
-                <span className="health-name flex items-center gap-2">
-                  <ShieldCheck size={14} className="text-accent" />
-                  GPS Tracking
-                </span>
-                <span className="health-status">
-                  <div className={`health-dot ${location.coords ? 'online' : 'offline'}`} />
-                  {location.coords ? 'Online' : 'Unavailable'}
-                </span>
-              </div>
-              
-              <div className="health-item">
-                <span className="health-name flex items-center gap-2 text-text-muted">
-                  <ServerCrash size={14} />
-                  Historical DB
-                </span>
-                <span className="health-status">
-                  <div className="health-dot offline opacity-50" />
-                  Offline
-                </span>
-              </div>
-            </div>
-            {error && (
-              <div className="mt-4 p-3 bg-danger/10 border border-danger/30 rounded-md text-xs text-danger text-center">
-                CONNECTION ERROR: {error}
-              </div>
-            )}
-          </section>
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+            <ClimateNewsFeed />
+          </div>
         </div>
       </div>
     </div>

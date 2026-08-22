@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
 import AppLayout from './layouts/AppLayout';
@@ -14,7 +14,29 @@ const ReportIncident = lazy(() => import('./pages/ReportIncident').then(module =
 const VolunteerDashboard = lazy(() => import('./pages/VolunteerDashboard').then(module => ({ default: module.VolunteerDashboard })));
 const SettingsDashboard = lazy(() => import('./pages/Settings').then(module => ({ default: module.SettingsDashboard })));
 
+const prefetchRoutes = () => {
+  // Preload all chunks in the background so transitions are instant
+  // Added catch to prevent unhandled promise rejections if chunk fails to load
+  import('./pages/Home').catch(() => {});
+  import('./pages/Alerts').catch(() => {});
+  import('./pages/DisasterMap').catch(() => {});
+  import('./pages/LiveTelemetry').catch(() => {});
+  import('./pages/ReportIncident').catch(() => {});
+  import('./pages/VolunteerDashboard').catch(() => {});
+  import('./pages/Settings').catch(() => {});
+  import('./pages/PlaceholderModule').catch(() => {});
+};
+
 const App: React.FC = () => {
+  useEffect(() => {
+    // Prefetch after initial paint to not block main thread
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(prefetchRoutes, { timeout: 2000 });
+    } else {
+      setTimeout(prefetchRoutes, 500);
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <Suspense fallback={

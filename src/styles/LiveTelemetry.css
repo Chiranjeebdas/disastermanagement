@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xxl);
   border-bottom: 1px solid var(--color-border);
   padding-bottom: var(--spacing-md);
 }
@@ -83,7 +83,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xxl);
 }
 
 @media (max-width: 1024px) {
@@ -101,9 +101,15 @@
 /* KPI Grid */
 .telemetry-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xxl);
+}
+
+@media (max-width: 1200px) {
+  .telemetry-kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
 }
 
 .telemetry-kpi-card {
@@ -201,7 +207,7 @@
 .section-subtitle {
   font-size: 0.75rem;
   color: var(--color-text-secondary);
-  margin: -8px 0 0 0;
+  margin: 4px 0 0 0;
 }
 
 /* Signal Rows */
@@ -293,7 +299,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-2xl) var(--spacing-xl);
+  padding: var(--spacing-xxl) var(--spacing-xl);
   text-align: center;
   background: rgba(0,0,0,0.2);
   border: 1px dashed var(--color-border);
