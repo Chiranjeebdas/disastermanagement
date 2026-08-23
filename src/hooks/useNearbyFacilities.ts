@@ -102,50 +102,58 @@ export const useNearbyFacilities = (lat?: number, lon?: number, radiusKm: number
       }
 
       try {
-        const offset = radiusKm / 111;
-        const s = lat - offset;
-        const n = lat + offset;
-        const cosLat = Math.cos(lat * Math.PI / 180);
-        const w = lon - (offset / cosLat);
-        const e = lon + (offset / cosLat);
-
+        const radiusMeters = 30000; // Expanded to 30km to ensure facilities are found
+        
+        // Using `around` is much more accurate for user's live location than a bounding box
         const query = `[out:json][timeout:25];
 (
-  nwr["amenity"="hospital"](${s},${w},${n},${e});
-  nwr["amenity"="clinic"](${s},${w},${n},${e});
-  nwr["amenity"="doctors"](${s},${w},${n},${e});
-  nwr["healthcare"="hospital"](${s},${w},${n},${e});
-  nwr["healthcare"="clinic"](${s},${w},${n},${e});
-  nwr["amenity"="police"](${s},${w},${n},${e});
-  nwr["building"="police"](${s},${w},${n},${e});
-  nwr["amenity"="fire_station"](${s},${w},${n},${e});
-  nwr["amenity"="pharmacy"](${s},${w},${n},${e});
-  nwr["shop"="chemist"](${s},${w},${n},${e});
-  nwr["shop"="medical"](${s},${w},${n},${e});
-  nwr["shop"="pharmaceutical"](${s},${w},${n},${e});
-  nwr["healthcare"="pharmacy"](${s},${w},${n},${e});
-  nwr["amenity"="shelter"](${s},${w},${n},${e});
-  nwr["amenity"="community_centre"](${s},${w},${n},${e});
-  nwr["emergency"="assembly_point"](${s},${w},${n},${e});
-  nwr["social_facility"="shelter"](${s},${w},${n},${e});
+  nwr["amenity"="hospital"](around:${radiusMeters},${lat},${lon});
+  nwr["amenity"="clinic"](around:${radiusMeters},${lat},${lon});
+  nwr["healthcare"="hospital"](around:${radiusMeters},${lat},${lon});
+  nwr["amenity"="police"](around:${radiusMeters},${lat},${lon});
+  nwr["building"="police"](around:${radiusMeters},${lat},${lon});
+  nwr["amenity"="fire_station"](around:${radiusMeters},${lat},${lon});
+  nwr["amenity"="pharmacy"](around:${radiusMeters},${lat},${lon});
+  nwr["healthcare"="pharmacy"](around:${radiusMeters},${lat},${lon});
+  nwr["shop"="chemist"](around:${radiusMeters},${lat},${lon});
+  nwr["amenity"="shelter"](around:${radiusMeters},${lat},${lon});
+  nwr["emergency"="assembly_point"](around:${radiusMeters},${lat},${lon});
 );
-out center body;`;
+out center;`;
 
-        const response = await fetch('https://overpass-api.de/api/interpreter', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: 'data=' + encodeURIComponent(query),
-          signal: controller.signal
-        });
+        // Multiple endpoints to ensure it works even if one is rate-limited
+        const endpoints = [
+          'https://overpass-api.de/api/interpreter',
+          'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+        ];
 
-        if (!response.ok) {
-          throw new Error('Overpass API error: ' + response.status);
+        let response = null;
+        for (const endpoint of endpoints) {
+          try {
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: 'data=' + encodeURIComponent(query),
+              signal: controller.signal
+            });
+            if (res.ok) {
+              response = res;
+              break;
+            }
+          } catch (err: any) {
+            if (err.name === 'AbortError') throw err;
+            // Continue to next endpoint
+          }
+        }
+
+        if (!response) {
+          throw new Error('Overpass API failed on all endpoints');
         }
         
         const data = await response.json();
         
         if (!data.elements || !Array.isArray(data.elements)) {
-          throw new Error('Invalid API response');
+          throw new Error('Invalid API response structure');
         }
 
         const results: Facility[] = [];

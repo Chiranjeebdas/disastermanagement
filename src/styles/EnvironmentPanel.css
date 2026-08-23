@@ -2,13 +2,17 @@
 .environment-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xxl) var(--spacing-lg); /* Huge vertical gap to align with charts */
+  height: 100%;
+  flex: 1;
+  align-content: space-evenly;
 }
 
 .env-item {
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
 }
 
 .env-icon {
@@ -20,7 +24,7 @@
 .env-data {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-sm); /* Increased gap between label and value */
 }
 
 .env-label {

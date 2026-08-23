@@ -81,7 +81,7 @@ export const useAlerts = () => {
       } catch (e) {
         console.warn('Failed to parse cached alerts', e);
       }
-      
+
       // Fallback to initial demo data
       setAlerts(INITIAL_DEMO_ALERTS);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DEMO_ALERTS));
@@ -128,7 +128,7 @@ export const useAlerts = () => {
   // Acknowledge an alert
   const acknowledgeAlert = useCallback((id: string) => {
     setAlerts(prev => {
-      const updated = prev.map(alert => 
+      const updated = prev.map(alert =>
         alert.id === id ? { ...alert, isAcknowledged: true } : alert
       );
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));

@@ -74,10 +74,21 @@
   gap: 4px;
 }
 
-.kpi-card.critical { border-top: 2px solid var(--color-danger); }
-.kpi-card.high { border-top: 2px solid var(--color-warning); }
-.kpi-card.active { border-top: 2px solid var(--color-accent); }
-.kpi-card.resolved { border-top: 2px solid var(--color-success); }
+.kpi-card.critical {
+  border-top: 2px solid var(--color-danger);
+}
+
+.kpi-card.high {
+  border-top: 2px solid var(--color-warning);
+}
+
+.kpi-card.active {
+  border-top: 2px solid var(--color-accent);
+}
+
+.kpi-card.resolved {
+  border-top: 2px solid var(--color-success);
+}
 
 .kpi-label {
   font-size: 0.65rem;
@@ -135,7 +146,7 @@
 
 .volunteer-search {
   width: 100%;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--color-border);
   color: var(--color-text);
   padding: var(--spacing-sm) var(--spacing-md);
@@ -175,7 +186,7 @@
 
 .incident-card.selected {
   border-color: var(--color-accent);
-  background: rgba(0, 229, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .card-header {
@@ -246,18 +257,24 @@
 }
 
 .vol-btn.primary {
-  background: rgba(0, 229, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--color-accent);
-  border: 1px solid rgba(0, 229, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.vol-btn.primary:hover { background: rgba(0, 229, 255, 0.2); }
+
+.vol-btn.primary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
 
 .vol-btn.secondary {
   background: transparent;
   color: var(--color-text);
   border: 1px solid var(--color-border);
 }
-.vol-btn.secondary:hover { background: var(--color-surface-hover); }
+
+.vol-btn.secondary:hover {
+  background: var(--color-surface-hover);
+}
 
 /* Right Panel: Map */
 .volunteer-map-panel {
@@ -268,9 +285,10 @@
 
 /* Response Drawer */
 .response-drawer-overlay {
-  position: absolute; /* absolute within the dashboard area */
+  position: absolute;
+  /* absolute within the dashboard area */
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -285,7 +303,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .rd-header {
@@ -321,7 +339,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
@@ -353,11 +371,12 @@
 
 .status-step-btn.active-next {
   border-color: var(--color-accent);
-  background: rgba(0, 229, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--color-accent);
 }
+
 .status-step-btn.active-next:hover {
-  background: rgba(0, 229, 255, 0.15);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .status-step-btn.disabled {

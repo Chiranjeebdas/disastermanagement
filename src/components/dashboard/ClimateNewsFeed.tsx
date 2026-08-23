@@ -32,7 +32,7 @@ export const ClimateNewsFeed: React.FC = () => {
       if (index < upcomingNews.length) {
         setNews(prev => {
           // Add new item and update times of existing ones to seem dynamic
-          const updated = prev.map(n => ({...n, time: n.time === 'Just now' ? '1m ago' : n.time}));
+          const updated = prev.map(n => ({ ...n, time: n.time === 'Just now' ? '1m ago' : n.time }));
           return [upcomingNews[index], ...updated];
         });
         index++;
@@ -51,11 +51,11 @@ export const ClimateNewsFeed: React.FC = () => {
         </h2>
         <p className="climate-news-subtitle">Real-time environmental and climate intelligence</p>
       </header>
-      
+
       <div className="climate-news-list">
         {news.map((item, i) => (
-          <div 
-            key={item.id} 
+          <div
+            key={item.id}
             className={`news-card ${item.isUrgent ? 'urgent' : ''}`}
             style={{
               animation: i === 0 && item.time === 'Just now' ? 'slideDownFeed 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)' : 'none'

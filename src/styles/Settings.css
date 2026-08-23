@@ -105,14 +105,14 @@
 }
 
 .settings-nav-item:hover {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   color: var(--color-text);
 }
 
 .settings-nav-item.active {
-  background: rgba(0, 229, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-accent);
-  border-color: rgba(0, 229, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Main Panel */
@@ -173,7 +173,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: rgba(0, 229, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   border: 2px solid var(--color-accent);
   display: flex;
   align-items: center;
@@ -199,7 +199,7 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--color-text-secondary);
   font-size: 0.75rem;
   font-weight: 600;
@@ -229,10 +229,12 @@
   padding: var(--spacing-md) 0;
   border-bottom: 1px solid var(--color-border);
 }
+
 .settings-row:last-child {
   border-bottom: none;
   padding-bottom: 0;
 }
+
 .settings-row:first-child {
   padding-top: 0;
 }
@@ -264,7 +266,7 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .role-option:hover {
@@ -273,7 +275,7 @@
 
 .role-option.selected {
   border-color: var(--color-accent);
-  background: rgba(0, 229, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .role-option-title {
@@ -312,7 +314,7 @@
   position: relative;
   width: 44px;
   height: 24px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s;
@@ -339,7 +341,7 @@
 
 /* Form Controls */
 .settings-select {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--color-border);
   color: var(--color-text);
   padding: var(--spacing-sm) var(--spacing-md);
@@ -348,6 +350,7 @@
   outline: none;
   cursor: pointer;
 }
+
 .settings-select:focus {
   border-color: var(--color-accent);
 }
@@ -360,7 +363,7 @@
 }
 
 .metric-card {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
@@ -386,9 +389,17 @@
   gap: var(--spacing-xs);
 }
 
-.metric-value.online { color: var(--color-success); }
-.metric-value.offline { color: var(--color-warning); }
-.metric-value.error { color: var(--color-danger); }
+.metric-value.online {
+  color: var(--color-success);
+}
+
+.metric-value.offline {
+  color: var(--color-warning);
+}
+
+.metric-value.error {
+  color: var(--color-danger);
+}
 
 /* Buttons */
 .settings-btn {
@@ -422,19 +433,20 @@
 }
 
 .settings-btn.primary {
-  background: rgba(0, 229, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--color-accent);
-  border-color: rgba(0, 229, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
 }
+
 .settings-btn.primary:hover {
-  background: rgba(0, 229, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(4px);
   z-index: 9999;
   display: flex;
@@ -453,7 +465,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 
 .modal-title {

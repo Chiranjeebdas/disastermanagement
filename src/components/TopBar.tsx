@@ -14,26 +14,26 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
   const location = useLocation();
   const { location: geoLocation } = useGeoLocation();
   const [activeMapFilter, setActiveMapFilter] = useState('all');
-  
+
 
 
   return (
     <header className="topbar">
       <div className="topbar-left">
         <Tooltip content="Menu" position="right">
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="mobile-menu-btn interactive-cursor" 
+            className="mobile-menu-btn interactive-cursor"
             onClick={onMobileMenuClick}
             aria-label="Open mobile menu"
           >
             <Menu size={20} />
           </motion.button>
         </Tooltip>
-        
+
         {location.pathname === '/app' && (
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
@@ -42,9 +42,9 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
             Quick Emergency help
           </motion.h2>
         )}
-        
+
         {location.pathname === '/app/telemetry' && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
@@ -84,7 +84,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
           </div>
         )}
       </div>
-      
+
       <div className="topbar-right">
         <div className={`flex items-center gap-2 text-sm font-semibold ${geoLocation.coords ? 'text-success' : 'text-danger'}`}>
           <div className="w-2 h-2 rounded-full bg-current" />

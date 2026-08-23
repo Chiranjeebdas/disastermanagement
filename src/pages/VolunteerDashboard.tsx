@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Activity, CheckCircle2, Search, 
+import {
+  Activity, CheckCircle2, Search,
   MapPin, Clock, Users, AlertTriangle, X
 } from 'lucide-react';
 import { useReports } from '../hooks/useReports';
@@ -11,11 +11,11 @@ import type { ResponseStatus } from '../types/report';
 import '../styles/VolunteerDashboard.css';
 
 const RESPONSE_WORKFLOW: ResponseStatus[] = [
-  'Unassigned', 
-  'ResponderAssigned', 
-  'EnRoute', 
-  'OnScene', 
-  'AssistanceProvided', 
+  'Unassigned',
+  'ResponderAssigned',
+  'EnRoute',
+  'OnScene',
+  'AssistanceProvided',
   'Resolved'
 ];
 
@@ -23,27 +23,27 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
   const R = 6371; // km
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 };
 
 export const VolunteerDashboard: React.FC = () => {
   const { reports, isOffline, updateReportStatus } = useReports();
   const { location } = useLocation();
-  
+
   const [search, setSearch] = useState('');
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
 
   // Process and sort incidents
   const incidents = useMemo(() => {
     let filtered = reports.filter(r => r.status !== 'Draft');
-    
+
     if (search) {
       const s = search.toLowerCase();
-      filtered = filtered.filter(r => 
-        r.type.toLowerCase().includes(s) || 
+      filtered = filtered.filter(r =>
+        r.type.toLowerCase().includes(s) ||
         r.locationName.toLowerCase().includes(s) ||
         r.tags.some(t => t.toLowerCase().includes(s))
       );
@@ -52,7 +52,7 @@ export const VolunteerDashboard: React.FC = () => {
     // Attach distance if we have coords
     return filtered.map(r => ({
       ...r,
-      distance: location.coords && r.coordinates 
+      distance: location.coords && r.coordinates
         ? calculateDistance(location.coords.latitude, location.coords.longitude, r.coordinates.latitude, r.coordinates.longitude)
         : null
     })).sort((a, b) => {
@@ -60,10 +60,10 @@ export const VolunteerDashboard: React.FC = () => {
       const urgencyScore = { Critical: 3, Medium: 2, Low: 1 };
       const diff = urgencyScore[b.urgency] - urgencyScore[a.urgency];
       if (diff !== 0) return diff;
-      
+
       // 2. Distance
       if (a.distance !== null && b.distance !== null) return a.distance - b.distance;
-      
+
       // 3. Recency
       return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
     });
@@ -76,9 +76,9 @@ export const VolunteerDashboard: React.FC = () => {
     resolved: reports.filter(r => r.responseStatus === 'Resolved' || r.status === 'Resolved').length
   }), [reports]);
 
-  const selectedIncident = useMemo(() => 
+  const selectedIncident = useMemo(() =>
     incidents.find(i => i.id === selectedIncidentId) || null,
-  [incidents, selectedIncidentId]);
+    [incidents, selectedIncidentId]);
 
   const handleStatusUpdate = (status: ResponseStatus) => {
     if (!selectedIncident) return;
@@ -98,7 +98,7 @@ export const VolunteerDashboard: React.FC = () => {
             {isOffline ? '○ OFFLINE MODE' : '● RESPONSE NETWORK ONLINE'}
           </div>
         </div>
-        
+
         <div className="kpi-strip">
           <div className="kpi-card critical">
             <span className="kpi-label">CRITICAL</span>
@@ -126,9 +126,9 @@ export const VolunteerDashboard: React.FC = () => {
           <div className="list-controls">
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-              <input 
-                type="text" 
-                className="volunteer-search pl-9" 
+              <input
+                type="text"
+                className="volunteer-search pl-9"
                 placeholder="Search active incidents..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
@@ -143,17 +143,16 @@ export const VolunteerDashboard: React.FC = () => {
               </div>
             ) : (
               incidents.map(incident => (
-                <div 
-                  key={incident.id} 
+                <div
+                  key={incident.id}
                   className={`incident-card ${selectedIncidentId === incident.id ? 'selected' : ''}`}
                   onClick={() => setSelectedIncidentId(incident.id)}
                 >
                   <div className="card-header">
                     <div className="card-badges">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider ${
-                        incident.urgency === 'Critical' ? 'bg-danger text-white' : 
-                        incident.urgency === 'Medium' ? 'bg-warning text-black' : 'bg-surface-hover text-text'
-                      }`}>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider ${incident.urgency === 'Critical' ? 'bg-danger text-white' :
+                          incident.urgency === 'Medium' ? 'bg-warning text-black' : 'bg-surface-hover text-text'
+                        }`}>
                         {incident.urgency}
                       </span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-sm bg-accent/10 text-accent uppercase tracking-wider">
@@ -161,13 +160,13 @@ export const VolunteerDashboard: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  
+
                   <h3 className="card-title">{incident.type}</h3>
                   <p className="card-desc">{incident.description || 'No description provided.'}</p>
-                  
+
                   <div className="card-meta flex-col items-start gap-1">
                     <div className="card-meta-item">
-                      <MapPin size={12} /> {incident.locationName} 
+                      <MapPin size={12} /> {incident.locationName}
                       {incident.distance !== null && <span className="font-bold text-accent ml-1">({incident.distance.toFixed(1)} km)</span>}
                     </div>
                     <div className="card-meta-item">
@@ -185,19 +184,19 @@ export const VolunteerDashboard: React.FC = () => {
 
         {/* Right Map */}
         <section className="volunteer-map-panel">
-          <DisasterMap 
-            embedded 
+          <DisasterMap
+            embedded
             selectedIncidentId={selectedIncidentId || undefined}
-            onSelectIncident={setSelectedIncidentId} 
+            onSelectIncident={setSelectedIncidentId}
           />
-          
+
           {/* Drawer Over Map */}
           <AnimatePresence>
             {selectedIncident && (
               <div className="response-drawer-overlay" onClick={(e) => {
                 if (e.target === e.currentTarget) setSelectedIncidentId(null);
               }}>
-                <motion.div 
+                <motion.div
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
@@ -217,10 +216,10 @@ export const VolunteerDashboard: React.FC = () => {
                     {selectedIncident.mediaBase64 && (
                       <img src={selectedIncident.mediaBase64} alt="Evidence" className="w-full rounded-md object-contain max-h-48 bg-black/20" />
                     )}
-                    
+
                     <div>
                       <h2 className="text-xl font-bold text-white mb-4">{selectedIncident.type}</h2>
-                      
+
                       <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="flex flex-col">
                           <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Severity</span>
@@ -274,7 +273,7 @@ export const VolunteerDashboard: React.FC = () => {
                             const currentIndex = RESPONSE_WORKFLOW.indexOf(selectedIncident.responseStatus || 'Unassigned');
                             const isCompleted = index <= currentIndex;
                             const isActiveNext = index === currentIndex + 1;
-                            
+
                             // Map string keys to readable labels
                             const labels: Record<ResponseStatus, string> = {
                               Unassigned: 'Incident Reported',
@@ -291,7 +290,7 @@ export const VolunteerDashboard: React.FC = () => {
                             else btnClass += ' disabled';
 
                             return (
-                              <button 
+                              <button
                                 key={status}
                                 className={btnClass}
                                 onClick={() => isActiveNext && handleStatusUpdate(status)}

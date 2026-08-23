@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Waves, Wind, Flame, Mountain, CloudRain, 
-  Activity, Sun, Building, Map, AlertTriangle, 
+import {
+  Waves, Wind, Flame, Mountain, CloudRain,
+  Activity, Sun, Building, Map, AlertTriangle,
   MapPin, Camera, X, CheckCircle2, ChevronRight,
   ShieldCheck, Loader2
 } from 'lucide-react';
@@ -26,7 +26,7 @@ const INCIDENT_TYPES: { id: ReportType; label: string; icon: React.ReactNode }[]
 ];
 
 const QUICK_TAGS = [
-  'People trapped', 'Water rising', 'Road blocked', 
+  'People trapped', 'Water rising', 'Road blocked',
   'Power outage', 'Medical emergency', 'Building damaged', 'Immediate assistance needed'
 ];
 
@@ -45,7 +45,7 @@ export const ReportIncident: React.FC = () => {
   const [description, setDescription] = useState(prefill?.label || '');
   const [selectedTags, setSelectedTags] = useState<string[]>(prefill?.tag ? [prefill.tag] : []);
   const [urgency, setUrgency] = useState<ReportUrgency | null>(prefill?.urgency || null);
-  
+
   // UI State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedReport, setSubmittedReport] = useState<IncidentReport | null>(null);
@@ -80,7 +80,7 @@ export const ReportIncident: React.FC = () => {
   };
 
   const toggleTag = (tag: string) => {
-    setSelectedTags(prev => 
+    setSelectedTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     );
   };
@@ -93,7 +93,7 @@ export const ReportIncident: React.FC = () => {
     setIsSubmitting(true);
 
     const fullDesc = [description, ...selectedTags.map(t => `#${t.replace(/\s+/g, '')}`)].filter(Boolean).join('\n\n');
-    
+
     // Reverse geocode would happen here in a real app. For now, mock location name.
     const locName = manualLocation || (location.coords ? `Lat: ${location.coords.latitude.toFixed(4)}, Lon: ${location.coords.longitude.toFixed(4)}` : 'Unknown Location');
 
@@ -178,8 +178,8 @@ export const ReportIncident: React.FC = () => {
         <h3 className="section-label">WHAT IS HAPPENING?</h3>
         <div className="incident-type-grid">
           {INCIDENT_TYPES.map(type => (
-            <div 
-              key={type.id} 
+            <div
+              key={type.id}
               className={`type-card ${selectedType === type.id ? 'selected' : ''}`}
               onClick={() => setSelectedType(type.id)}
             >
@@ -199,7 +199,7 @@ export const ReportIncident: React.FC = () => {
             <MapPin size={18} /> Use My Current Location
           </button>
         )}
-        
+
         {location.coords && (
           <div className="location-display">
             <div className="location-icon-wrapper"><MapPin size={20} /></div>
@@ -215,9 +215,9 @@ export const ReportIncident: React.FC = () => {
         {(location.status === 'denied' || location.status === 'unavailable') && (
           <div>
             <p className="text-sm text-text-secondary mb-2">Location access is unavailable.</p>
-            <input 
-              type="text" 
-              className="manual-location-input" 
+            <input
+              type="text"
+              className="manual-location-input"
               placeholder="Enter Location Manually (e.g. Near Cuttack Railway Station)"
               value={manualLocation}
               onChange={e => setManualLocation(e.target.value)}
@@ -229,15 +229,15 @@ export const ReportIncident: React.FC = () => {
       {/* 3. Evidence */}
       <section className="report-section">
         <h3 className="section-label">ADD EVIDENCE</h3>
-        <input 
-          type="file" 
-          accept="image/*" 
-          capture="environment" 
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
           ref={fileInputRef}
           style={{ display: 'none' }}
           onChange={handleMediaUpload}
         />
-        
+
         {!mediaPreview ? (
           <div className="evidence-upload" onClick={() => fileInputRef.current?.click()}>
             <Camera size={32} className="text-text-muted mb-2" />
@@ -258,7 +258,7 @@ export const ReportIncident: React.FC = () => {
       {/* 4. Description */}
       <section className="report-section">
         <h3 className="section-label">WHAT SHOULD RESPONDERS KNOW?</h3>
-        <textarea 
+        <textarea
           className="report-textarea"
           placeholder="Describe what you are seeing..."
           value={description}
@@ -266,7 +266,7 @@ export const ReportIncident: React.FC = () => {
         />
         <div className="tags-container">
           {QUICK_TAGS.map(tag => (
-            <button 
+            <button
               key={tag}
               className={`tag-btn ${selectedTags.includes(tag) ? 'selected' : ''}`}
               onClick={() => toggleTag(tag)}
@@ -281,21 +281,21 @@ export const ReportIncident: React.FC = () => {
       <section className="report-section">
         <h3 className="section-label">HOW URGENT IS THIS?</h3>
         <div className="urgency-grid">
-          <div 
+          <div
             className={`urgency-card urgency-low ${urgency === 'Low' ? 'selected' : ''}`}
             onClick={() => setUrgency('Low')}
           >
             <span className="urgency-label">LOW</span>
             <span className="urgency-desc">Situation observed, no immediate danger</span>
           </div>
-          <div 
+          <div
             className={`urgency-card urgency-medium ${urgency === 'Medium' ? 'selected' : ''}`}
             onClick={() => setUrgency('Medium')}
           >
             <span className="urgency-label">MEDIUM</span>
             <span className="urgency-desc">People/property may be at risk</span>
           </div>
-          <div 
+          <div
             className={`urgency-card urgency-critical ${urgency === 'Critical' ? 'selected' : ''}`}
             onClick={() => setUrgency('Critical')}
           >
@@ -316,7 +316,7 @@ export const ReportIncident: React.FC = () => {
       {/* My Reports */}
       <section className="my-reports-section">
         <h3 className="my-reports-title">MY RECENT REPORTS</h3>
-        
+
         {reports.length === 0 ? (
           <div className="reports-empty">
             <p className="font-semibold mb-1">No reports yet</p>
@@ -359,7 +359,7 @@ export const ReportIncident: React.FC = () => {
           <div className="intel-drawer-overlay" onClick={(e) => {
             if (e.target === e.currentTarget) setViewingReport(null);
           }}>
-            <motion.div 
+            <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -379,10 +379,10 @@ export const ReportIncident: React.FC = () => {
                 {viewingReport.mediaBase64 && (
                   <img src={viewingReport.mediaBase64} alt="Evidence" className="w-full rounded-md object-contain max-h-64 bg-black/20" />
                 )}
-                
+
                 <div>
                   <h2 className="drawer-title">{INCIDENT_TYPES.find(t => t.id === viewingReport.type)?.label || viewingReport.type}</h2>
-                  
+
                   <div className="drawer-meta-grid">
                     <div className="drawer-meta-item">
                       <span className="drawer-meta-label">Location</span>

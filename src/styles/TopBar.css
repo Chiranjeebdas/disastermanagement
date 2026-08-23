@@ -182,5 +182,5 @@
   background: var(--color-accent);
   color: var(--color-bg);
   border-color: var(--color-accent);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
 }

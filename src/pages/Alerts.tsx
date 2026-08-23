@@ -12,14 +12,14 @@ import '../styles/Alerts.css';
 
 export const Alerts: React.FC = () => {
   const { alerts, isOffline, acknowledgeAlert } = useAlerts();
-  
+
   // State for filters
   const [searchQuery, setSearchQuery] = useState('');
   const [severityFilter, setSeverityFilter] = useState<AlertSeverity | 'All'>('All');
   const [typeFilter, setTypeFilter] = useState<AlertType | 'All'>('All');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('All');
   const [sortOption, setSortOption] = useState<SortOption>('Latest');
-  
+
   // State for drawer
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
 
@@ -39,8 +39,8 @@ export const Alerts: React.FC = () => {
     // Search
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(a => 
-        a.title.toLowerCase().includes(q) || 
+      result = result.filter(a =>
+        a.title.toLowerCase().includes(q) ||
         a.location.toLowerCase().includes(q) ||
         a.description.toLowerCase().includes(q)
       );
@@ -109,95 +109,95 @@ export const Alerts: React.FC = () => {
 
   return (
     <div className="alerts-page-wrapper">
-        
-        {/* Header Area */}
-        <div className="alerts-header">
-          <div className="alerts-header-left">
-            <h1 className="alerts-title">Alert Center</h1>
-            <p className="alerts-subtitle">Verified disaster intelligence and active warnings</p>
-          </div>
 
-          {/* Live/Offline Status */}
-          <div className="alerts-header-right">
-            <button className="btn-refresh" aria-label="Refresh alerts">
-              <RefreshCw size={14} />
-            </button>
-            <div className={`alerts-live-indicator ${isOffline ? 'offline' : ''}`}>
-              {isOffline ? (
-                <>
-                  <WifiOff size={14} /> OFFLINE
-                </>
-              ) : (
-                <>
-                  <span className="pulse-dot"></span> LIVE
-                </>
-              )}
-            </div>
+      {/* Header Area */}
+      <div className="alerts-header">
+        <div className="alerts-header-left">
+          <h1 className="alerts-title">Alert Center</h1>
+          <p className="alerts-subtitle">Verified disaster intelligence and active warnings</p>
+        </div>
+
+        {/* Live/Offline Status */}
+        <div className="alerts-header-right">
+          <button className="btn-refresh" aria-label="Refresh alerts">
+            <RefreshCw size={14} />
+          </button>
+          <div className={`alerts-live-indicator ${isOffline ? 'offline' : ''}`}>
+            {isOffline ? (
+              <>
+                <WifiOff size={14} /> OFFLINE
+              </>
+            ) : (
+              <>
+                <span className="pulse-dot"></span> LIVE
+              </>
+            )}
           </div>
         </div>
-        
-        <hr className="alerts-divider" />
+      </div>
 
-        {isOffline && (
-          <div className="offline-banner">
-             <WifiOff size={18} className="text-danger" />
-             <div>
-               <span className="offline-banner-title">OFFLINE MODE </span>
-               <span className="offline-banner-text">Showing the latest locally cached alerts.</span>
-             </div>
+      <hr className="alerts-divider" />
+
+      {isOffline && (
+        <div className="offline-banner">
+          <WifiOff size={18} className="text-danger" />
+          <div>
+            <span className="offline-banner-title">OFFLINE MODE </span>
+            <span className="offline-banner-text">Showing the latest locally cached alerts.</span>
+          </div>
+        </div>
+      )}
+
+      {/* Summary Strip */}
+      <AlertSummary counts={severityCounts} />
+
+      {/* Filter Bar */}
+      <AlertFilterBar
+        searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+        severityFilter={severityFilter} setSeverityFilter={setSeverityFilter}
+        typeFilter={typeFilter} setTypeFilter={setTypeFilter}
+        timeFilter={timeFilter} setTimeFilter={setTimeFilter}
+        sortOption={sortOption} setSortOption={setSortOption}
+        onReset={handleResetFilters}
+      />
+
+      {/* Active Alerts Header */}
+      <div className="active-alerts-header">
+        <h2 className="active-alerts-title">ACTIVE ALERTS</h2>
+        <p className="active-alerts-subtitle">Verified events requiring attention</p>
+      </div>
+
+      {/* Main Feed */}
+      <div className="alerts-feed">
+        {filteredAndSortedAlerts.length > 0 ? (
+          filteredAndSortedAlerts.map(alert => (
+            <AlertCard
+              key={alert.id}
+              alert={alert}
+              onClick={(a) => setSelectedAlertId(a.id)}
+            />
+          ))
+        ) : (
+          <div className="empty-alerts-card">
+            <div className="empty-icon-wrapper">
+              <ShieldCheck size={48} />
+            </div>
+            <h3 className="empty-title">NO MATCHING ALERTS</h3>
+            <p className="empty-desc">No alerts match your current filters.</p>
+            <button onClick={handleResetFilters} className="filter-clear-btn" style={{ minWidth: '120px' }}>
+              Clear Filters
+            </button>
           </div>
         )}
-
-        {/* Summary Strip */}
-        <AlertSummary counts={severityCounts} />
-
-        {/* Filter Bar */}
-        <AlertFilterBar 
-          searchQuery={searchQuery} setSearchQuery={setSearchQuery}
-          severityFilter={severityFilter} setSeverityFilter={setSeverityFilter}
-          typeFilter={typeFilter} setTypeFilter={setTypeFilter}
-          timeFilter={timeFilter} setTimeFilter={setTimeFilter}
-          sortOption={sortOption} setSortOption={setSortOption}
-          onReset={handleResetFilters}
-        />
-
-        {/* Active Alerts Header */}
-        <div className="active-alerts-header">
-          <h2 className="active-alerts-title">ACTIVE ALERTS</h2>
-          <p className="active-alerts-subtitle">Verified events requiring attention</p>
-        </div>
-
-        {/* Main Feed */}
-        <div className="alerts-feed">
-          {filteredAndSortedAlerts.length > 0 ? (
-            filteredAndSortedAlerts.map(alert => (
-              <AlertCard 
-                key={alert.id} 
-                alert={alert} 
-                onClick={(a) => setSelectedAlertId(a.id)} 
-              />
-            ))
-          ) : (
-            <div className="empty-alerts-card">
-              <div className="empty-icon-wrapper">
-                <ShieldCheck size={48} />
-              </div>
-              <h3 className="empty-title">NO MATCHING ALERTS</h3>
-              <p className="empty-desc">No alerts match your current filters.</p>
-              <button onClick={handleResetFilters} className="filter-clear-btn" style={{ minWidth: '120px' }}>
-                Clear Filters
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Drawer */}
-        <AlertDrawer 
-          alert={selectedAlert}
-          isOpen={!!selectedAlertId}
-          onClose={() => setSelectedAlertId(null)}
-          onAcknowledge={acknowledgeAlert}
-        />
       </div>
+
+      {/* Drawer */}
+      <AlertDrawer
+        alert={selectedAlert}
+        isOpen={!!selectedAlertId}
+        onClose={() => setSelectedAlertId(null)}
+        onAcknowledge={acknowledgeAlert}
+      />
+    </div>
   );
 };

@@ -34,8 +34,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  background: rgba(0, 229, 255, 0.05);
-  border: 1px solid rgba(0, 229, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--color-accent);
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-full);
@@ -89,7 +89,7 @@
 }
 
 .type-card {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
@@ -106,12 +106,12 @@
 }
 
 .type-card:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-color: var(--color-border-hover);
 }
 
 .type-card.selected {
-  background: rgba(0, 229, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-color: var(--color-accent);
 }
 
@@ -153,8 +153,8 @@
   gap: var(--spacing-sm);
   width: 100%;
   padding: var(--spacing-lg);
-  background: rgba(0, 229, 255, 0.1);
-  border: 1px solid rgba(0, 229, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--color-accent);
   border-radius: var(--radius-md);
   font-size: 1rem;
@@ -165,7 +165,7 @@
 }
 
 .location-btn:hover {
-  background: rgba(0, 229, 255, 0.15);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .location-btn:disabled {
@@ -174,7 +174,7 @@
 }
 
 .location-display {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
@@ -204,7 +204,7 @@
 
 .manual-location-input {
   width: 100%;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--color-border);
   color: var(--color-text);
   padding: var(--spacing-md);
@@ -230,12 +230,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .evidence-upload:hover {
   border-color: var(--color-border-hover);
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .evidence-upload.has-file {
@@ -257,9 +257,9 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
   width: 32px;
   height: 32px;
@@ -286,7 +286,7 @@
 /* Description */
 .report-textarea {
   width: 100%;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--color-border);
   color: var(--color-text);
   padding: var(--spacing-md);
@@ -326,7 +326,7 @@
 }
 
 .tag-btn.selected {
-  background: rgba(0, 229, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-color: var(--color-accent);
   color: var(--color-accent);
 }
@@ -345,7 +345,7 @@
 }
 
 .urgency-card {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
@@ -357,7 +357,7 @@
 }
 
 .urgency-card:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .urgency-label {
@@ -372,14 +372,32 @@
   line-height: 1.4;
 }
 
-.urgency-card.selected.urgency-low { border-color: var(--color-success); background: rgba(16, 185, 129, 0.1); }
-.urgency-card.selected.urgency-low .urgency-label { color: var(--color-success); }
+.urgency-card.selected.urgency-low {
+  border-color: var(--color-success);
+  background: rgba(16, 185, 129, 0.1);
+}
 
-.urgency-card.selected.urgency-medium { border-color: var(--color-warning); background: rgba(245, 158, 11, 0.1); }
-.urgency-card.selected.urgency-medium .urgency-label { color: var(--color-warning); }
+.urgency-card.selected.urgency-low .urgency-label {
+  color: var(--color-success);
+}
 
-.urgency-card.selected.urgency-critical { border-color: var(--color-danger); background: rgba(239, 68, 68, 0.1); }
-.urgency-card.selected.urgency-critical .urgency-label { color: var(--color-danger); }
+.urgency-card.selected.urgency-medium {
+  border-color: var(--color-warning);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.urgency-card.selected.urgency-medium .urgency-label {
+  color: var(--color-warning);
+}
+
+.urgency-card.selected.urgency-critical {
+  border-color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.urgency-card.selected.urgency-critical .urgency-label {
+  color: var(--color-danger);
+}
 
 /* Submit Button */
 .submit-btn {
@@ -403,7 +421,7 @@
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 229, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
 }
 
 .submit-btn:disabled {
@@ -451,7 +469,7 @@
 }
 
 .success-meta {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
@@ -561,7 +579,7 @@
   height: 48px;
   border-radius: var(--radius-sm);
   object-fit: cover;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -591,16 +609,35 @@
   text-transform: uppercase;
 }
 
-.status-pendingsync { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
-.status-submitted { background: rgba(0, 229, 255, 0.1); color: var(--color-accent); border: 1px solid rgba(0, 229, 255, 0.2); }
-.status-underreview { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
-.status-verified { background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); }
+.status-pendingsync {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-submitted {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-accent);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-underreview {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.status-verified {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
 
 .reports-empty {
   text-align: center;
   padding: var(--spacing-xl);
   color: var(--color-text-secondary);
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
   font-size: 0.875rem;

@@ -1,135 +1,104 @@
 import React, { useMemo } from 'react';
 import { Card } from '../ui/Card';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip,
-  Cell
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer
 } from 'recharts';
+import { IndiaRiskMap } from './IndiaRiskMap';
 
-interface DisasterProbabilityChartProps {
+interface RiskForecastProps {
   latitude?: number;
   longitude?: number;
 }
 
-export const DisasterProbabilityChart: React.FC<DisasterProbabilityChartProps> = ({ 
-  latitude = 0, 
-  longitude = 0 
+export const DisasterProbabilityChart: React.FC<RiskForecastProps> = ({
+  latitude = 0,
+  longitude = 0
 }) => {
-  
-  // Deterministic simulation based on location to make it look "real"
-  const data = useMemo(() => {
-    // Generate pseudo-random risks based on coordinates
-    const baseSeed = Math.abs(latitude * longitude);
-    
-    const generateRisk = (seedMod: number, min: number, max: number) => {
-      const pseudo = (Math.sin(baseSeed * seedMod) + 1) / 2; // 0 to 1
-      return Math.round(min + pseudo * (max - min));
-    };
 
-    return [
-      {
-        name: 'Heatwave',
-        probability: generateRisk(1.1, 40, 95),
-        color: '#ff4d4d',
-        impact: 'High'
-      },
-      {
-        name: 'Heavy Rainfall',
-        probability: generateRisk(2.3, 10, 80),
-        color: '#3399ff',
-        impact: 'Moderate'
-      },
-      {
-        name: 'Flood',
-        probability: generateRisk(3.7, 5, 60),
-        color: '#00e5ff',
-        impact: 'Severe'
-      },
-      {
-        name: 'Cyclone',
-        probability: generateRisk(4.1, 0, 30),
-        color: '#ffb84d',
-        impact: 'Critical'
-      },
-      {
-        name: 'Earthquake',
-        probability: generateRisk(5.9, 1, 15),
-        color: '#cc66ff',
-        impact: 'Catastrophic'
-      }
-    ].sort((a, b) => b.probability - a.probability); // Sort by highest risk
+  // Generate a bell curve data distribution
+  const data = useMemo(() => {
+    const pts = [];
+    const mean = 0.4;
+    const stdDev = 0.15;
+
+    for (let i = 0; i <= 100; i += 2) {
+      const x = i / 100;
+      const exponent = Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(stdDev, 2)));
+      const y = (1 / (stdDev * Math.sqrt(2 * Math.PI))) * exponent;
+      pts.push({ x: x.toFixed(1), y: Math.min(100, y * 35) });
+    }
+    return pts;
   }, [latitude, longitude]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-surface-hover/95 backdrop-blur border border-border p-3 rounded-lg shadow-xl">
-          <p className="text-white font-bold mb-1 uppercase tracking-wider text-xs">{label}</p>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl font-black" style={{ color: data.color }}>
-              {data.probability}%
-            </span>
-            <span className="text-xs text-text-secondary uppercase tracking-widest">Chance</span>
+  return (
+    <Card className="h-full bg-[#18191c] border border-border/40 p-0 overflow-hidden flex flex-col">
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <h3 style={{ fontSize: '0.7rem', color: '#8a8f98', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>RISK FORECAST</h3>
+      </div>
+      <div style={{ display: 'flex', flex: 1, padding: '20px', gap: '24px', flexDirection: 'row', flexWrap: 'wrap' }}>
+        {/* Left Side: Bell Curve */}
+        <div style={{ flex: '1 1 0', minWidth: '250px', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', fontSize: '0.65rem', color: '#8a8f98', fontWeight: 500, letterSpacing: '0.05em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+              <div style={{ width: '10px', height: '10px', backgroundColor: '#fb923c', border: '1px solid #555', borderRadius: '2px' }}></div>
+              <span style={{ color: '#fb923c' }}>Probability</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', opacity: 0.5 }}>
+              <div style={{ width: '10px', height: '10px', backgroundColor: '#333', border: '1px solid #555', borderRadius: '2px' }}></div>
+              <span>Confidence</span>
+            </div>
           </div>
-          <div className="text-xs text-text-secondary flex justify-between border-t border-border pt-2">
-            <span>Est. Impact:</span>
-            <span className="font-bold text-white ml-4">{data.impact}</span>
+
+          <div style={{ flex: 1, width: '100%', minHeight: '180px', marginLeft: '-16px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="bellGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#fb923c" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#fb923c" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
+                <XAxis
+                  dataKey="x"
+                  tick={{ fill: '#666', fontSize: 9 }}
+                  tickLine={false}
+                  axisLine={{ stroke: '#ffffff15' }}
+                  ticks={['0.0', '0.2', '0.4', '0.6', '0.8', '1.0']}
+                  dy={10}
+                />
+                <YAxis
+                  tick={{ fill: '#666', fontSize: 9 }}
+                  tickLine={false}
+                  axisLine={false}
+                  domain={[0, 100]}
+                  tickFormatter={(value) => `${value}%`}
+                  ticks={[0, 25, 50, 75, 100]}
+                  width={40}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="y"
+                  stroke="#fb923c"
+                  strokeWidth={1.5}
+                  fillOpacity={1}
+                  fill="url(#bellGradient)"
+                  isAnimationActive={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      );
-    }
-    return null;
-  };
 
-  return (
-    <Card 
-      title="LOCAL DISASTER PROBABILITY" 
-      className="h-full flex flex-col"
-    >
-      <div className="flex-1 w-full flex items-center justify-center min-h-[300px] mt-4 relative">
-        <BarChart
-          width={400}
-          height={280}
-          data={data}
-          margin={{ top: 10, right: 10, left: -20, bottom: 20 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-          <XAxis 
-            dataKey="name" 
-            tick={{ fill: '#8a8f98', fontSize: 11, fontWeight: 600 }}
-            tickLine={false}
-            axisLine={{ stroke: '#ffffff20' }}
-            dy={10}
-          />
-          <YAxis 
-            tick={{ fill: '#8a8f98', fontSize: 11 }}
-            tickLine={false}
-            axisLine={false}
-            domain={[0, 100]}
-            tickFormatter={(value) => `${value}%`}
-          />
-          <Tooltip 
-            content={<CustomTooltip />}
-            cursor={{ fill: '#ffffff05' }}
-          />
-          <Bar 
-            dataKey="probability" 
-            radius={[4, 4, 0, 0]}
-            animationDuration={1500}
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Bar>
-        </BarChart>
-      </div>
-      <div className="mt-2 text-center text-[10px] uppercase tracking-widest text-text-secondary opacity-70">
-        AI-Predicted Risk Vectors Based on Live Telemetry
+        {/* Right Side: India Risk Map */}
+        <div style={{ flex: '1 1 0', minWidth: '250px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1e2024', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.04)', overflow: 'hidden', position: 'relative' }}>
+          <IndiaRiskMap />
+        </div>
       </div>
     </Card>
   );

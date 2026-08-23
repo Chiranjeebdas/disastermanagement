@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  User, Bell, MapPin, Shield, 
+import {
+  User, Bell, MapPin, Shield,
   Activity, AlertTriangle, Trash2,
   Cloud, CloudOff, CheckCircle2, XCircle
 } from 'lucide-react';
@@ -44,7 +44,7 @@ export const SettingsDashboard: React.FC = () => {
               <h2 className="section-title">IDENTITY</h2>
               <p className="section-desc">Manage your DRISHTI role and profile.</p>
             </div>
-            
+
             <div className="profile-card">
               <div className="profile-avatar">
                 <User size={32} />
@@ -61,7 +61,7 @@ export const SettingsDashboard: React.FC = () => {
             <div className="mt-4">
               <h3 className="section-title text-sm mb-4">YOUR ROLE</h3>
               <div className="role-grid">
-                <div 
+                <div
                   className={`role-option ${settings.role === 'citizen' ? 'selected' : ''}`}
                   onClick={() => updateRole('citizen')}
                 >
@@ -70,7 +70,7 @@ export const SettingsDashboard: React.FC = () => {
                   </div>
                   <p className="role-option-desc">Receive alerts, find help and report incidents.</p>
                 </div>
-                <div 
+                <div
                   className={`role-option ${settings.role === 'volunteer' ? 'selected' : ''}`}
                   onClick={() => updateRole('volunteer')}
                 >
@@ -109,8 +109,8 @@ export const SettingsDashboard: React.FC = () => {
                 <div className="row-label">
                   <span className="row-title">Notification Permission</span>
                   <span className="row-desc">
-                    {notificationPermission === 'granted' ? 'Allowed' : 
-                     notificationPermission === 'denied' ? 'Denied' : 'Not requested'}
+                    {notificationPermission === 'granted' ? 'Allowed' :
+                      notificationPermission === 'denied' ? 'Denied' : 'Not requested'}
                   </span>
                 </div>
                 {notificationPermission !== 'granted' && (
@@ -138,7 +138,7 @@ export const SettingsDashboard: React.FC = () => {
                     <span className="row-title">{pref.label}</span>
                     <span className="row-desc">{pref.desc}</span>
                   </div>
-                  <div 
+                  <div
                     className={`toggle-switch ${settings.alertPreferences[pref.key as keyof typeof settings.alertPreferences] ? 'active' : ''}`}
                     onClick={() => toggleAlertPreference(pref.key as keyof typeof settings.alertPreferences)}
                   >
@@ -151,7 +151,7 @@ export const SettingsDashboard: React.FC = () => {
             <div className="mt-4">
               <h3 className="section-title text-sm mb-4">ALERT AREA</h3>
               <p className="text-sm text-text-secondary mb-4">DRISHTI can use this area to prioritize location-relevant disaster information.</p>
-              <select 
+              <select
                 className="settings-select w-full max-w-xs"
                 value={settings.alertRadiusKm}
                 onChange={e => updateAlertRadius(Number(e.target.value))}
@@ -181,7 +181,7 @@ export const SettingsDashboard: React.FC = () => {
                     {location.coords ? 'Location Detected' : 'Location Unavailable'}
                   </span>
                 </div>
-                
+
                 {location.coords && (
                   <div className="grid grid-cols-2 gap-4 bg-black/20 p-4 rounded-md border border-border">
                     <div>
@@ -209,7 +209,7 @@ export const SettingsDashboard: React.FC = () => {
                     Manage Permission
                   </button>
                 </div>
-                
+
                 {location.error && (
                   <p className="text-xs text-danger mt-2">{location.error}</p>
                 )}
@@ -314,7 +314,7 @@ export const SettingsDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-4 text-center">
               <span className="text-[10px] text-text-muted">DRISHTI v1.0.0 (Build 824)</span>
             </div>
@@ -400,7 +400,7 @@ export const SettingsDashboard: React.FC = () => {
       <AnimatePresence>
         {showClearModal && (
           <div className="modal-overlay">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}

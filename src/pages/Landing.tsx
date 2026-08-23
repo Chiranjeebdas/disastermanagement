@@ -28,9 +28,8 @@ const Landing: React.FC = () => {
       >
         <h1 className="landing-title">
           See the risk before<br />
-          <span className="relative inline-block highlight-wrapper whitespace-nowrap z-10 px-4 py-1 mt-2">
+          <span className="text-accent">
             it reaches you.
-            <span className="highlight-block absolute inset-0 rounded-lg -z-10"></span>
           </span>
         </h1>
 

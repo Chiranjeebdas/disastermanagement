@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ShieldAlert, 
-  MapPin, 
-  Clock, 
-  Search, 
-  Activity, 
-  CloudRain, 
-  Newspaper, 
-  Users, 
-  Radio, 
+import {
+  ShieldAlert,
+  MapPin,
+  Clock,
+  Search,
+  Activity,
+  CloudRain,
+  Newspaper,
+  Users,
+  Radio,
   AlertTriangle,
   Map as MapIcon,
   X,
@@ -45,7 +45,7 @@ const getSourceIcon = (source: IntelligenceSourceType) => {
 export const Intelligence: React.FC = () => {
   const navigate = useNavigate();
   const { data, stats, priorityItem, isOffline, filter, setFilter } = useIntelligence();
-  
+
   const [selectedItem, setSelectedItem] = useState<IntelligenceItem | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -114,10 +114,10 @@ export const Intelligence: React.FC = () => {
         <aside className="intel-filters">
           <div className="search-container">
             <Search size={16} className="search-icon" />
-            <input 
-              type="text" 
-              className="intel-search" 
-              placeholder="Search intelligence..." 
+            <input
+              type="text"
+              className="intel-search"
+              placeholder="Search intelligence..."
               value={filter.search}
               onChange={(e) => setFilter({ ...filter, search: e.target.value })}
             />
@@ -125,26 +125,26 @@ export const Intelligence: React.FC = () => {
 
           <div className="filter-group">
             <span className="filter-group-label">Type</span>
-            <button className={`filter-btn ${filter.type === 'All' ? 'active' : ''}`} onClick={() => setFilter({...filter, type: 'All'})}>All Sources</button>
-            <button className={`filter-btn ${filter.type === 'Official' ? 'active' : ''}`} onClick={() => setFilter({...filter, type: 'Official'})}>Official</button>
-            <button className={`filter-btn ${filter.type === 'Weather' ? 'active' : ''}`} onClick={() => setFilter({...filter, type: 'Weather'})}>Weather</button>
-            <button className={`filter-btn ${filter.type === 'News' ? 'active' : ''}`} onClick={() => setFilter({...filter, type: 'News'})}>News</button>
-            <button className={`filter-btn ${filter.type === 'Community' ? 'active' : ''}`} onClick={() => setFilter({...filter, type: 'Community'})}>Community</button>
+            <button className={`filter-btn ${filter.type === 'All' ? 'active' : ''}`} onClick={() => setFilter({ ...filter, type: 'All' })}>All Sources</button>
+            <button className={`filter-btn ${filter.type === 'Official' ? 'active' : ''}`} onClick={() => setFilter({ ...filter, type: 'Official' })}>Official</button>
+            <button className={`filter-btn ${filter.type === 'Weather' ? 'active' : ''}`} onClick={() => setFilter({ ...filter, type: 'Weather' })}>Weather</button>
+            <button className={`filter-btn ${filter.type === 'News' ? 'active' : ''}`} onClick={() => setFilter({ ...filter, type: 'News' })}>News</button>
+            <button className={`filter-btn ${filter.type === 'Community' ? 'active' : ''}`} onClick={() => setFilter({ ...filter, type: 'Community' })}>Community</button>
           </div>
 
           <div className="filter-group">
             <span className="filter-group-label">Severity</span>
-            <button className={`filter-btn ${filter.severity === 'All' ? 'active' : ''}`} onClick={() => setFilter({...filter, severity: 'All'})}>All Severities</button>
-            <button className={`filter-btn ${filter.severity === 'Critical' ? 'active' : ''}`} onClick={() => setFilter({...filter, severity: 'Critical'})}>Critical</button>
-            <button className={`filter-btn ${filter.severity === 'Warning' ? 'active' : ''}`} onClick={() => setFilter({...filter, severity: 'Warning'})}>Warning</button>
-            <button className={`filter-btn ${filter.severity === 'Advisory' ? 'active' : ''}`} onClick={() => setFilter({...filter, severity: 'Advisory'})}>Advisory</button>
+            <button className={`filter-btn ${filter.severity === 'All' ? 'active' : ''}`} onClick={() => setFilter({ ...filter, severity: 'All' })}>All Severities</button>
+            <button className={`filter-btn ${filter.severity === 'Critical' ? 'active' : ''}`} onClick={() => setFilter({ ...filter, severity: 'Critical' })}>Critical</button>
+            <button className={`filter-btn ${filter.severity === 'Warning' ? 'active' : ''}`} onClick={() => setFilter({ ...filter, severity: 'Warning' })}>Warning</button>
+            <button className={`filter-btn ${filter.severity === 'Advisory' ? 'active' : ''}`} onClick={() => setFilter({ ...filter, severity: 'Advisory' })}>Advisory</button>
           </div>
         </aside>
 
         {/* Right: Feed */}
         <main className="intel-feed">
           {priorityItem && filter.type === 'All' && filter.severity === 'All' && !filter.search && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="priority-banner intel-card"
@@ -191,7 +191,7 @@ export const Intelligence: React.FC = () => {
             </div>
           ) : (
             data.filter(item => item.id !== priorityItem?.id).map((item, idx) => (
-              <motion.div 
+              <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -235,7 +235,7 @@ export const Intelligence: React.FC = () => {
           <div className="intel-drawer-overlay" onClick={(e) => {
             if (e.target === e.currentTarget) setSelectedItem(null);
           }}>
-            <motion.div 
+            <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -260,7 +260,7 @@ export const Intelligence: React.FC = () => {
               <div className="drawer-content">
                 <div>
                   <h2 className="drawer-title">{selectedItem.title}</h2>
-                  
+
                   <div className="drawer-meta-grid">
                     <div className="drawer-meta-item">
                       <span className="drawer-meta-label">Source</span>

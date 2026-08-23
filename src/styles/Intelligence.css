@@ -47,10 +47,10 @@
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  background: rgba(0, 229, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-full);
-  border: 1px solid rgba(0, 229, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .intel-pulse {
@@ -191,7 +191,7 @@
 }
 
 .filter-btn:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .filter-btn.active {
@@ -209,8 +209,8 @@
 }
 
 .priority-banner {
-  background: linear-gradient(180deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0) 100%);
-  border: 1px solid rgba(239,68,68,0.3);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   position: relative;
@@ -251,7 +251,7 @@
 .intel-card:hover {
   transform: translateY(-2px);
   border-color: var(--color-border-hover);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .intel-card-header {
@@ -278,11 +278,35 @@
   gap: 4px;
 }
 
-.source-official { background: rgba(0, 229, 255, 0.1); color: var(--color-accent); border: 1px solid rgba(0, 229, 255, 0.2); }
-.source-weather { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
-.source-news { background: rgba(156, 163, 175, 0.1); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.2); }
-.source-community { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
-.source-system { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+.source-official {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-accent);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.source-weather {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.source-news {
+  background: rgba(156, 163, 175, 0.1);
+  color: #9ca3af;
+  border: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+.source-community {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.source-system {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
 
 .severity-badge {
   font-size: 0.65rem;
@@ -293,9 +317,21 @@
   letter-spacing: 0.05em;
 }
 
-.sev-critical { background: var(--color-danger); color: white; }
-.sev-warning { background: var(--color-warning); color: black; }
-.sev-advisory { background: var(--color-surface-hover); color: var(--color-text); border: 1px solid var(--color-border); }
+.sev-critical {
+  background: var(--color-danger);
+  color: white;
+}
+
+.sev-warning {
+  background: var(--color-warning);
+  color: black;
+}
+
+.sev-advisory {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
 
 .intel-card-time {
   font-size: 0.75rem;
@@ -337,7 +373,7 @@
 .intel-drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -352,7 +388,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .drawer-header {
@@ -443,8 +479,8 @@
   gap: var(--spacing-sm);
   width: 100%;
   padding: var(--spacing-md);
-  background: rgba(0, 229, 255, 0.1);
-  border: 1px solid rgba(0, 229, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--color-accent);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
@@ -454,7 +490,7 @@
 }
 
 .drawer-btn:hover {
-  background: rgba(0, 229, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Empty State */
@@ -465,7 +501,7 @@
   justify-content: center;
   padding: 60px 20px;
   text-align: center;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-lg);
   gap: var(--spacing-md);

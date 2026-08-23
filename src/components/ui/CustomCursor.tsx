@@ -69,7 +69,7 @@ export const CustomCursor: React.FC = () => {
         zIndex: 9999,
         mixBlendMode: 'screen',
         border: '1.5px solid var(--color-accent)',
-        backgroundColor: isHovering ? 'rgba(0, 229, 255, 0.1)' : 'transparent',
+        backgroundColor: isHovering ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
       }}
     />
   );

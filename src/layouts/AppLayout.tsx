@@ -8,7 +8,7 @@ import '../styles/AppLayout.css';
 
 const AppLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const location = useLocation();
   const currentOutlet = useOutlet();
 
@@ -22,14 +22,14 @@ const AppLayout: React.FC = () => {
 
   return (
     <div className="app-layout">
-      <Sidebar 
-        isCollapsed={false} 
-        isMobileOpen={isMobileMenuOpen} 
-        onMobileClose={closeMobileMenu} 
+      <Sidebar
+        isCollapsed={false}
+        isMobileOpen={isMobileMenuOpen}
+        onMobileClose={closeMobileMenu}
       />
       <div className="app-main">
-        <TopBar 
-          onMobileMenuClick={toggleMobileMenu} 
+        <TopBar
+          onMobileMenuClick={toggleMobileMenu}
         />
         <main className="app-content relative overflow-x-hidden">
           <AnimatePresence mode="wait">

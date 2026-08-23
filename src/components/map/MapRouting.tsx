@@ -54,7 +54,7 @@ export const MapRouting: React.FC<MapRoutingProps> = ({ start, end, onClose }) =
       {routeCoordinates && (
         <Polyline 
           positions={routeCoordinates} 
-          pathOptions={{ color: '#00e5ff', weight: 6, opacity: 0.8 }} 
+          pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.8 }} 
         />
       )}
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-[500] pointer-events-auto">

@@ -20,11 +20,25 @@
       "risk risk risk risk risk risk threats threats threats threats threats threats";
   }
 
-  .grid-area-risk { grid-area: risk; }
-  .grid-area-threats { grid-area: threats; }
-  .grid-area-env { grid-area: env; }
-  .grid-area-charts-main { grid-area: chartsmain; }
-  .grid-area-charts-secondary { grid-area: chartssec; }
+  .grid-area-risk {
+    grid-area: risk;
+  }
+
+  .grid-area-threats {
+    grid-area: threats;
+  }
+
+  .grid-area-env {
+    grid-area: env;
+  }
+
+  .grid-area-charts-main {
+    grid-area: chartsmain;
+  }
+
+  .grid-area-charts-secondary {
+    grid-area: chartssec;
+  }
 }
 
 @media (min-width: 1440px) {

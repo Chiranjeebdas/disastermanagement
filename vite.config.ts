@@ -16,7 +16,7 @@ export default defineConfig({
         name: 'DRISHTI - Disaster Intelligence',
         short_name: 'DRISHTI',
         description: 'Real-time disaster monitoring, early warning, and emergency response platform',
-        theme_color: '#00e5ff',
+        theme_color: '#ffffff',
         background_color: '#000000',
         display: 'standalone',
         start_url: '/',

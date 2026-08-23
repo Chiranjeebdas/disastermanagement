@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   Shield, Flame, Cross, MapPin,
-  Navigation, Building, Home, WifiOff 
+  Navigation, Building, Home, WifiOff
 } from 'lucide-react';
 import { useLocation } from '../hooks/useLocation';
 import { useNearbyFacilities } from '../hooks/useNearbyFacilities';
@@ -90,77 +90,77 @@ export const EmergencyHelp: React.FC = () => {
 
       <div className="emergency-main-layout">
         {/* Nearest Help */}
-          <section className="emergency-section">
-            <div className="section-header">
-              <h2 className="section-title"><Building size={18} className="text-accent" /> NEAREST HELP</h2>
+        <section className="emergency-section">
+          <div className="section-header">
+            <h2 className="section-title"><Building size={18} className="text-accent" /> NEAREST HELP</h2>
+          </div>
+
+          {loading ? (
+            <div className="resource-loading">
+              <LoaderOne />
+              <p>Locating verified facilities...</p>
             </div>
-            
-            {loading ? (
-              <div className="resource-loading">
-                <LoaderOne />
-                <p>Locating verified facilities...</p>
-              </div>
-            ) : error ? (
-              <div className="resource-empty">
-                <WifiOff size={32} />
-                <p>{error}</p>
-                <button className="recalc-btn mt-2 w-fit px-4" onClick={() => window.location.reload()}>Try Again</button>
-              </div>
-            ) : facilities.length === 0 ? (
-              <div className="resource-empty">
-                <MapPin size={32} />
-                <p className="font-bold">NO NEARBY RESOURCES FOUND</p>
-                <p className="text-xs">DRISHTI could not retrieve nearby emergency facilities.</p>
-              </div>
-            ) : (
-              <div className="resource-list">
-                {facilities.slice(0, 8).map(facility => (
-                  <div key={facility.id} className="resource-card">
-                    <div className="resource-header">
-                      <div className="resource-info">
-                        <div className="resource-icon">{getIconForType(facility.type)}</div>
-                        <div>
-                          <h3 className="resource-name">{facility.name}</h3>
-                          <div className="resource-meta">
-                            <span className="resource-type">{facility.type}</span>
-                            {facility.distance && <span>{facility.distance.toFixed(1)} km away</span>}
-                            {facility.type === 'shelter' && facility.address && (
-                              <span className="truncate max-w-[200px]" title={facility.address}>
-                                {facility.address}
-                              </span>
-                            )}
-                          </div>
+          ) : error ? (
+            <div className="resource-empty">
+              <WifiOff size={32} />
+              <p>{error}</p>
+              <button className="recalc-btn mt-2 w-fit px-4" onClick={() => window.location.reload()}>Try Again</button>
+            </div>
+          ) : facilities.length === 0 ? (
+            <div className="resource-empty">
+              <MapPin size={32} />
+              <p className="font-bold">NO NEARBY RESOURCES FOUND</p>
+              <p className="text-xs">DRISHTI could not retrieve nearby emergency facilities.</p>
+            </div>
+          ) : (
+            <div className="resource-list">
+              {facilities.slice(0, 8).map(facility => (
+                <div key={facility.id} className="resource-card">
+                  <div className="resource-header">
+                    <div className="resource-info">
+                      <div className="resource-icon">{getIconForType(facility.type)}</div>
+                      <div>
+                        <h3 className="resource-name">{facility.name}</h3>
+                        <div className="resource-meta">
+                          <span className="resource-type">{facility.type}</span>
+                          {facility.distance && <span>{facility.distance.toFixed(1)} km away</span>}
+                          {facility.type === 'shelter' && facility.address && (
+                            <span className="truncate max-w-[200px]" title={facility.address}>
+                              {facility.address}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
-                    <div className="resource-actions mt-2 border-t border-border pt-3">
-                      <button className="resource-btn secondary" onClick={() => handleNavigate(facility.lat, facility.lon)}>
-                        <MapPin size={14} /> View
-                      </button>
-                      <button className="resource-btn primary" onClick={() => handleNavigate(facility.lat, facility.lon)}>
-                        <Navigation size={14} /> Navigate
-                      </button>
-                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-        {/* Need Help Quick Options */}
-          <section className="emergency-section bg-accent/5">
-            <div className="section-header border-accent/20">
-              <h2 className="section-title text-accent">NEED HELP?</h2>
-            </div>
-            <p className="text-sm text-text-secondary mb-2">Select an option to quickly generate an emergency report for responders.</p>
-            <div className="quick-assist-grid">
-              {QUICK_ASSIST_OPTIONS.map((opt, idx) => (
-                <button key={idx} className="quick-assist-btn" onClick={() => handleQuickAssist(opt)}>
-                  {opt.label}
-                </button>
+                  <div className="resource-actions mt-2 border-t border-border pt-3">
+                    <button className="resource-btn secondary" onClick={() => handleNavigate(facility.lat, facility.lon)}>
+                      <MapPin size={14} /> View
+                    </button>
+                    <button className="resource-btn primary" onClick={() => handleNavigate(facility.lat, facility.lon)}>
+                      <Navigation size={14} /> Navigate
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
-          </section>
+          )}
+        </section>
+
+        {/* Need Help Quick Options */}
+        <section className="emergency-section bg-accent/5">
+          <div className="section-header border-accent/20">
+            <h2 className="section-title text-accent">NEED HELP?</h2>
+          </div>
+          <p className="text-sm text-text-secondary mb-2">Select an option to quickly generate an emergency report for responders.</p>
+          <div className="quick-assist-grid">
+            {QUICK_ASSIST_OPTIONS.map((opt, idx) => (
+              <button key={idx} className="quick-assist-btn" onClick={() => handleQuickAssist(opt)}>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

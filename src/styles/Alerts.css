@@ -36,7 +36,8 @@
 
 .alerts-subtitle {
   font-size: 14px;
-  color: #8a8f98; /* Muted gray */
+  color: #8a8f98;
+  /* Muted gray */
   margin: 0;
 }
 
@@ -168,10 +169,21 @@
 }
 
 /* Subtle Accents */
-.summary-card.critical .summary-header { color: #ff4d4d; }
-.summary-card.warning .summary-header { color: #ffb84d; }
-.summary-card.advisory .summary-header { color: #00e5ff; }
-.summary-card.resolved .summary-header { color: #8a8f98; }
+.summary-card.critical .summary-header {
+  color: #ff4d4d;
+}
+
+.summary-card.warning .summary-header {
+  color: #ffb84d;
+}
+
+.summary-card.advisory .summary-header {
+  color: #ffffff;
+}
+
+.summary-card.resolved .summary-header {
+  color: #8a8f98;
+}
 
 /* 4. Filter Bar */
 .alert-filter-bar {
@@ -217,8 +229,8 @@
 
 .filter-search-input:focus {
   outline: none;
-  border-color: #00e5ff;
-  box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.2);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .filter-selects {
@@ -251,7 +263,7 @@
 
 .filter-select:focus {
   outline: none;
-  border-color: #00e5ff;
+  border-color: #ffffff;
 }
 
 .filter-clear-btn {
@@ -321,10 +333,21 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-.alert-card.severity-critical { border-left: 3px solid #ff4d4d; }
-.alert-card.severity-warning { border-left: 3px solid #ffb84d; }
-.alert-card.severity-advisory { border-left: 3px solid #00e5ff; }
-.alert-card.severity-resolved { border-left: 3px solid #00cc66; }
+.alert-card.severity-critical {
+  border-left: 3px solid #ff4d4d;
+}
+
+.alert-card.severity-warning {
+  border-left: 3px solid #ffb84d;
+}
+
+.alert-card.severity-advisory {
+  border-left: 3px solid #ffffff;
+}
+
+.alert-card.severity-resolved {
+  border-left: 3px solid #00cc66;
+}
 
 .alert-card-icon {
   flex-shrink: 0;
@@ -333,10 +356,21 @@
   padding-top: 2px;
 }
 
-.severity-critical .alert-card-icon { color: #ff4d4d; }
-.severity-warning .alert-card-icon { color: #ffb84d; }
-.severity-advisory .alert-card-icon { color: #00e5ff; }
-.severity-resolved .alert-card-icon { color: #00cc66; }
+.severity-critical .alert-card-icon {
+  color: #ff4d4d;
+}
+
+.severity-warning .alert-card-icon {
+  color: #ffb84d;
+}
+
+.severity-advisory .alert-card-icon {
+  color: #ffffff;
+}
+
+.severity-resolved .alert-card-icon {
+  color: #00cc66;
+}
 
 .alert-card-content {
   flex: 1;
@@ -353,10 +387,21 @@
   margin-bottom: 8px;
 }
 
-.severity-critical .alert-card-severity-badge { color: #ff4d4d; }
-.severity-warning .alert-card-severity-badge { color: #ffb84d; }
-.severity-advisory .alert-card-severity-badge { color: #00e5ff; }
-.severity-resolved .alert-card-severity-badge { color: #00cc66; }
+.severity-critical .alert-card-severity-badge {
+  color: #ff4d4d;
+}
+
+.severity-warning .alert-card-severity-badge {
+  color: #ffb84d;
+}
+
+.severity-advisory .alert-card-severity-badge {
+  color: #ffffff;
+}
+
+.severity-resolved .alert-card-severity-badge {
+  color: #00cc66;
+}
 
 .alert-card-title {
   font-size: 18px;
@@ -423,7 +468,7 @@
 }
 
 .alert-card:hover .view-details-btn {
-  color: #00e5ff;
+  color: #ffffff;
 }
 
 .view-details-btn svg {
@@ -605,8 +650,8 @@
 }
 
 .recommended-action-box {
-  background-color: rgba(0, 229, 255, 0.05);
-  border: 1px solid rgba(0, 229, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   padding: 16px;
 }
@@ -696,9 +741,17 @@
 
 /* Animations */
 @keyframes pulse-opacity {
-  0% { opacity: 1; }
-  50% { opacity: 0.3; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 /* Responsive */
@@ -713,37 +766,37 @@
     width: 100%;
     padding: 24px 16px;
   }
-  
+
   .alerts-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .alert-summary-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .alert-filter-bar {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-selects {
     flex-wrap: wrap;
   }
-  
+
   .filter-select {
     flex: 1;
     min-width: 140px;
   }
-  
+
   .alert-card {
     flex-direction: column;
     gap: 16px;
     padding: 20px;
   }
-  
+
   .alert-card-actions {
     margin-left: 0;
     padding-left: 0;
@@ -755,7 +808,7 @@
     width: 100%;
     min-height: auto;
   }
-  
+
   .drawer-panel {
     width: 100%;
     border-left: none;
