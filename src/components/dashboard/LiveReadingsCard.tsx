@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Card } from '../ui/Card';
 import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 import { Thermometer, RefreshCw, Wind } from 'lucide-react';
 import { useWeather } from '../../hooks/useWeather';
@@ -88,20 +87,7 @@ export const LiveReadingsCard: React.FC<LiveReadingsCardProps> = ({ latitude, lo
   const precipData = useMemo(() => generateSparklineData(weather?.precipitation || 0, 8, 0.8, timeOffset * 2).map(d => ({ value: Math.max(0, d.value) })), [weather, timeOffset]);
 
 
-  const colStyle = {
-    flex: '1 1 0',
-    minWidth: 0, // Prevents flex child from overflowing its container
-    display: 'flex',
-    flexDirection: 'column' as const,
-    padding: '20px',
-    position: 'relative' as const,
-  };
 
-  const labelStyle = {
-    fontSize: '0.8rem',
-    color: '#8a8f98',
-    marginBottom: '4px'
-  };
 
   const valueStyle = {
     fontSize: '2rem',
