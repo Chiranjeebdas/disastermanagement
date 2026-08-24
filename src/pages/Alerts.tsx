@@ -3,7 +3,9 @@ import React, { useState, useMemo } from 'react';
 import { useAlerts } from '../hooks/useAlerts';
 import { AlertSummary } from '../components/alerts/AlertSummary';
 import { AlertFilterBar } from '../components/alerts/AlertFilterBar';
-import type { SortOption, TimeFilter } from '../components/alerts/AlertFilterBar';
+import type { SortOption, TimeFilter, LocationFilter } from '../components/alerts/AlertFilterBar';
+import { useLocation } from '../hooks/useLocation';
+import { getDistance } from '../utils/distance';
 import { AlertCard } from '../components/alerts/AlertCard';
 import { AlertDrawer } from '../components/alerts/AlertDrawer';
 import type { AlertSeverity, AlertType } from '../types/alert';
@@ -12,11 +14,13 @@ import '../styles/Alerts.css';
 
 export const Alerts: React.FC = () => {
   const { alerts, isOffline, acknowledgeAlert } = useAlerts();
+  const { location } = useLocation();
 
   // State for filters
   const [searchQuery, setSearchQuery] = useState('');
   const [severityFilter, setSeverityFilter] = useState<AlertSeverity | 'All'>('All');
   const [typeFilter, setTypeFilter] = useState<AlertType | 'All'>('All');
+  const [locationFilter, setLocationFilter] = useState<LocationFilter>('All');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('All');
   const [sortOption, setSortOption] = useState<SortOption>('Latest');
 
@@ -56,6 +60,20 @@ export const Alerts: React.FC = () => {
       result = result.filter(a => a.type === typeFilter);
     }
 
+    // Location Filter
+    if (locationFilter === 'Near Me' && location.coords) {
+      result = result.filter(a => {
+        if (!a.latitude || !a.longitude) return false;
+        const dist = getDistance(
+          location.coords!.latitude,
+          location.coords!.longitude,
+          a.latitude,
+          a.longitude
+        );
+        return dist <= 50; // within 50km
+      });
+    }
+
     // Time Filter
     if (timeFilter !== 'All') {
       const now = new Date().getTime();
@@ -84,20 +102,24 @@ export const Alerts: React.FC = () => {
         return rankDiff !== 0 ? rankDiff : new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       }
       if (sortOption === 'Nearest') {
-        // Since we don't have user live location in this mock data structure perfectly mapped,
-        // we sort by affected radius size as a proxy for "scale" for demo purposes.
+        if (location.coords && a.latitude && a.longitude && b.latitude && b.longitude) {
+          const distA = getDistance(location.coords.latitude, location.coords.longitude, a.latitude, a.longitude);
+          const distB = getDistance(location.coords.latitude, location.coords.longitude, b.latitude, b.longitude);
+          return distA - distB;
+        }
         return (a.affectedRadiusKm || 999) - (b.affectedRadiusKm || 999);
       }
       return 0;
     });
 
     return result;
-  }, [alerts, searchQuery, severityFilter, typeFilter, timeFilter, sortOption]);
+  }, [alerts, searchQuery, severityFilter, typeFilter, timeFilter, sortOption, locationFilter, location.coords]);
 
   const handleResetFilters = () => {
     setSearchQuery('');
     setSeverityFilter('All');
     setTypeFilter('All');
+    setLocationFilter('All');
     setTimeFilter('All');
     setSortOption('Latest');
   };
@@ -156,6 +178,7 @@ export const Alerts: React.FC = () => {
         searchQuery={searchQuery} setSearchQuery={setSearchQuery}
         severityFilter={severityFilter} setSeverityFilter={setSeverityFilter}
         typeFilter={typeFilter} setTypeFilter={setTypeFilter}
+        locationFilter={locationFilter} setLocationFilter={setLocationFilter}
         timeFilter={timeFilter} setTimeFilter={setTimeFilter}
         sortOption={sortOption} setSortOption={setSortOption}
         onReset={handleResetFilters}

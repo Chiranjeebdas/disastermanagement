@@ -10,6 +10,8 @@ const INITIAL_DEMO_ALERTS: Alert[] = [
     severity: 'Critical',
     type: 'Flood',
     location: 'Cuttack, Odisha',
+    latitude: 20.4625,
+    longitude: 85.8828,
     detectedAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(), // 2 min ago
     updatedAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
     source: 'Verified environmental signal',
@@ -31,6 +33,8 @@ const INITIAL_DEMO_ALERTS: Alert[] = [
     severity: 'Warning',
     type: 'Extreme Weather',
     location: 'Bhubaneswar, Odisha',
+    latitude: 20.2961,
+    longitude: 85.8245,
     detectedAt: new Date(Date.now() - 1000 * 60 * 18).toISOString(), // 18 min ago
     updatedAt: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
     source: 'Weather intelligence',
@@ -48,6 +52,8 @@ const INITIAL_DEMO_ALERTS: Alert[] = [
     severity: 'Advisory',
     type: 'Extreme Weather',
     location: 'Khordha, Odisha',
+    latitude: 20.1816,
+    longitude: 85.6197,
     detectedAt: new Date(Date.now() - 1000 * 60 * 32).toISOString(), // 32 min ago
     updatedAt: new Date(Date.now() - 1000 * 60 * 32).toISOString(),
     source: 'Environmental monitoring',

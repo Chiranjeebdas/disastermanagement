@@ -8,9 +8,9 @@ import {
   Activity, 
   AlertTriangle, 
   Users, 
-  Settings,
-  ShieldAlert
+  Settings
 } from 'lucide-react';
+import { Logo } from './ui/Logo';
 import { Tooltip } from './ui/Tooltip';
 import '../styles/Sidebar.css';
 
@@ -80,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, isMobileOpen, onMobileCl
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/')}
           >
-            <ShieldAlert className="sidebar-brand-icon" size={24} color="var(--color-accent)" />
+            <Logo className="sidebar-brand-icon" size={24} />
             {!isCollapsed && <span className="sidebar-brand" style={{ marginLeft: '12px' }}>DRISHTI</span>}
           </motion.div>
         </div>

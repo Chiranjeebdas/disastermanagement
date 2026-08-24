@@ -38,7 +38,7 @@ export const VolunteerDashboard: React.FC = () => {
 
   // Process and sort incidents
   const incidents = useMemo(() => {
-    let filtered = reports.filter(r => r.status !== 'Draft');
+    let filtered = reports.filter(r => r.status !== 'Draft' && r.responseStatus !== 'Resolved');
 
     if (search) {
       const s = search.toLowerCase();

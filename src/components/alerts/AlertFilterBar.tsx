@@ -4,6 +4,7 @@ import type { AlertSeverity, AlertType } from '../../types/alert';
 
 export type TimeFilter = 'All' | 'Last hour' | 'Last 24 hours' | 'Last 7 days';
 export type SortOption = 'Latest' | 'Highest Severity' | 'Nearest';
+export type LocationFilter = 'All' | 'Near Me';
 
 interface AlertFilterBarProps {
   searchQuery: string;
@@ -12,6 +13,8 @@ interface AlertFilterBarProps {
   setSeverityFilter: (severity: AlertSeverity | 'All') => void;
   typeFilter: AlertType | 'All';
   setTypeFilter: (type: AlertType | 'All') => void;
+  locationFilter: LocationFilter;
+  setLocationFilter: (loc: LocationFilter) => void;
   timeFilter: TimeFilter;
   setTimeFilter: (time: TimeFilter) => void;
   sortOption: SortOption;
@@ -26,6 +29,8 @@ export const AlertFilterBar: React.FC<AlertFilterBarProps> = ({
   setSeverityFilter,
   typeFilter,
   setTypeFilter,
+  locationFilter,
+  setLocationFilter,
   timeFilter,
   setTimeFilter,
   sortOption,
@@ -71,6 +76,16 @@ export const AlertFilterBar: React.FC<AlertFilterBarProps> = ({
           <option value="Earthquake">Earthquake</option>
           <option value="Extreme Weather">Extreme Weather</option>
           <option value="Cyclone">Cyclone</option>
+        </select>
+
+        {/* Location Filter */}
+        <select 
+          value={locationFilter} 
+          onChange={(e) => setLocationFilter(e.target.value as any)}
+          className="filter-select"
+        >
+          <option value="All">All Locations</option>
+          <option value="Near Me">Near Me (50km)</option>
         </select>
 
         {/* Time Filter */}

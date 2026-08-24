@@ -7,6 +7,8 @@ export interface Alert {
   severity: AlertSeverity;
   type: AlertType;
   location: string;
+  latitude?: number;
+  longitude?: number;
   detectedAt: string; // ISO Date string
   updatedAt: string; // ISO Date string
   source: string;

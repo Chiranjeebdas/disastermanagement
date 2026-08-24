@@ -6,17 +6,32 @@ const STORAGE_KEY = 'drishti_reports_v1';
 export const useReports = () => {
   const [reports, setReports] = useState<IncidentReport[]>([]);
   const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
-  
+  const [isInitialized, setIsInitialized] = useState(false);
+
   // Load initial from localStorage
   useEffect(() => {
     const loadReports = () => {
       try {
         const cached = localStorage.getItem(STORAGE_KEY);
         if (cached) {
-          setReports(JSON.parse(cached));
+          const parsed = JSON.parse(cached) as IncidentReport[];
+          
+          const twoDaysAgo = new Date();
+          twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+          
+          const activeReports = parsed.filter(report => {
+            const reportDate = new Date(report.timestamp);
+            const isRecent = reportDate >= twoDaysAgo;
+            const isNotResolved = report.responseStatus !== 'Resolved';
+            return isRecent && isNotResolved;
+          });
+          
+          setReports(activeReports);
         }
       } catch (e) {
         console.warn('Failed to parse cached reports', e);
+      } finally {
+        setIsInitialized(true);
       }
     };
     loadReports();
@@ -24,14 +39,16 @@ export const useReports = () => {
 
   // Persist to localStorage whenever reports change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
-  }, [reports]);
+    if (isInitialized) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+    }
+  }, [reports, isInitialized]);
 
   // Handle Offline/Online and Sync Logic
   useEffect(() => {
     const handleOnline = () => {
       setIsOffline(false);
-      
+
       // Attempt Synchronization
       setReports(prev => {
         let hasChanges = false;
@@ -42,11 +59,11 @@ export const useReports = () => {
           }
           return report;
         });
-        
+
         return hasChanges ? updated : prev;
       });
     };
-    
+
     const handleOffline = () => setIsOffline(true);
 
     window.addEventListener('online', handleOnline);
@@ -78,15 +95,15 @@ export const useReports = () => {
   }, []);
 
   const updateReportStatus = useCallback((id: string, newStatus: IncidentReport['responseStatus']) => {
-    setReports(prev => prev.map(report => 
-      report.id === id 
-        ? { 
-            ...report, 
-            responseStatus: newStatus,
-            // If offline, flag it to sync later, otherwise keep Submitted. 
-            // In a real app we'd have a separate queue for status updates.
-            // For now, if offline we just update it locally.
-          }
+    setReports(prev => prev.map(report =>
+      report.id === id
+        ? {
+          ...report,
+          responseStatus: newStatus,
+          // If offline, flag it to sync later, otherwise keep Submitted. 
+          // In a real app we'd have a separate queue for status updates.
+          // For now, if offline we just update it locally.
+        }
         : report
     ));
   }, []);
