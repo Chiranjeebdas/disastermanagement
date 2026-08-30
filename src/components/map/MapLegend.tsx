@@ -6,17 +6,19 @@ interface MapLegendItem {
 }
 
 const legendItems: MapLegendItem[] = [
-  { label: 'Critical Alert', type: 'alert-critical' },
-  { label: 'Warning Alert', type: 'alert-warning' },
-  { label: 'Advisory', type: 'alert-advisory' },
-  { label: 'Emergency Facility', type: 'police' },
+  { label: 'Hospital', type: 'hospital' },
+  { label: 'Police Station', type: 'police' },
+  { label: 'Fire Station', type: 'fire' },
+  { label: 'Relief Shelter', type: 'shelter' },
+  { label: '24/7 Medical Store', type: 'pharmacy' },
+  { label: 'Critical Incident', type: 'alert-critical' },
   { label: 'Your Location', type: 'user' }
 ];
 
 export const MapLegend: React.FC = () => {
   return (
     <div className="map-legend-container">
-      <h4 className="map-legend-title">LEGEND</h4>
+      <h4 className="map-legend-title">EMERGENCY MAP LEGEND</h4>
       <div className="map-legend-list">
         {legendItems.map((item, idx) => (
           <div key={idx} className="map-legend-item">

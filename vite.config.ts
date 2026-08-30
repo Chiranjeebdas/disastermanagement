@@ -71,12 +71,73 @@ export default defineConfig({
             options: {
               cacheName: 'osm-tiles-cache',
               expiration: {
-                maxEntries: 500,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxEntries: 1000,
+                maxAgeSeconds: 60 * 60 * 24 * 60, // 60 days
               },
               cacheableResponse: {
                 statuses: [0, 200],
               },
+            },
+          },
+          // Google Satellite & Hybrid Tiles
+          {
+            urlPattern: /^https:\/\/mt[0-3]?\.google\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-satellite-tiles-cache',
+              expiration: {
+                maxEntries: 1200,
+                maxAgeSeconds: 60 * 60 * 24 * 60, // 60 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Esri World Imagery & Labels
+          {
+            urlPattern: /^https:\/\/.*arcgisonline\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'esri-tiles-cache',
+              expiration: {
+                maxEntries: 800,
+                maxAgeSeconds: 60 * 60 * 24 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // CartoDB Dark Tactical Tiles
+          {
+            urlPattern: /^https:\/\/.*basemaps\.cartocdn\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'carto-dark-tiles-cache',
+              expiration: {
+                maxEntries: 800,
+                maxAgeSeconds: 60 * 60 * 24 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Komoot Photon POI API
+          {
+            urlPattern: /^https:\/\/photon\.komoot\.io\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'photon-poi-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 14, // 14 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+              networkTimeoutSeconds: 4,
             },
           },
           // Weather API — network first, fall back to cache
@@ -86,29 +147,13 @@ export default defineConfig({
             options: {
               cacheName: 'weather-api-cache',
               expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 2, // 2 hours
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-              networkTimeoutSeconds: 5,
-            },
-          },
-          // Overpass API (nearby facilities) — network first, fall back to cache
-          {
-            urlPattern: /^https:\/\/overpass-api\.de\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'overpass-api-cache',
-              expiration: {
                 maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24, // 1 day
+                maxAgeSeconds: 60 * 60 * 24, // 24 hours
               },
               cacheableResponse: {
                 statuses: [0, 200],
               },
-              networkTimeoutSeconds: 10,
+              networkTimeoutSeconds: 4,
             },
           },
           // Nominatim geocoding — network first, fall back to cache
@@ -118,13 +163,13 @@ export default defineConfig({
             options: {
               cacheName: 'geocoding-cache',
               expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
               },
               cacheableResponse: {
                 statuses: [0, 200],
               },
-              networkTimeoutSeconds: 5,
+              networkTimeoutSeconds: 4,
             },
           },
           // Leaflet CDN assets
@@ -134,7 +179,7 @@ export default defineConfig({
             options: {
               cacheName: 'leaflet-cdn-cache',
               expiration: {
-                maxEntries: 20,
+                maxEntries: 30,
                 maxAgeSeconds: 60 * 60 * 24 * 365,
               },
               cacheableResponse: {

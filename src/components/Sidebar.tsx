@@ -1,14 +1,18 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, 
   Bell, 
   Map, 
   Activity, 
   AlertTriangle, 
+  FileText,
   Users, 
-  Settings
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  PhoneCall
 } from 'lucide-react';
 import { Logo } from './ui/Logo';
 import { Tooltip } from './ui/Tooltip';
@@ -16,6 +20,7 @@ import '../styles/Sidebar.css';
 
 interface SidebarProps {
   isCollapsed: boolean;
+  onToggleCollapse?: () => void;
   isMobileOpen: boolean;
   onMobileClose: () => void;
 }
@@ -24,34 +29,40 @@ const navSections = [
   {
     title: 'MAIN',
     items: [
-      { label: 'Home', path: '/app', icon: <Home size={20} />, exact: true },
-      { label: 'Alerts', path: '/app/alerts', icon: <Bell size={20} /> },
-      { label: 'Disaster Map', path: '/app/map', icon: <Map size={20} /> },
-      { label: 'Live Telemetry', path: '/app/telemetry', icon: <Activity size={20} /> },
+      { label: 'Home', path: '/app', icon: <Home size={17} strokeWidth={2} />, exact: true },
+      { label: 'Alerts', path: '/app/alerts', icon: <Bell size={17} strokeWidth={2} />, hasBadge: true },
+      { label: 'Disaster Map', path: '/app/map', icon: <Map size={17} strokeWidth={2} /> },
+      { label: 'Live Telemetry', path: '/app/telemetry', icon: <Activity size={17} strokeWidth={2} /> },
     ]
   },
   {
     title: 'RESPONSE',
     items: [
-      { label: 'Report Incident', path: '/app/report', icon: <AlertTriangle size={20} /> },
+      { label: 'Reports', path: '/app/reports', icon: <FileText size={17} strokeWidth={2} /> },
+      { label: 'Report Incident', path: '/app/report', icon: <AlertTriangle size={17} strokeWidth={2} /> },
     ]
   },
   {
     title: 'VOLUNTEER',
     items: [
-      { label: 'Volunteer Dashboard', path: '/app/volunteer', icon: <Users size={20} /> },
+      { label: 'Volunteer Dashboard', path: '/app/volunteer', icon: <Users size={17} strokeWidth={2} /> },
     ]
   },
   {
     title: 'SYSTEM',
     items: [
-      { label: 'Notifications', path: '/app/notifications', icon: <Bell size={20} /> },
-      { label: 'Settings', path: '/app/settings', icon: <Settings size={20} /> },
+      { label: 'Notifications', path: '/app/notifications', icon: <Bell size={17} strokeWidth={2} /> },
+      { label: 'Settings', path: '/app/settings', icon: <Settings size={17} strokeWidth={2} /> },
     ]
   }
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, isMobileOpen, onMobileClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+  isCollapsed, 
+  onToggleCollapse, 
+  isMobileOpen, 
+  onMobileClose 
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -73,22 +84,55 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, isMobileOpen, onMobileCl
       )}
       
       <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
+        {/* Brand Header */}
         <div className="sidebar-header">
           <motion.div 
-            className="flex items-center cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="flex items-center cursor-pointer select-none"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => navigate('/')}
+            title="Go to Landing Page"
           >
-            <Logo className="sidebar-brand-icon" size={24} />
-            {!isCollapsed && <span className="sidebar-brand" style={{ marginLeft: '12px' }}>DRISHTI</span>}
+            <div className="sidebar-brand-icon-wrapper">
+              <Logo className="sidebar-brand-icon" size={24} color="#10b981" />
+            </div>
+            
+            <AnimatePresence>
+              {!isCollapsed && (
+                <motion.span 
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -6 }}
+                  transition={{ duration: 0.15 }}
+                  className="sidebar-brand ml-2.5"
+                >
+                  DRISHTI
+                </motion.span>
+              )}
+            </AnimatePresence>
           </motion.div>
+
+          {/* Clean Glass Collapse Button */}
+          {onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className="sidebar-collapse-btn interactive-cursor"
+              aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            >
+              {isCollapsed ? <ChevronRight size={13} strokeWidth={2.5} /> : <ChevronLeft size={13} strokeWidth={2.5} />}
+            </button>
+          )}
         </div>
         
-        <div className="sidebar-content">
+        {/* Navigation Sections */}
+        <div className="sidebar-content custom-sidebar-scrollbar">
           {navSections.map((section, idx) => (
             <div key={idx} className="sidebar-section">
-              <div className="sidebar-section-title">{section.title}</div>
+              <div className="sidebar-section-title">
+                {!isCollapsed ? section.title : '•'}
+              </div>
               <nav className="sidebar-nav">
                 {section.items.map((item, itemIdx) => {
                   const active = isItemActive(item.path, item.exact);
@@ -108,6 +152,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, isMobileOpen, onMobileCl
                           if (isMobileOpen) onMobileClose();
                         }}
                       >
+                        {/* Fluid Spring Inset Active Pill */}
                         {active && (
                           <motion.div
                             layoutId="sidebar-active-indicator"
@@ -115,13 +160,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, isMobileOpen, onMobileCl
                             initial={false}
                             transition={{
                               type: "spring",
-                              stiffness: 300,
-                              damping: 30
+                              stiffness: 420,
+                              damping: 35
                             }}
                           />
                         )}
-                        <span className="sidebar-icon z-10 relative">{item.icon}</span>
-                        {!isCollapsed && <span className="sidebar-item-label z-10 relative">{item.label}</span>}
+
+                        {/* Icon */}
+                        <span className="sidebar-icon z-10 relative">
+                          {item.icon}
+                        </span>
+
+                        {/* Label */}
+                        {!isCollapsed && (
+                          <span className="sidebar-item-label z-10 relative">
+                            {item.label}
+                          </span>
+                        )}
+
+                        {/* Notification Dot */}
+                        {item.hasBadge && (
+                          <span className="sidebar-badge-dot z-10 relative" />
+                        )}
                       </NavLink>
                     </Tooltip>
                   );
@@ -129,6 +189,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, isMobileOpen, onMobileCl
               </nav>
             </div>
           ))}
+        </div>
+
+        {/* Emergency Helpline Bottom Tactical Card */}
+        <div className="sidebar-footer">
+          <a 
+            href="tel:112"
+            className={`emergency-helpline-card interactive-cursor ${isCollapsed ? 'collapsed' : ''}`}
+            title="National Emergency Dispatch Helpline: Dial 112"
+          >
+            <div className="emergency-call-badge">
+              <PhoneCall size={14} strokeWidth={2.5} className="text-[#f87171]" />
+            </div>
+            {!isCollapsed && (
+              <div className="emergency-call-text">
+                <span className="emergency-call-title">Emergency Helpline</span>
+                <span className="emergency-call-number">Dial 112</span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                  <span className="emergency-call-sub">24×7 Rapid Response</span>
+                </div>
+              </div>
+            )}
+          </a>
         </div>
       </aside>
     </>

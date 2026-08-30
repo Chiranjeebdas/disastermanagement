@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Alert } from '../types/alert';
+import { dbGetAll, dbPutBatch } from '../utils/indexedDB';
 
-const STORAGE_KEY = 'drishti_alerts_cache_v2';
+const STORAGE_KEY = 'drishti_alerts_cache_v3';
 
 const INITIAL_DEMO_ALERTS: Alert[] = [
   {
@@ -12,7 +13,7 @@ const INITIAL_DEMO_ALERTS: Alert[] = [
     location: 'Cuttack, Odisha',
     latitude: 20.4625,
     longitude: 85.8828,
-    detectedAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(), // 2 min ago
+    detectedAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
     updatedAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
     source: 'Verified environmental signal',
     isVerified: true,
@@ -35,7 +36,7 @@ const INITIAL_DEMO_ALERTS: Alert[] = [
     location: 'Bhubaneswar, Odisha',
     latitude: 20.2961,
     longitude: 85.8245,
-    detectedAt: new Date(Date.now() - 1000 * 60 * 18).toISOString(), // 18 min ago
+    detectedAt: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
     updatedAt: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
     source: 'Weather intelligence',
     isVerified: true,
@@ -54,7 +55,7 @@ const INITIAL_DEMO_ALERTS: Alert[] = [
     location: 'Khordha, Odisha',
     latitude: 20.1816,
     longitude: 85.6197,
-    detectedAt: new Date(Date.now() - 1000 * 60 * 32).toISOString(), // 32 min ago
+    detectedAt: new Date(Date.now() - 1000 * 60 * 32).toISOString(),
     updatedAt: new Date(Date.now() - 1000 * 60 * 32).toISOString(),
     source: 'Environmental monitoring',
     isVerified: true,
@@ -71,30 +72,51 @@ export const useAlerts = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
   const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize data from localStorage or default
+  // Initialize data from IndexedDB with localStorage/demo fallback
   useEffect(() => {
-    const loadAlerts = () => {
+    const loadAlerts = async () => {
       try {
+        const idbAlerts = await dbGetAll<Alert>('alerts');
+        if (idbAlerts && idbAlerts.length > 0) {
+          setAlerts(idbAlerts);
+          setIsInitialized(true);
+          return;
+        }
+
         const cached = localStorage.getItem(STORAGE_KEY);
         if (cached) {
           const parsed = JSON.parse(cached);
           if (parsed && parsed.length > 0) {
             setAlerts(parsed);
+            await dbPutBatch('alerts', parsed);
+            setIsInitialized(true);
             return;
           }
         }
-      } catch (e) {
-        console.warn('Failed to parse cached alerts', e);
-      }
 
-      // Fallback to initial demo data
-      setAlerts(INITIAL_DEMO_ALERTS);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DEMO_ALERTS));
+        setAlerts(INITIAL_DEMO_ALERTS);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DEMO_ALERTS));
+        await dbPutBatch('alerts', INITIAL_DEMO_ALERTS);
+      } catch (e) {
+        console.warn('Failed to parse alerts from IDB, using seed', e);
+        setAlerts(INITIAL_DEMO_ALERTS);
+      } finally {
+        setIsInitialized(true);
+      }
     };
 
     loadAlerts();
   }, []);
+
+  // Persist alerts to IndexedDB & localStorage
+  useEffect(() => {
+    if (isInitialized && alerts.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(alerts));
+      dbPutBatch('alerts', alerts).catch(e => console.warn('IDB alerts save error:', e));
+    }
+  }, [alerts, isInitialized]);
 
   // Handle Online/Offline Status
   useEffect(() => {
@@ -110,34 +132,31 @@ export const useAlerts = () => {
     };
   }, []);
 
-  // Simulate subtle live updates to timestamps (only when online)
+  // Simulate subtle live telemetry updates
   useEffect(() => {
     if (isOffline) return;
 
     const interval = setInterval(() => {
       setAlerts(prev => {
         const newAlerts = [...prev];
-        // Arbitrarily "update" the first unacknowledged active alert's timestamp to show live capability
         const activeAlert = newAlerts.find(a => a.status !== 'Resolved');
         if (activeAlert) {
           activeAlert.updatedAt = new Date().toISOString();
         }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newAlerts));
         return newAlerts;
       });
       setLastSyncTime(new Date());
-    }, 45000); // 45 seconds update tick
+    }, 45000);
 
     return () => clearInterval(interval);
   }, [isOffline]);
 
-  // Acknowledge an alert
+  // Acknowledge an alert (persists offline too)
   const acknowledgeAlert = useCallback((id: string) => {
     setAlerts(prev => {
       const updated = prev.map(alert =>
         alert.id === id ? { ...alert, isAcknowledged: true } : alert
       );
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
   }, []);

@@ -1,144 +1,321 @@
+/* Sidebar.css - Mastercrafted Dark Tactical Sidebar */
+
 .sidebar {
-  width: 260px;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
+  width: 236px;
+  background: #0a0c0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
-  transition: width var(--transition-normal), left var(--transition-normal);
+  transition: width 0.26s cubic-bezier(0.16, 1, 0.3, 1), transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 100;
   height: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .sidebar.collapsed {
-  width: 80px;
+  width: 68px;
 }
 
+/* Brand Header */
 .sidebar-header {
-  height: 64px;
+  height: 58px;
   display: flex;
   align-items: center;
-  padding: 0 var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
-  overflow: hidden;
-}
-
-.sidebar-brand-icon {
+  justify-content: space-between;
+  padding: 0 14px 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
-}
-
-.sidebar-brand {
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: var(--color-text);
-  font-size: 1.1rem;
-  white-space: nowrap;
 }
 
 .sidebar.collapsed .sidebar-header {
   justify-content: center;
-  padding: 0;
+  padding: 0 6px;
 }
 
+.sidebar-brand-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5));
+  transition: transform 0.2s ease;
+}
+
+.sidebar-brand {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  font-size: 1.05rem;
+}
+
+/* Collapse Toggle Button */
+.sidebar-collapse-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #71717a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
+  transform: scale(1.05);
+}
+
+/* Scrollable Navigation Body */
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-md) 0;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* Custom Minimalist Scrollbar */
+.custom-sidebar-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+
+.custom-sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+.custom-sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.35);
+}
+
+/* Section Title */
 .sidebar-section {
-  margin-bottom: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-section-title {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-text-secondary);
-  padding: 0 var(--spacing-lg);
-  margin-bottom: var(--spacing-sm);
+  color: #ea580c;
+  opacity: 0.9;
+  padding: 0 8px;
+  margin-bottom: 4px;
+  user-select: none;
 }
 
 .sidebar.collapsed .sidebar-section-title {
   text-align: center;
   padding: 0;
-  font-size: 0.6rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.7rem;
+  color: #71717a;
 }
 
+/* Navigation List */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
+/* Nav Item Link */
 .sidebar-item {
   display: flex;
   align-items: center;
-  padding: 10px 12px;
-  border-radius: 6px;
-  color: var(--color-text-secondary);
-  transition: color var(--transition-fast);
-  margin-bottom: 2px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 7px;
+  color: #a1a1aa;
+  transition: color 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   text-decoration: none;
   overflow: hidden;
-  margin-left: var(--spacing-sm);
-  margin-right: var(--spacing-sm);
+  user-select: none;
 }
 
 .sidebar-icon {
-  margin-right: 12px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a1a1aa;
+  transition: color 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
 }
 
-.sidebar-item:hover {
-  color: var(--color-text);
-  background-color: rgba(255, 255, 255, 0.03);
+.sidebar.collapsed .sidebar-icon {
+  margin-right: 0;
 }
 
-.sidebar-item.active {
-  color: var(--color-accent);
+.sidebar-item-label {
+  white-space: nowrap;
+  font-size: 0.84rem;
   font-weight: 500;
+  letter-spacing: 0.01em;
+  flex: 1;
+}
+
+/* Hover State */
+.sidebar-item:hover {
+  color: #f4f4f5;
+  background-color: rgba(255, 255, 255, 0.04);
+  transform: translateX(1.5px);
+}
+
+.sidebar-item:hover .sidebar-icon {
+  color: #ffffff;
+}
+
+/* Active State (Tactical Inset Glass Pill) */
+.sidebar-item.active {
+  color: #f59e0b !important;
+  font-weight: 600;
+}
+
+.sidebar-item.active .sidebar-icon {
+  color: #f59e0b !important;
+  filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.5));
 }
 
 .sidebar-active-bg {
   position: absolute;
   inset: 0;
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  border-left: 3px solid var(--color-accent);
-  box-shadow: 0 0 10px var(--color-accent-glow);
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.14) 0%, rgba(245, 158, 11, 0.03) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-left: 2.5px solid #f59e0b;
+  border-radius: 7px;
+  box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.08);
   z-index: 0;
+}
+
+/* Notification Beacon Dot */
+.sidebar-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #f97316;
+  box-shadow: 0 0 6px #f97316, 0 0 10px rgba(249, 115, 22, 0.6);
+  margin-left: auto;
+  animation: pulse-beacon 2.2s infinite ease-in-out;
+}
+
+@keyframes pulse-beacon {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
 }
 
 .sidebar.collapsed .sidebar-item {
   justify-content: center;
-  padding: var(--spacing-sm) 0;
+  padding: 0;
 }
 
-.sidebar-item-label {
+.sidebar.collapsed .sidebar-badge-dot {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+
+/* Footer / Emergency Helpline Card */
+.sidebar-footer {
+  padding: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.emergency-helpline-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(145deg, rgba(239, 68, 68, 0.12) 0%, rgba(18, 10, 10, 0.95) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.emergency-helpline-card:hover {
+  background: linear-gradient(145deg, rgba(239, 68, 68, 0.18) 0%, rgba(28, 12, 12, 0.98) 100%);
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.22);
+  transform: translateY(-1px);
+}
+
+.emergency-helpline-card.collapsed {
+  justify-content: center;
+  padding: 8px;
+}
+
+.emergency-call-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.25);
+}
+
+.emergency-call-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.emergency-call-title {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  font-weight: 500;
   white-space: nowrap;
-  font-size: 0.95rem;
 }
 
-.sidebar.collapsed .sidebar-item-label {
-  display: none;
+.emergency-call-number {
+  font-size: 0.84rem;
+  color: #f87171;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.emergency-call-sub {
+  font-size: 0.6rem;
+  color: #71717a;
+  white-space: nowrap;
 }
 
 .sidebar-mobile-overlay {
   display: none;
 }
 
-/* Mobile Drawer Styles */
+/* Mobile Drawer */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
     top: 0;
     left: -260px;
     height: 100vh;
-    width: 260px !important;
+    width: 236px !important;
+    border-radius: 0;
   }
 
   .sidebar.mobile-open {
@@ -149,8 +326,8 @@
     display: block;
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
     z-index: 90;
   }
 }

@@ -3,9 +3,14 @@ import React from 'react';
 interface LogoProps {
   size?: number;
   className?: string;
+  color?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({ size = 24, className = '' }) => {
+export const Logo: React.FC<LogoProps> = ({ 
+  size = 24, 
+  className = '', 
+  color = '#f59e0b' 
+}) => {
   return (
     <svg 
       width={size} 
@@ -18,7 +23,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 24, className = '' }) => {
       <path 
         d="M50 5 L90 20 L90 50 C90 75, 50 95, 50 95 C50 95, 10 75, 10 50 L10 20 Z" 
         fill="none" 
-        stroke="#39FF14" 
+        stroke={color} 
         strokeWidth="4" 
         strokeLinejoin="round"
       />
@@ -33,19 +38,19 @@ export const Logo: React.FC<LogoProps> = ({ size = 24, className = '' }) => {
       />
       
       {/* Central Iris Target Ring */}
-      <circle cx="50" cy="50" r="14" fill="none" stroke="#39FF14" strokeWidth="4"/>
+      <circle cx="50" cy="50" r="14" fill="none" stroke={color} strokeWidth="4"/>
       
       {/* Crosshairs on Ring */}
-      <line x1="50" y1="32" x2="50" y2="40" stroke="#39FF14" strokeWidth="2"/>
-      <line x1="50" y1="60" x2="50" y2="68" stroke="#39FF14" strokeWidth="2"/>
-      <line x1="32" y1="50" x2="40" y2="50" stroke="#39FF14" strokeWidth="2"/>
-      <line x1="60" y1="50" x2="68" y2="50" stroke="#39FF14" strokeWidth="2"/>
+      <line x1="50" y1="32" x2="50" y2="40" stroke={color} strokeWidth="2"/>
+      <line x1="50" y1="60" x2="50" y2="68" stroke={color} strokeWidth="2"/>
+      <line x1="32" y1="50" x2="40" y2="50" stroke={color} strokeWidth="2"/>
+      <line x1="60" y1="50" x2="68" y2="50" stroke={color} strokeWidth="2"/>
       
       {/* Pupil */}
-      <circle cx="50" cy="50" r="5" fill="#39FF14"/>
+      <circle cx="50" cy="50" r="5" fill={color}/>
       
       {/* Radiating Circuit Nodes */}
-      <g stroke="#39FF14" strokeWidth="2" fill="none">
+      <g stroke={color} strokeWidth="2" fill="none">
         {/* Top */}
         <line x1="50" y1="18" x2="50" y2="28" />
         <circle cx="50" cy="15" r="3" />

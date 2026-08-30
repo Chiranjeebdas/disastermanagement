@@ -9,6 +9,14 @@
   z-index: 1;
 }
 
+.leaflet-container {
+  background-color: #0b0e14 !important;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+}
+
 /* Customizing Leaflet Controls for Dark Theme */
 .leaflet-bar {
   border: 1px solid var(--color-border) !important;
@@ -52,52 +60,123 @@
 }
 
 .marker-user {
-  border-color: var(--color-accent);
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--color-accent);
+  border-color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
 }
 
 .marker-hospital {
-  border-color: var(--color-safe);
-  background-color: rgba(0, 204, 102, 0.1);
-  color: var(--color-safe);
+  border-color: #10b981;
+  background-color: rgba(16, 185, 129, 0.22);
+  color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
 .marker-police {
-  border-color: var(--color-info);
-  background-color: rgba(51, 153, 255, 0.1);
-  color: var(--color-info);
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.22);
+  color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
 }
 
 .marker-fire {
-  border-color: var(--color-danger);
-  background-color: rgba(255, 77, 77, 0.1);
-  color: var(--color-danger);
+  border-color: #f97316;
+  background-color: rgba(249, 115, 22, 0.25);
+  color: #f97316;
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.5);
 }
 
-.marker-safe {
-  border-color: var(--color-safe);
-  background-color: rgba(52, 199, 89, 0.1);
-  color: var(--color-safe);
+.marker-shelter, .marker-safe {
+  border-color: #a855f7;
+  background-color: rgba(168, 85, 247, 0.22);
+  color: #a855f7;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+}
+
+.marker-pharmacy {
+  border-color: #06b6d4;
+  background-color: rgba(6, 182, 212, 0.22);
+  color: #06b6d4;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
 }
 
 .marker-alert-critical {
-  border-color: #ff4d4d;
-  background-color: rgba(255, 77, 77, 0.15);
-  color: #ff4d4d;
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
   animation: pulse-critical 2s infinite cubic-bezier(0.66, 0, 0, 1);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.6);
 }
 
 .marker-alert-warning {
-  border-color: #ffb84d;
-  background-color: rgba(255, 184, 77, 0.15);
-  color: #ffb84d;
+  border-color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.22);
+  color: #f59e0b;
 }
 
 .marker-alert-advisory {
-  border-color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  border-color: #94a3b8;
+  background-color: rgba(148, 163, 184, 0.2);
+  color: #e2e8f0;
+}
+
+/* Navigation Mode Specific Marker Hierarchy */
+.marker-dimmed {
+  opacity: 0.28 !important;
+  filter: grayscale(0.85) contrast(0.8) !important;
+  transform: scale(0.8) !important;
+  border-width: 1px !important;
+  box-shadow: none !important;
+  pointer-events: auto !important;
+  transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease !important;
+}
+
+.marker-dimmed:hover {
+  opacity: 0.95 !important;
+  filter: grayscale(0) contrast(1) !important;
+  transform: scale(1.1) !important;
+  z-index: 800 !important;
+}
+
+.marker-target-highlight {
+  border-color: #38bdf8 !important;
+  background-color: rgba(14, 165, 233, 0.3) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.5), 0 0 24px rgba(56, 189, 248, 0.9) !important;
+  animation: pulse-target 1.6s infinite ease-in-out !important;
+  z-index: 1000 !important;
+}
+
+.marker-pulsing {
+  animation: pulse-user-nav 2s infinite ease-in-out !important;
+}
+
+@keyframes pulse-target {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7), 0 0 12px rgba(56, 189, 248, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(56, 189, 248, 0), 0 0 28px rgba(56, 189, 248, 1);
+    transform: scale(1.08);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0), 0 0 12px rgba(56, 189, 248, 0.7);
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-user-nav {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7), 0 0 10px rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0), 0 0 20px rgba(16, 185, 129, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 0 10px rgba(16, 185, 129, 0.7);
+  }
 }
 
 @keyframes pulse-critical {
@@ -270,11 +349,15 @@
   border: 2px solid;
 }
 
-.legend-alert-critical { border-color: #ff4d4d; background-color: rgba(255, 77, 77, 0.2); }
-.legend-alert-warning { border-color: #ffb84d; background-color: rgba(255, 184, 77, 0.2); }
-.legend-alert-advisory { border-color: #ffffff; background-color: rgba(255, 255, 255, 0.2); }
-.legend-police { border-color: #3399ff; background-color: rgba(51, 153, 255, 0.2); }
-.legend-user { border-color: #ffffff; background-color: rgba(255, 255, 255, 0.2); box-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
+.legend-hospital { border-color: #10b981; background-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
+.legend-police { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.4); box-shadow: 0 0 6px rgba(59, 130, 246, 0.6); }
+.legend-fire { border-color: #f97316; background-color: rgba(249, 115, 22, 0.4); box-shadow: 0 0 6px rgba(249, 115, 22, 0.6); }
+.legend-shelter, .legend-safe { border-color: #a855f7; background-color: rgba(168, 85, 247, 0.4); box-shadow: 0 0 6px rgba(168, 85, 247, 0.6); }
+.legend-pharmacy { border-color: #06b6d4; background-color: rgba(6, 182, 212, 0.4); box-shadow: 0 0 6px rgba(6, 182, 212, 0.6); }
+.legend-alert-critical { border-color: #ef4444; background-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 8px rgba(239, 68, 68, 0.8); }
+.legend-alert-warning { border-color: #f59e0b; background-color: rgba(245, 158, 11, 0.4); }
+.legend-alert-advisory { border-color: #94a3b8; background-color: rgba(148, 163, 184, 0.4); }
+.legend-user { border-color: #38bdf8; background-color: rgba(56, 189, 248, 0.4); box-shadow: 0 0 8px rgba(56, 189, 248, 0.8); }
 
 /* Custom Controls DOM Styles */
 .map-custom-controls {

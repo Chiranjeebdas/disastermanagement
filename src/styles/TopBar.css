@@ -1,5 +1,5 @@
 .topbar {
-  height: 64px;
+  height: 56px;
   background-color: transparent;
   display: flex;
   align-items: center;
@@ -8,6 +8,18 @@
   position: sticky;
   top: 0;
   z-index: 90;
+}
+
+.topbar.topbar-home {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .topbar.topbar-home {
+    display: flex;
+    height: 48px;
+    padding: 0 12px;
+  }
 }
 
 .topbar-left {

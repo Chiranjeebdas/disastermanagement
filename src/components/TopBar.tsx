@@ -17,8 +17,10 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
 
 
 
+  const isHome = location.pathname === '/app';
+
   return (
-    <header className="topbar">
+    <header className={`topbar ${isHome ? 'topbar-home' : ''}`}>
       <div className="topbar-left">
         <Tooltip content="Menu" position="right">
           <motion.button
@@ -31,17 +33,6 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
             <Menu size={20} />
           </motion.button>
         </Tooltip>
-
-        {location.pathname === '/app' && (
-          <motion.h2
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="text-2xl font-bold tracking-wider text-text ml-2"
-          >
-            Quick Emergency help
-          </motion.h2>
-        )}
 
         {location.pathname === '/app/telemetry' && (
           <motion.div
@@ -86,10 +77,12 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
       </div>
 
       <div className="topbar-right">
-        <div className={`flex items-center gap-2 text-sm font-semibold ${geoLocation.coords ? 'text-success' : 'text-danger'}`}>
-          <div className="w-2 h-2 rounded-full bg-current" />
-          {geoLocation.address ? geoLocation.address : geoLocation.coords ? 'Location detected' : 'Location unavailable'}
-        </div>
+        {!isHome && (
+          <div className={`flex items-center gap-2 text-xs font-semibold ${geoLocation.coords ? 'text-success' : 'text-danger'}`}>
+            <div className="w-2 h-2 rounded-full bg-current" />
+            {geoLocation.address ? geoLocation.address : geoLocation.coords ? 'Location detected' : 'Location unavailable'}
+          </div>
+        )}
       </div>
     </header>
   );

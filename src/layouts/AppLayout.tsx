@@ -3,10 +3,12 @@ import { useLocation, useOutlet } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import TopBar from '../components/TopBar';
+import { OfflineStatusBar } from '../components/ui/OfflineStatusBar';
 import { PageTransition } from '../components/ui/PageTransition';
 import '../styles/AppLayout.css';
 
 const AppLayout: React.FC = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const location = useLocation();
@@ -20,10 +22,15 @@ const AppLayout: React.FC = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const toggleCollapse = () => {
+    setIsCollapsed(prev => !prev);
+  };
+
   return (
     <div className="app-layout">
       <Sidebar
-        isCollapsed={false}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={toggleCollapse}
         isMobileOpen={isMobileMenuOpen}
         onMobileClose={closeMobileMenu}
       />
@@ -31,6 +38,7 @@ const AppLayout: React.FC = () => {
         <TopBar
           onMobileMenuClick={toggleMobileMenu}
         />
+        <OfflineStatusBar />
         <main className="app-content relative overflow-x-hidden">
           <AnimatePresence mode="wait">
             <PageTransition key={location.pathname}>

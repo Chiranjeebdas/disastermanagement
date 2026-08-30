@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-
 import { useAlerts } from '../hooks/useAlerts';
 import { AlertSummary } from '../components/alerts/AlertSummary';
 import { AlertFilterBar } from '../components/alerts/AlertFilterBar';
@@ -9,7 +8,7 @@ import { getDistance } from '../utils/distance';
 import { AlertCard } from '../components/alerts/AlertCard';
 import { AlertDrawer } from '../components/alerts/AlertDrawer';
 import type { AlertSeverity, AlertType } from '../types/alert';
-import { ShieldCheck, WifiOff, RefreshCw } from 'lucide-react';
+import { ShieldCheck, WifiOff, RefreshCw, MapPin, ChevronDown } from 'lucide-react';
 import '../styles/Alerts.css';
 
 export const Alerts: React.FC = () => {
@@ -98,7 +97,6 @@ export const Alerts: React.FC = () => {
       if (sortOption === 'Highest Severity') {
         const severityRank: Record<AlertSeverity, number> = { Critical: 4, Warning: 3, Advisory: 2, Resolved: 1 };
         const rankDiff = severityRank[b.severity] - severityRank[a.severity];
-        // fallback to latest if severity is same
         return rankDiff !== 0 ? rankDiff : new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       }
       if (sortOption === 'Nearest') {
@@ -131,7 +129,6 @@ export const Alerts: React.FC = () => {
 
   return (
     <div className="alerts-page-wrapper">
-
       {/* Header Area */}
       <div className="alerts-header">
         <div className="alerts-header-left">
@@ -139,30 +136,36 @@ export const Alerts: React.FC = () => {
           <p className="alerts-subtitle">Verified disaster intelligence and active warnings</p>
         </div>
 
-        {/* Live/Offline Status */}
+        {/* Right Header Area with Location + Actions */}
         <div className="alerts-header-right">
-          <button className="btn-refresh" aria-label="Refresh alerts">
-            <RefreshCw size={14} />
-          </button>
-          <div className={`alerts-live-indicator ${isOffline ? 'offline' : ''}`}>
-            {isOffline ? (
-              <>
-                <WifiOff size={14} /> OFFLINE
-              </>
-            ) : (
-              <>
-                <span className="pulse-dot"></span> LIVE
-              </>
-            )}
+          <div className="alerts-location-pill">
+            <MapPin size={13} className="text-zinc-400" />
+            <span>Khapuria, Cuttack</span>
+            <ChevronDown size={13} className="text-zinc-500" />
+          </div>
+
+          <div className="alerts-actions-row">
+            <button className="btn-refresh" aria-label="Refresh alerts">
+              <RefreshCw size={13} />
+            </button>
+            <div className={`alerts-live-indicator ${isOffline ? 'offline' : ''}`}>
+              {isOffline ? (
+                <>
+                  <WifiOff size={13} /> OFFLINE
+                </>
+              ) : (
+                <>
+                  <span className="pulse-dot"></span> LIVE
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      <hr className="alerts-divider" />
-
       {isOffline && (
         <div className="offline-banner">
-          <WifiOff size={18} className="text-danger" />
+          <WifiOff size={16} className="text-danger" />
           <div>
             <span className="offline-banner-title">OFFLINE MODE </span>
             <span className="offline-banner-text">Showing the latest locally cached alerts.</span>
@@ -170,7 +173,7 @@ export const Alerts: React.FC = () => {
         </div>
       )}
 
-      {/* Summary Strip */}
+      {/* Summary KPI Cards */}
       <AlertSummary counts={severityCounts} />
 
       {/* Filter Bar */}
@@ -203,7 +206,7 @@ export const Alerts: React.FC = () => {
         ) : (
           <div className="empty-alerts-card">
             <div className="empty-icon-wrapper">
-              <ShieldCheck size={48} />
+              <ShieldCheck size={40} />
             </div>
             <h3 className="empty-title">NO MATCHING ALERTS</h3>
             <p className="empty-desc">No alerts match your current filters.</p>
@@ -224,3 +227,4 @@ export const Alerts: React.FC = () => {
     </div>
   );
 };
+export default Alerts;

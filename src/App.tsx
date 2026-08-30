@@ -10,6 +10,7 @@ const PlaceholderModule = lazy(() => import('./pages/PlaceholderModule'));
 const Alerts = lazy(() => import('./pages/Alerts').then(module => ({ default: module.Alerts })));
 const DisasterMap = lazy(() => import('./pages/DisasterMap').then(module => ({ default: module.DisasterMap })));
 const LiveTelemetry = lazy(() => import('./pages/LiveTelemetry').then(module => ({ default: module.LiveTelemetry })));
+const Reports = lazy(() => import('./pages/Reports').then(module => ({ default: module.Reports })));
 const ReportIncident = lazy(() => import('./pages/ReportIncident').then(module => ({ default: module.ReportIncident })));
 const VolunteerDashboard = lazy(() => import('./pages/VolunteerDashboard').then(module => ({ default: module.VolunteerDashboard })));
 const SettingsDashboard = lazy(() => import('./pages/Settings').then(module => ({ default: module.SettingsDashboard })));
@@ -21,6 +22,7 @@ const prefetchRoutes = () => {
   import('./pages/Alerts').catch(() => {});
   import('./pages/DisasterMap').catch(() => {});
   import('./pages/LiveTelemetry').catch(() => {});
+  import('./pages/Reports').catch(() => {});
   import('./pages/ReportIncident').catch(() => {});
   import('./pages/VolunteerDashboard').catch(() => {});
   import('./pages/Settings').catch(() => {});
@@ -52,6 +54,7 @@ const App: React.FC = () => {
             <Route path="alerts" element={<Alerts />} />
             <Route path="map" element={<DisasterMap />} />
             <Route path="telemetry" element={<LiveTelemetry />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="report" element={<ReportIncident />} />
             <Route path="volunteer" element={<VolunteerDashboard />} />
             <Route path="notifications" element={<PlaceholderModule />} />
