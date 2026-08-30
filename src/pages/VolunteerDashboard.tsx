@@ -67,7 +67,7 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
 };
 
 export const VolunteerDashboard: React.FC = () => {
-  const { reports, updateReportStatus } = useReports();
+  const { reports, isOffline, updateReportStatus } = useReports();
   const { location } = useLocation();
 
   const [search, setSearch] = useState('');
@@ -164,12 +164,32 @@ export const VolunteerDashboard: React.FC = () => {
       {/* Header */}
       <header className="volunteer-header">
         <div className="volunteer-header-top">
-          <h1 className="volunteer-title">VOLUNTEER RESPONSE HUB</h1>
+          <div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="volunteer-title">VOLUNTEER RESPONSE HUB</h1>
+              <span className="genuine-verified-badge">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                AI-VERIFIED GENUINE INCIDENTS ONLY
+              </span>
+            </div>
+            <p className="volunteer-subtitle">
+              Displaying exclusively verified, genuine disaster reports. Coordinate immediate on-ground rescue, dispatch, and live GPS navigation.
+            </p>
+          </div>
+
+          <div className="volunteer-header-right">
+            <div className="volunteer-location-tag">
+              Location detected
+            </div>
+            <div className={`network-status ${isOffline ? 'network-offline' : 'network-online'}`}>
+              {isOffline ? '○ OFFLINE CACHE' : '● VOLUNTEER DISPATCH MESH ACTIVE'}
+            </div>
+          </div>
         </div>
 
         {/* KPI 4-Card Strip */}
         <div className="kpi-strip">
-          <div 
+          <div
             className={`kpi-card ${selectedUrgency === 'Critical' ? 'active-kpi' : ''}`}
             onClick={() => setSelectedUrgency(selectedUrgency === 'Critical' ? 'all' : 'Critical')}
           >
@@ -180,7 +200,7 @@ export const VolunteerDashboard: React.FC = () => {
             <span className="kpi-value">{stats.critical}</span>
           </div>
 
-          <div 
+          <div
             className={`kpi-card ${selectedUrgency === 'Medium' ? 'active-kpi' : ''}`}
             onClick={() => setSelectedUrgency(selectedUrgency === 'Medium' ? 'all' : 'Medium')}
           >
@@ -225,29 +245,29 @@ export const VolunteerDashboard: React.FC = () => {
                 onChange={e => setSearch(e.target.value)}
               />
               {search && (
-                <X 
-                  size={14} 
+                <X
+                  size={14}
                   className="search-clear-icon"
-                  onClick={() => setSearch('')} 
+                  onClick={() => setSearch('')}
                 />
               )}
             </div>
 
             {/* Filter Pills */}
             <div className="filter-pills-row">
-              <button 
+              <button
                 className={`filter-pill-btn ${selectedUrgency === 'all' ? 'active-pill' : ''}`}
                 onClick={() => setSelectedUrgency('all')}
               >
                 All Priorities ({genuineIncidents.length})
               </button>
-              <button 
+              <button
                 className={`filter-pill-btn ${selectedUrgency === 'Critical' ? 'active-pill' : ''}`}
                 onClick={() => setSelectedUrgency('Critical')}
               >
                 Critical Only
               </button>
-              <button 
+              <button
                 className={`filter-pill-btn ${selectedUrgency === 'Medium' ? 'active-pill' : ''}`}
                 onClick={() => setSelectedUrgency('Medium')}
               >
@@ -323,7 +343,7 @@ export const VolunteerDashboard: React.FC = () => {
 
                     {/* Location & Distance */}
                     <div className="incident-location-row">
-                      <MapPin size={13} className="location-pin-icon" /> 
+                      <MapPin size={13} className="location-pin-icon" />
                       <span className="location-text">{incident.locationName}</span>
                       {incident.distance !== null && (
                         <span className="distance-bold">
@@ -335,7 +355,7 @@ export const VolunteerDashboard: React.FC = () => {
                     {/* Time & Response Status */}
                     <div className="incident-time-status-row">
                       <div className="time-item">
-                        <Clock size={12} className="clock-icon" /> 
+                        <Clock size={12} className="clock-icon" />
                         <span>{new Date(incident.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
 
@@ -389,7 +409,7 @@ export const VolunteerDashboard: React.FC = () => {
           {/* Full Report Details Drawer / Dossier */}
           <AnimatePresence>
             {selectedIncident && (
-              <div 
+              <div
                 className="response-drawer-overlay"
                 onClick={(e) => {
                   if (e.target === e.currentTarget) setSelectedIncidentId(null);
@@ -419,8 +439,8 @@ export const VolunteerDashboard: React.FC = () => {
                       </h2>
                     </div>
 
-                    <button 
-                      className="drawer-close" 
+                    <button
+                      className="drawer-close"
                       onClick={() => setSelectedIncidentId(null)}
                     >
                       <X size={18} />
@@ -515,9 +535,9 @@ export const VolunteerDashboard: React.FC = () => {
                           <Camera size={14} className="text-amber-500" /> Photographic Evidence
                         </h4>
                         <div className="evidence-preview-wrap">
-                          <img 
-                            src={selectedIncident.mediaBase64} 
-                            alt="Incident Evidence" 
+                          <img
+                            src={selectedIncident.mediaBase64}
+                            alt="Incident Evidence"
                             className="evidence-img"
                           />
                         </div>
@@ -535,10 +555,9 @@ export const VolunteerDashboard: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3 bg-surface/50 p-3 rounded-lg border border-border/60">
                       <div className="flex flex-col">
                         <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Severity</span>
-                        <span className={`text-sm font-bold ${
-                          selectedIncident.urgency === 'Critical' ? 'text-danger' : 
-                          selectedIncident.urgency === 'Medium' ? 'text-warning' : 'text-emerald-400'
-                        }`}>
+                        <span className={`text-sm font-bold ${selectedIncident.urgency === 'Critical' ? 'text-danger' :
+                            selectedIncident.urgency === 'Medium' ? 'text-warning' : 'text-emerald-400'
+                          }`}>
                           {selectedIncident.urgency} Priority
                         </span>
                       </div>
