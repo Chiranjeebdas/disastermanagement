@@ -158,22 +158,23 @@
   border-color: var(--color-text-secondary);
 }
 
-/* Map Filter Bar */
+/* Map Filter Bar with Animated Orange Theme */
 .map-filter-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-left: 16px;
   padding-left: 16px;
-  border-left: 1px solid var(--color-border);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
   overflow-x: auto;
 }
 
 .map-filter-btn {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
-  padding: 5px 14px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+  padding: 6px 16px;
   border-radius: 100px;
   font-size: 0.72rem;
   font-weight: 700;
@@ -181,18 +182,55 @@
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  overflow: hidden;
+  user-select: none;
+}
+
+.map-filter-label {
+  position: relative;
+  z-index: 10;
   transition: all 0.25s ease;
 }
 
 .map-filter-btn:hover {
-  background: var(--color-surface-hover);
-  color: var(--color-text);
-  border-color: var(--color-text-secondary);
+  background: rgba(249, 115, 22, 0.08);
+  color: #fdba74;
+  border-color: rgba(249, 115, 22, 0.35);
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.2);
 }
 
 .map-filter-btn.active {
-  background: var(--color-accent);
-  color: var(--color-bg);
-  border-color: var(--color-accent);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+  border-color: rgba(249, 115, 22, 0.8);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.45), 0 0 32px rgba(234, 88, 12, 0.25);
+}
+
+.map-filter-btn.active .map-filter-label {
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Animated sliding orange gradient background pill */
+.map-filter-active-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 100px;
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 45%, #ea580c 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 2px 8px rgba(234, 88, 12, 0.5);
+  z-index: 1;
+  animation: orangePulse 3s infinite alternate ease-in-out;
+}
+
+@keyframes orangePulse {
+  0% {
+    filter: brightness(1) drop-shadow(0 0 4px rgba(249, 115, 22, 0.3));
+  }
+  100% {
+    filter: brightness(1.12) drop-shadow(0 0 10px rgba(249, 115, 22, 0.6));
+  }
 }

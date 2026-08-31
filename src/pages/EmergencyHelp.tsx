@@ -28,68 +28,68 @@ const QUICK_ASSIST_OPTIONS: {
   icon: React.ReactNode;
   description: string;
 }[] = [
-  { 
-    label: 'I need medical help', 
-    type: 'Other', 
-    urgency: 'Critical', 
-    icon: <LifeBuoy size={16} className="text-amber-500" />,
-    description: 'Immediate medical assistance requested' 
-  },
-  { 
-    label: 'I am trapped', 
-    type: 'Other', 
-    urgency: 'Critical', 
-    icon: <AlertCircle size={16} className="text-amber-500" />,
-    description: 'Person or group trapped, urgent rescue required' 
-  },
-  { 
-    label: 'I need evacuation', 
-    type: 'Other', 
-    urgency: 'Critical', 
-    icon: <Footprints size={16} className="text-amber-500" />,
-    description: 'Evacuation assistance needed from risk zone' 
-  },
-  { 
-    label: 'Fire nearby', 
-    type: 'Fire', 
-    urgency: 'Critical', 
-    icon: <Flame size={16} className="text-amber-500" />,
-    description: 'Active fire hazard reported nearby' 
-  },
-  { 
-    label: 'Report accident', 
-    type: 'RoadBlockage', 
-    urgency: 'Critical', 
-    icon: <Car size={16} className="text-amber-500" />,
-    description: 'Traffic / Structural accident incident' 
-  },
-  { 
-    label: 'Other emergency', 
-    type: 'Other', 
-    urgency: 'Medium', 
-    icon: <MoreHorizontal size={16} className="text-amber-500" />,
-    description: 'General emergency assistance report' 
-  },
-];
+    {
+      label: 'I need medical help',
+      type: 'Other',
+      urgency: 'Critical',
+      icon: <LifeBuoy size={16} className="text-amber-500" />,
+      description: 'Immediate medical assistance requested'
+    },
+    {
+      label: 'I am trapped',
+      type: 'Other',
+      urgency: 'Critical',
+      icon: <AlertCircle size={16} className="text-amber-500" />,
+      description: 'Person or group trapped, urgent rescue required'
+    },
+    {
+      label: 'I need evacuation',
+      type: 'Other',
+      urgency: 'Critical',
+      icon: <Footprints size={16} className="text-amber-500" />,
+      description: 'Evacuation assistance needed from risk zone'
+    },
+    {
+      label: 'Fire nearby',
+      type: 'Fire',
+      urgency: 'Critical',
+      icon: <Flame size={16} className="text-amber-500" />,
+      description: 'Active fire hazard reported nearby'
+    },
+    {
+      label: 'Report accident',
+      type: 'RoadBlockage',
+      urgency: 'Critical',
+      icon: <Car size={16} className="text-amber-500" />,
+      description: 'Traffic / Structural accident incident'
+    },
+    {
+      label: 'Other emergency',
+      type: 'Other',
+      urgency: 'Medium',
+      icon: <MoreHorizontal size={16} className="text-amber-500" />,
+      description: 'General emergency assistance report'
+    },
+  ];
 
 export const EmergencyHelp: React.FC = () => {
   const navigate = useNavigate();
   const { location } = useLocation();
   const { facilities, loading } = useNearbyFacilities(
-    location.coords?.latitude || 20.4625, 
-    location.coords?.longitude || 85.8828, 
+    location.coords?.latitude || 20.4625,
+    location.coords?.longitude || 85.8828,
     15
   );
 
   const handleQuickAssist = (option: typeof QUICK_ASSIST_OPTIONS[0]) => {
-    navigate('/app/report', { 
-      state: { 
+    navigate('/app/report', {
+      state: {
         prefill: {
           type: option.type,
           urgency: option.urgency,
           description: option.description
-        } 
-      } 
+        }
+      }
     });
   };
 
@@ -98,11 +98,11 @@ export const EmergencyHelp: React.FC = () => {
   };
 
   const handleNavigateFacility = (facility: Facility) => {
-    navigate('/app/map', { 
-      state: { 
-        center: [facility.lat, facility.lon], 
-        navigateTarget: { lat: facility.lat, lon: facility.lon, name: facility.name } 
-      } 
+    navigate('/app/map', {
+      state: {
+        center: [facility.lat, facility.lon],
+        navigateTarget: { lat: facility.lat, lon: facility.lon, name: facility.name }
+      }
     });
   };
 
@@ -117,7 +117,7 @@ export const EmergencyHelp: React.FC = () => {
     if (nameLower.includes('badambadi') || nameLower.includes('police') || nameLower.includes('thana') || facility.type === 'police') return '/facilities/badambadi_police.jpg';
     if (nameLower.includes('buxi') || nameLower.includes('fire') || facility.type === 'fire') return '/facilities/buxi_fire.jpg';
     if (nameLower.includes('shelter') || nameLower.includes('barabati') || nameLower.includes('stadium') || facility.type === 'shelter') return '/facilities/barabati_shelter.jpg';
-    
+
     const fallbacks = [
       '/facilities/sai_shraddha_hospital.jpg',
       '/facilities/jeevandhara_nursing_home.jpg',
@@ -139,7 +139,7 @@ export const EmergencyHelp: React.FC = () => {
           <h1 className="emergency-main-title">Quick Emergency Help</h1>
           <p className="emergency-main-subtitle">Get immediate assistance and report emergencies.</p>
         </div>
-        
+
         {/* Real-time Location Badge */}
         <div className="emergency-location-pill">
           <MapPin size={13} className="text-zinc-400" />
@@ -150,7 +150,7 @@ export const EmergencyHelp: React.FC = () => {
       {/* Top 3 Emergency Action Cards */}
       <section className="top-emergency-cards-grid" aria-label="Direct Emergency Contacts">
         {/* Police */}
-        <motion.div 
+        <motion.div
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
           className="top-emergency-card interactive-cursor"
@@ -169,7 +169,7 @@ export const EmergencyHelp: React.FC = () => {
         </motion.div>
 
         {/* Ambulance */}
-        <motion.div 
+        <motion.div
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
           className="top-emergency-card interactive-cursor"
@@ -188,7 +188,7 @@ export const EmergencyHelp: React.FC = () => {
         </motion.div>
 
         {/* Fire */}
-        <motion.div 
+        <motion.div
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
           className="top-emergency-card interactive-cursor"
@@ -217,9 +217,9 @@ export const EmergencyHelp: React.FC = () => {
                 <Building2 size={16} className="text-zinc-400" />
                 <h2 className="nearest-help-heading">NEAREST HELP</h2>
               </div>
-              <button 
+              <button
                 type="button"
-                onClick={() => navigate('/app/map')} 
+                onClick={() => navigate('/app/map')}
                 className="view-all-link interactive-cursor"
               >
                 View all <ChevronRight size={13} />
@@ -238,8 +238,8 @@ export const EmergencyHelp: React.FC = () => {
               {facilities.slice(0, 8).map((facility, idx) => (
                 <div key={facility.id || idx} className="nearest-facility-card">
                   {/* High Quality Authentic Image Thumbnail */}
-                  <img 
-                    src={getFacilityImage(facility, idx)} 
+                  <img
+                    src={getFacilityImage(facility, idx)}
                     alt={facility.name}
                     className="facility-thumbnail"
                     loading="lazy"
@@ -251,7 +251,7 @@ export const EmergencyHelp: React.FC = () => {
                   {/* Middle Details */}
                   <div className="facility-details">
                     <h3 className="facility-name" title={facility.name}>{facility.name}</h3>
-                    
+
                     <div className="facility-tag-distance">
                       <span className={`facility-type-badge ${facility.type}`}>
                         {facility.type === 'shelter' ? 'Safe Shelter' : facility.type}
@@ -268,7 +268,7 @@ export const EmergencyHelp: React.FC = () => {
 
                     {/* Action Buttons */}
                     <div className="facility-actions-row">
-                      <button 
+                      <button
                         type="button"
                         onClick={() => handleViewOnMap(facility)}
                         className="facility-action-btn view-map-btn interactive-cursor"
@@ -276,7 +276,7 @@ export const EmergencyHelp: React.FC = () => {
                         <Eye size={12} />
                         View on Map
                       </button>
-                      <button 
+                      <button
                         type="button"
                         onClick={() => handleNavigateFacility(facility)}
                         className="facility-action-btn navigate-btn interactive-cursor"
@@ -288,7 +288,7 @@ export const EmergencyHelp: React.FC = () => {
                   </div>
 
                   {/* Right Call Action */}
-                  <a 
+                  <a
                     href={`tel:${facility.phone || (facility.type === 'police' ? '112' : facility.type === 'fire' ? '101' : '108')}`}
                     className="facility-call-btn interactive-cursor"
                     title={`Call ${facility.name}`}

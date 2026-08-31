@@ -81,7 +81,7 @@ define(['./workbox-5d155c7a'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.vo87mk1i4b"
+    "revision": "0.hfebore92go"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
@@ -109,25 +109,52 @@ define(['./workbox-5d155c7a'], (function (workbox) { 'use strict';
   workbox.registerRoute(/^https:\/\/.*tile\.openstreetmap\.org\/.*/i, new workbox.CacheFirst({
     "cacheName": "osm-tiles-cache",
     plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 500,
-      maxAgeSeconds: 2592000
+      maxEntries: 1000,
+      maxAgeSeconds: 5184000
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https:\/\/mt[0-3]?\.google\.com\/.*/i, new workbox.CacheFirst({
+    "cacheName": "google-satellite-tiles-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 1200,
+      maxAgeSeconds: 5184000
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https:\/\/.*arcgisonline\.com\/.*/i, new workbox.CacheFirst({
+    "cacheName": "esri-tiles-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 800,
+      maxAgeSeconds: 5184000
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https:\/\/.*basemaps\.cartocdn\.com\/.*/i, new workbox.CacheFirst({
+    "cacheName": "carto-dark-tiles-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 800,
+      maxAgeSeconds: 5184000
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https:\/\/photon\.komoot\.io\/.*/i, new workbox.NetworkFirst({
+    "cacheName": "photon-poi-cache",
+    "networkTimeoutSeconds": 4,
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 100,
+      maxAgeSeconds: 1209600
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]
     })]
   }), 'GET');
   workbox.registerRoute(/^https:\/\/api\.open-meteo\.com\/.*/i, new workbox.NetworkFirst({
     "cacheName": "weather-api-cache",
-    "networkTimeoutSeconds": 5,
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 10,
-      maxAgeSeconds: 7200
-    }), new workbox.CacheableResponsePlugin({
-      statuses: [0, 200]
-    })]
-  }), 'GET');
-  workbox.registerRoute(/^https:\/\/overpass-api\.de\/.*/i, new workbox.NetworkFirst({
-    "cacheName": "overpass-api-cache",
-    "networkTimeoutSeconds": 10,
+    "networkTimeoutSeconds": 4,
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 20,
       maxAgeSeconds: 86400
@@ -137,10 +164,10 @@ define(['./workbox-5d155c7a'], (function (workbox) { 'use strict';
   }), 'GET');
   workbox.registerRoute(/^https:\/\/nominatim\.openstreetmap\.org\/.*/i, new workbox.NetworkFirst({
     "cacheName": "geocoding-cache",
-    "networkTimeoutSeconds": 5,
+    "networkTimeoutSeconds": 4,
     plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 20,
-      maxAgeSeconds: 604800
+      maxEntries: 50,
+      maxAgeSeconds: 2592000
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]
     })]
@@ -148,7 +175,7 @@ define(['./workbox-5d155c7a'], (function (workbox) { 'use strict';
   workbox.registerRoute(/^https:\/\/unpkg\.com\/leaflet.*/i, new workbox.CacheFirst({
     "cacheName": "leaflet-cdn-cache",
     plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 20,
+      maxEntries: 30,
       maxAgeSeconds: 31536000
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]

@@ -15,9 +15,15 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
   const { location: geoLocation } = useGeoLocation();
   const [activeMapFilter, setActiveMapFilter] = useState('all');
 
-
-
   const isHome = location.pathname === '/app';
+
+  const mapFilters = [
+    { id: 'all', label: 'All' },
+    { id: 'hospital', label: 'Hospital' },
+    { id: 'police', label: 'Police Station' },
+    { id: 'fire', label: 'Fire Station' },
+    { id: 'shelter', label: 'Shelter' }
+  ];
 
   return (
     <header className={`topbar ${isHome ? 'topbar-home' : ''}`}>
@@ -50,28 +56,39 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
           </motion.div>
         )}
 
-        {/* Map filter buttons - only visible on Disaster Map page */}
+        {/* Map filter buttons with fluid animated orange indicator */}
         {location.pathname.includes('/map') && (
-          <div className="map-filter-bar">
-            {[
-              { id: 'all', label: 'All' },
-              { id: 'hospital', label: 'Hospital' },
-              { id: 'police', label: 'Police Station' },
-              { id: 'fire', label: 'Fire Station' },
-              { id: 'shelter', label: 'Shelter' }
-            ].map(filter => (
-              <button
-                key={filter.id}
-                onClick={() => {
-                  setActiveMapFilter(filter.id);
-                  window.dispatchEvent(new CustomEvent('map-filter-change', { detail: filter.id }));
-                }}
-                className={`map-filter-btn ${activeMapFilter === filter.id ? 'active' : ''}`}
-                data-filter={filter.id}
-              >
-                {filter.label}
-              </button>
-            ))}
+          <div className="map-filter-bar" role="toolbar" aria-label="Map filters">
+            {mapFilters.map(filter => {
+              const isActive = activeMapFilter === filter.id;
+              return (
+                <motion.button
+                  key={filter.id}
+                  type="button"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => {
+                    setActiveMapFilter(filter.id);
+                    window.dispatchEvent(new CustomEvent('map-filter-change', { detail: filter.id }));
+                  }}
+                  className={`map-filter-btn ${isActive ? 'active' : ''}`}
+                  data-filter={filter.id}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="map-filter-active-pill"
+                      className="map-filter-active-bg"
+                      transition={{
+                        type: "spring",
+                        stiffness: 420,
+                        damping: 32
+                      }}
+                    />
+                  )}
+                  <span className="map-filter-label">{filter.label}</span>
+                </motion.button>
+              );
+            })}
           </div>
         )}
       </div>

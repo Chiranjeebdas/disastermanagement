@@ -66,7 +66,7 @@ export const Reports: React.FC = () => {
   const filteredReports = useMemo(() => {
     return reports.filter(report => {
       const verdict = report.aiAnalysis?.verdict || (report.status === 'Verified' ? 'Genuine' : report.status === 'Avoid' ? 'Avoid' : 'Needs Review');
-      
+
       // Tab filter
       if (activeTab === 'high' && verdict !== 'Genuine') return false;
       if (activeTab === 'medium' && verdict !== 'Needs Review') return false;
@@ -107,7 +107,7 @@ export const Reports: React.FC = () => {
         </div>
 
         <div className="reports-header-actions">
-          <button 
+          <button
             className="reports-create-btn"
             onClick={() => navigate('/app/report')}
           >
@@ -177,14 +177,14 @@ export const Reports: React.FC = () => {
         <div className="reports-toolbar-top">
           {/* Status Tabs */}
           <div className="reports-tabs">
-            <button 
+            <button
               className={`reports-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
               onClick={() => setActiveTab('all')}
             >
               All Feeds
               <span className="reports-tab-count">{stats.total}</span>
             </button>
-            <button 
+            <button
               className={`reports-tab-btn high ${activeTab === 'high' ? 'active high' : ''}`}
               onClick={() => setActiveTab('high')}
             >
@@ -192,7 +192,7 @@ export const Reports: React.FC = () => {
               Priority (Genuine)
               <span className="reports-tab-count">{stats.genuineHigh}</span>
             </button>
-            <button 
+            <button
               className={`reports-tab-btn medium ${activeTab === 'medium' ? 'active medium' : ''}`}
               onClick={() => setActiveTab('medium')}
             >
@@ -200,7 +200,7 @@ export const Reports: React.FC = () => {
               Needs Review
               <span className="reports-tab-count">{stats.mediumReview}</span>
             </button>
-            <button 
+            <button
               className={`reports-tab-btn avoid ${activeTab === 'avoid' ? 'active avoid' : ''}`}
               onClick={() => setActiveTab('avoid')}
             >
@@ -213,8 +213,8 @@ export const Reports: React.FC = () => {
           {/* Search Box */}
           <div className="reports-search-box">
             <Search size={15} color="rgba(255, 255, 255, 0.4)" />
-            <input 
-              type="text" 
+            <input
+              type="text"
               className="reports-search-input"
               placeholder="Search by reporter, handle, location, ID..."
               value={searchQuery}
@@ -233,7 +233,7 @@ export const Reports: React.FC = () => {
             <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', fontWeight: 600, marginRight: 4 }}>
               Source:
             </span>
-            <button 
+            <button
               className={`reports-cat-pill ${selectedPlatform === 'all' ? 'active' : ''}`}
               onClick={() => setSelectedPlatform('all')}
             >
@@ -255,7 +255,7 @@ export const Reports: React.FC = () => {
             <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', fontWeight: 600, marginRight: 4 }}>
               Hazard:
             </span>
-            <button 
+            <button
               className={`reports-cat-pill ${selectedCategory === 'all' ? 'active' : ''}`}
               onClick={() => setSelectedCategory('all')}
             >
@@ -347,10 +347,10 @@ export const Reports: React.FC = () => {
                     <Clock size={12} />
                     <span>{new Date(report.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({new Date(report.timestamp).toLocaleDateString()})</span>
                     {source.sourceUrl && (
-                      <a 
-                        href={source.sourceUrl} 
-                        target="_blank" 
-                        rel="noreferrer" 
+                      <a
+                        href={source.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
                         onClick={e => e.stopPropagation()}
                         style={{ color: 'rgba(255,255,255,0.6)', marginLeft: '4px' }}
                       >
@@ -363,7 +363,7 @@ export const Reports: React.FC = () => {
                 {/* Card Identity Row */}
                 <div className="report-card-top-row">
                   <div className="report-card-identity">
-                    <div 
+                    <div
                       className="report-card-icon-bubble"
                       style={{ color: typeConfig.color }}
                     >
@@ -390,7 +390,7 @@ export const Reports: React.FC = () => {
                   </div>
 
                   {/* Urgency Badge */}
-                  <span 
+                  <span
                     className="report-status-badge"
                     style={{
                       backgroundColor: report.urgency === 'Critical' ? 'rgba(239,68,68,0.15)' : report.urgency === 'Medium' ? 'rgba(249,115,22,0.15)' : 'rgba(34,197,94,0.15)',
@@ -413,7 +413,7 @@ export const Reports: React.FC = () => {
                     <div className="report-ai-confidence-meter">
                       <span>AI Score: <strong>{score}%</strong></span>
                       <div className="report-confidence-bar-bg">
-                        <div 
+                        <div
                           className={`report-confidence-bar-fill ${verdictClass}`}
                           style={{ width: `${score}%` }}
                         />
@@ -437,10 +437,10 @@ export const Reports: React.FC = () => {
                     {report.description}
                   </div>
                   {displayImage && (
-                    <img 
-                      src={displayImage} 
-                      alt="User uploaded evidence" 
-                      className="report-card-media-thumb" 
+                    <img
+                      src={displayImage}
+                      alt="User uploaded evidence"
+                      className="report-card-media-thumb"
                     />
                   )}
                 </div>
@@ -460,7 +460,7 @@ export const Reports: React.FC = () => {
                   </div>
 
                   <div className="report-card-actions">
-                    <button 
+                    <button
                       className="report-action-btn-sm"
                       onClick={() => setSelectedReport(report)}
                     >
@@ -480,7 +480,7 @@ export const Reports: React.FC = () => {
       <AnimatePresence>
         {selectedReport && (
           <div className="report-modal-overlay" onClick={() => setSelectedReport(null)}>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -530,10 +530,10 @@ export const Reports: React.FC = () => {
                   </div>
 
                   {selectedReport.sourceInfo?.sourceUrl && (
-                    <a 
-                      href={selectedReport.sourceInfo.sourceUrl} 
-                      target="_blank" 
-                      rel="noreferrer" 
+                    <a
+                      href={selectedReport.sourceInfo.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
                       className="report-action-btn-sm"
                       style={{ color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.3)' }}
                     >
@@ -550,18 +550,18 @@ export const Reports: React.FC = () => {
                       📷 User-Uploaded Photo / Video Evidence
                     </h4>
                     <div style={{ background: '#000', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)', textAlign: 'center' }}>
-                      <img 
-                        src={selectedReport.mediaBase64} 
-                        alt="Incident Evidence" 
-                        style={{ width: '100%', maxHeight: '360px', objectFit: 'contain', display: 'block' }} 
+                      <img
+                        src={selectedReport.mediaBase64}
+                        alt="Incident Evidence"
+                        style={{ width: '100%', maxHeight: '360px', objectFit: 'contain', display: 'block' }}
                       />
                     </div>
                   </div>
                 ) : (
-                  <div style={{ 
-                    background: 'rgba(255, 255, 255, 0.02)', 
-                    border: '1px dashed rgba(255, 255, 255, 0.1)', 
-                    borderRadius: '10px', 
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px dashed rgba(255, 255, 255, 0.1)',
+                    borderRadius: '10px',
                     padding: '14px 18px',
                     display: 'flex',
                     alignItems: 'center',
@@ -579,13 +579,13 @@ export const Reports: React.FC = () => {
                   <h4 className="report-modal-section-title">
                     📝 Exact Report Content & Testimony
                   </h4>
-                  <div style={{ 
-                    background: 'rgba(0,0,0,0.35)', 
-                    padding: '16px', 
-                    borderRadius: '10px', 
+                  <div style={{
+                    background: 'rgba(0,0,0,0.35)',
+                    padding: '16px',
+                    borderRadius: '10px',
                     border: '1px solid rgba(255,255,255,0.06)',
-                    fontSize: '0.92rem', 
-                    color: 'rgba(255,255,255,0.9)', 
+                    fontSize: '0.92rem',
+                    color: 'rgba(255,255,255,0.9)',
                     lineHeight: 1.6,
                     whiteSpace: 'pre-wrap'
                   }}>
@@ -610,8 +610,8 @@ export const Reports: React.FC = () => {
                   <div className="report-modal-meta-item">
                     <span className="report-modal-meta-label">GPS Coordinates</span>
                     <span className="report-modal-meta-value" style={{ fontFamily: 'monospace' }}>
-                      {selectedReport.coordinates 
-                        ? `${selectedReport.coordinates.latitude.toFixed(5)}° N, ${selectedReport.coordinates.longitude.toFixed(5)}° E` 
+                      {selectedReport.coordinates
+                        ? `${selectedReport.coordinates.latitude.toFixed(5)}° N, ${selectedReport.coordinates.longitude.toFixed(5)}° E`
                         : 'Geocoded Regional Anchor'}
                     </span>
                   </div>
@@ -633,8 +633,8 @@ export const Reports: React.FC = () => {
                     <div className="report-modal-telemetry-box">
                       <div className="report-modal-telemetry-row">
                         <span>AI Veracity Verdict:</span>
-                        <strong style={{ 
-                          color: selectedReport.aiAnalysis.verdict === 'Genuine' ? '#22c55e' : selectedReport.aiAnalysis.verdict === 'Needs Review' ? '#f97316' : '#ef4444' 
+                        <strong style={{
+                          color: selectedReport.aiAnalysis.verdict === 'Genuine' ? '#22c55e' : selectedReport.aiAnalysis.verdict === 'Needs Review' ? '#f97316' : '#ef4444'
                         }}>
                           {selectedReport.aiAnalysis.verdict === 'Genuine' ? 'PRIORITY / GENUINE REPORT' : selectedReport.aiAnalysis.verdict === 'Needs Review' ? 'MEDIUM CONFIDENCE (INVESTIGATING)' : 'SPAM / AVOID (SUSPECTED FALSE)'} ({selectedReport.aiAnalysis.confidenceScore}% Score)
                         </strong>

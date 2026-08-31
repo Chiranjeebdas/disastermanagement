@@ -556,7 +556,7 @@ export const VolunteerDashboard: React.FC = () => {
                       <div className="flex flex-col">
                         <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Severity</span>
                         <span className={`text-sm font-bold ${selectedIncident.urgency === 'Critical' ? 'text-danger' :
-                            selectedIncident.urgency === 'Medium' ? 'text-warning' : 'text-emerald-400'
+                          selectedIncident.urgency === 'Medium' ? 'text-warning' : 'text-emerald-400'
                           }`}>
                           {selectedIncident.urgency} Priority
                         </span>

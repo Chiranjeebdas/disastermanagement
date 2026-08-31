@@ -1,14 +1,14 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Home, 
-  Bell, 
-  Map, 
-  Activity, 
-  AlertTriangle, 
+import {
+  Home,
+  Bell,
+  Map,
+  Activity,
+  AlertTriangle,
   FileText,
-  Users, 
+  Users,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -57,11 +57,11 @@ const navSections = [
   }
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ 
-  isCollapsed, 
-  onToggleCollapse, 
-  isMobileOpen, 
-  onMobileClose 
+const Sidebar: React.FC<SidebarProps> = ({
+  isCollapsed,
+  onToggleCollapse,
+  isMobileOpen,
+  onMobileClose
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -74,19 +74,19 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {isMobileOpen && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="sidebar-mobile-overlay" 
+          className="sidebar-mobile-overlay"
           onClick={onMobileClose}
         />
       )}
-      
+
       <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
         {/* Brand Header */}
         <div className="sidebar-header">
-          <motion.div 
+          <motion.div
             className="flex items-center cursor-pointer select-none"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -96,15 +96,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="sidebar-brand-icon-wrapper">
               <Logo className="sidebar-brand-icon" size={24} color="#10b981" />
             </div>
-            
+
             <AnimatePresence>
               {!isCollapsed && (
-                <motion.span 
+                <motion.span
                   initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -6 }}
                   transition={{ duration: 0.15 }}
-                  className="sidebar-brand ml-2.5"
+                  className="sidebar-brand ml-3.5"
                 >
                   DRISHTI
                 </motion.span>
@@ -125,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </button>
           )}
         </div>
-        
+
         {/* Navigation Sections */}
         <div className="sidebar-content custom-sidebar-scrollbar">
           {navSections.map((section, idx) => (
@@ -136,15 +136,15 @@ const Sidebar: React.FC<SidebarProps> = ({
               <nav className="sidebar-nav">
                 {section.items.map((item, itemIdx) => {
                   const active = isItemActive(item.path, item.exact);
-                  
+
                   return (
-                    <Tooltip 
-                      key={itemIdx} 
-                      content={item.label} 
-                      position="right" 
+                    <Tooltip
+                      key={itemIdx}
+                      content={item.label}
+                      position="right"
                       disabled={!isCollapsed}
                     >
-                      <NavLink 
+                      <NavLink
                         to={item.path}
                         end={item.exact}
                         className={({ isActive }) => `sidebar-item interactive-cursor ${isActive ? 'active' : ''}`}
@@ -193,7 +193,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Emergency Helpline Bottom Tactical Card */}
         <div className="sidebar-footer">
-          <a 
+          <a
             href="tel:112"
             className={`emergency-helpline-card interactive-cursor ${isCollapsed ? 'collapsed' : ''}`}
             title="National Emergency Dispatch Helpline: Dial 112"

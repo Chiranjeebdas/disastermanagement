@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SIH Grand Finale - Master Q&A Defense Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+
+  @page {
+    size: A4;
+    margin: 16mm 14mm 18mm 14mm;
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: 'Inter', sans-serif;
+      font-size: 8pt;
+      color: #64748b;
+    }
+    @bottom-left {
+      content: "DRISHTI | SIH Grand Finale Defense Handbook";
+      font-family: 'Inter', sans-serif;
+      font-size: 8pt;
+      color: #64748b;
+    }
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #0f172a;
+    line-height: 1.5;
+    font-size: 9pt;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header {
+    border-bottom: 2.5px solid #f97316;
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .header h1 {
+    font-size: 18pt;
+    font-weight: 900;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .header .subtitle {
+    font-size: 10pt;
+    font-weight: 700;
+    color: #ea580c;
+    margin: 0;
+  }
+
+  .badge {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #c2410c;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 8pt;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+
+  .tip-box {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-left: 4px solid #16a34a;
+    padding: 8px 12px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0 16px 0;
+    font-size: 8.8pt;
+    color: #166534;
+  }
+
+  h2 {
+    font-size: 12pt;
+    font-weight: 800;
+    color: #0f172a;
+    background: #f8fafc;
+    border-left: 4px solid #f97316;
+    padding: 6px 10px;
+    margin: 18px 0 10px 0;
+    border-radius: 0 6px 6px 0;
+    page-break-after: avoid;
+  }
+
+  .qa-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    page-break-inside: avoid;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+
+  .q-title {
+    font-size: 9.5pt;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+
+  .q-tag {
+    background: #0f172a;
+    color: #f97316;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .speak-box {
+    background: #f8fafc;
+    border-left: 3px solid #0284c7;
+    padding: 6px 10px;
+    border-radius: 0 6px 6px 0;
+    font-size: 8.7pt;
+    color: #1e293b;
+    margin-top: 4px;
+  }
+
+  .speak-box strong {
+    color: #0369a1;
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 8.2pt;
+    page-break-inside: avoid;
+  }
+
+  .comparison-table th {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 6px 8px;
+    text-align: left;
+    font-weight: 700;
+  }
+
+  .comparison-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .comparison-table tr:nth-child(even) td {
+    background: #f8fafc;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="badge">SMART INDIA HACKATHON GRAND FINALE 2026</div>
+    <h1>DRISHTI: EVALUATOR DEFENSE HANDBOOK</h1>
+    <p class="subtitle">Problem Statement: Early-Warning Fusion with Uncertainty-Aware Action Guidance</p>
+  </div>
+  <div style="text-align: right; font-size: 8pt; color: #64748b;">
+    <div><strong>Live System:</strong> drishti-kohl.vercel.app</div>
+    <div><strong>Prepared For:</strong> Jury Viva & Cross-Questions</div>
+  </div>
+</div>
+
+<div class="tip-box">
+  <strong>💡 Golden Rule for Tomorrow:</strong> Evaluators love simple, confident answers with real-world examples. Speak like a problem solver, not a textbook. Keep answers to 2-3 clear sentences!
+</div>
+
+<h2>SECTION 1: "Why This Website?" vs Other Existing Platforms</h2>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q1</span> "Why did you build this website? Platforms like SACHET (NDMA), 112 India, and Google Crisis Response already exist!"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, existing platforms only broadcast <strong>one-way warning alerts</strong> or show simple red dots on a map. They don't tell the user if an alert is 20% likely or 90% likely, nor do they give step-by-step guidance.  
+    <strong>DRISHTI bridges this gap in 3 ways:</strong>  
+    1. <strong>Uncertainty Quantification:</strong> It separates high-certainty dangers (Immediate Evacuation) from low-certainty rumours (Dispatch Recon).  
+    2. <strong>Two-Way Field Verification:</strong> It doesn't just push alerts; it lets citizens upload evidence that is cross-checked with real-time sensors.  
+    3. <strong>Dynamic Evacuation Navigation:</strong> It automatically routes ambulances and victims away from flooded/blocked roads to open shelters."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q2</span> "Why a Web Application (PWA) instead of an Android / iOS mobile app from Play Store?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, during a sudden cyclone or flood, a panicking victim with 10% battery and weak 2G network <strong>cannot wait to download a 60MB app from the Play Store</strong> and go through OTP signup.  
+    Our web platform loads in <strong>less than 1 second from a simple link or QR code</strong>, works instantly without mandatory signup, and functions 100% offline as a Progressive Web App (PWA) using cached IndexedDB storage."</em>
+  </div>
+</div>
+
+<table class="comparison-table">
+  <thead>
+    <tr>
+      <th>Platform</th>
+      <th>What They Do</th>
+      <th>What They Lack</th>
+      <th>How DRISHTI Wins</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>SACHET (NDMA)</strong></td>
+      <td>One-way SMS/CAP broadcast</td>
+      <td>No citizen feedback, no dynamic routing</td>
+      <td>Two-way fusion with crowd consensus & bypass routing</td>
+    </tr>
+    <tr>
+      <td><strong>112 India App</strong></td>
+      <td>Manual police/SOS call dispatch</td>
+      <td>No sensor telemetry, no flood avoidance</td>
+      <td>Real-time USGS & weather correlation with auto-triage</td>
+    </tr>
+    <tr>
+      <td><strong>Google Crisis Maps</strong></td>
+      <td>Broad regional danger outlines</td>
+      <td>No uncertainty scoring, no responder triage</td>
+      <td>Bayesian 95% Credible Intervals & 3-tier action guidance</td>
+    </tr>
+    <tr>
+      <td><strong>Twitter / Social Feeds</strong></td>
+      <td>Rapid crowdsourced photos</td>
+      <td>High spam, fake news, panic rumours</td>
+      <td>4-tier anti-spam with Shannon Entropy image forensics</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q3</span> "Why would state disaster agencies like OSDMA or NDMA adopt your solution?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, because DRISHTI complies with the official <strong>ITU / NDMA Common Alerting Protocol (CAP v1.2)</strong>. It does not replace government infrastructure; it acts as a lightweight, intelligent edge layer that filters out 90% of fake spam calls before they overwhelm emergency control room dispatchers."</em>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<h2>SECTION 2: Core Problem Statement (Uncertainty & Bayesian Fusion)</h2>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q4</span> "What does 'Uncertainty-Aware Action Guidance' mean in simple terms?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, in simple words: <strong>Do not treat a single tweet the same as verified sensor data.</strong>  
+    • If only 1 person reports a flood with no rain sensors matching (High Uncertainty) ➔ The system guides volunteers to <strong>'Hold & Verify with Drone/Recon'</strong>.  
+    • If multiple citizens report it and USGS/rain sensors spike (Low Uncertainty) ➔ The system triggers <strong>'Immediate Mass Evacuation & Red Alert'</strong>. Action is strictly matched to confidence."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q5</span> "Why did you choose Bayesian Beta-Binomial Updating instead of Deep Learning (PyTorch/YOLO)?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, deep neural networks are 'black boxes' that often make confident false predictions on new disaster scenarios where training data is scarce.  
+    Bayesian math works like a human doctor: it starts with a known baseline (prior sensors) and updates belief as new evidence arrives. It gives us a mathematically provable <strong>95% Credible Interval</strong> that emergency commanders can legally trust."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q6</span> "How do you separate Epistemic Uncertainty from Aleatoric Noise?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, <strong>Epistemic Uncertainty</strong> is 'lack of information' (e.g. only 1 report from an isolated village)—we can reduce it by sending a volunteer or gathering more reports.  
+    <strong>Aleatoric Noise</strong> is natural physical fluctuation (e.g. GPS satellite drift or wind gusts)—it cannot be eliminated, so we build a safety buffer into our evacuation radius."</em>
+  </div>
+</div>
+
+<h2>SECTION 3: Live Data, Anti-Spam & Map Routing</h2>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q7</span> "Where is your live data coming from? Is it actually working right now?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Yes sir, 100% live:  
+    1. <strong>Seismic Telemetry:</strong> Fetched live from the <strong>USGS Global Earthquake API</strong> every 60 seconds.  
+    2. <strong>Weather & Rain:</strong> Fetched live from <strong>Open-Meteo</strong>.  
+    3. <strong>Hospitals & Shelters:</strong> Queried directly from <strong>OpenStreetMap (Overpass API)</strong> around the user's GPS."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q8</span> "How do you detect fake flood reports or prank submissions?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, we use 4 automatic defense layers:  
+    1. <strong>Keyword Filter:</strong> Flags pranks ('test', 'haha', 'fake').  
+    2. <strong>Spatial Corroboration:</strong> Requires cluster agreement from multiple phones within 2.5 km.  
+    3. <strong>Physical Sensor Cross-Check:</strong> Checks if rain gauges in the area actually show precipitation.  
+    4. <strong>Image Forensics:</strong> Calculates Shannon Byte Entropy and edge variance to reject blacked-out or stock images."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q9</span> "What happens if a road is flooded on the map?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, verified hazard locations are marked as blocked obstacles. Our OSRM routing engine automatically steers ambulances and citizens around the obstacle to the safest nearby shelter."</em>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<h2>SECTION 4: Offline Resilience, Blackouts & Scalability</h2>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q10</span> "What happens during a cyclone when cellular towers collapse and there is NO internet?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, DRISHTI is an <strong>Offline-First PWA</strong>. The map tiles, hospital directory, and emergency guides are stored locally in the browser's <strong>IndexedDB</strong>.  
+    Users can still create incident reports offline (<span style='color:#ea580c; font-weight:700;'>PendingSync</span> status). These are shared over local browser mesh (<span style='font-family:monospace;'>BroadcastChannel</span>) and auto-sync upstream the instant any network connection returns."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q11</span> "How will your server handle 10 Lakh (1 Million) concurrent visitors during a disaster?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, DRISHTI uses an <strong>Edge-Computing Architecture</strong>. The AI Bayesian checks and route calculations run directly on the user's phone, not our central server. Static assets are cached across global Edge CDNs, keeping server load near zero."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q12</span> "How do illiterate or elderly citizens use this platform in high panic?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, our Quick Emergency Help screen has <strong>3 massive, high-contrast action buttons</strong> (<span style='color:#dc2626; font-weight:700;'>Red Police 112</span>, <span style='color:#16a34a; font-weight:700;'>Green Ambulance 108</span>, <span style='color:#ea580c; font-weight:700;'>Orange Fire 101</span>) with 1-tap direct calling and simple visual icons for trapped/medical help, requiring zero text typing."</em>
+  </div>
+</div>
+
+<h2>SECTION 5: Future Roadmap & Limitations</h2>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q13</span> "What are the current limitations of your prototype, and what is your future roadmap?"</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Sir, currently we rely on public sensor APIs (USGS/Open-Meteo) and browser storage.  
+    <strong>Our Next Phase includes:</strong>  
+    1. Direct integration with India's C-DOT SACHET alerting gateway.  
+    2. Bluetooth Low Energy (BLE) peer-to-peer mobile phone relay for 100% off-grid mesh rescue.  
+    3. Drone (UAV) orthomosaic video stream overlays directly on the tactical map."</em>
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title"><span class="q-tag">Q14</span> "Give me your 15-second elevator pitch."</div>
+  <div class="speak-box">
+    <strong>🗣️ How to Answer:</strong><br>
+    <em>"Respected Evaluators, in disasters like the Wayanad landslides, the problem is not a lack of data—it is data conflict and panic.  
+    <strong>DRISHTI</strong> fuses live sensors with citizen reports, mathematically calculates the uncertainty, and guides responders and citizens with clear, life-saving actions in real time."</em>
+  </div>
+</div>
+
+</body>
+</html>

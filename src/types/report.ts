@@ -1,4 +1,4 @@
-export type ReportType = 
+export type ReportType =
   | 'Flood'
   | 'Cyclone'
   | 'Fire'
@@ -22,13 +22,13 @@ export type AIConfidenceLevel = 'High' | 'Medium' | 'Low';
 
 export type AIVerdict = 'Genuine' | 'Needs Review' | 'Avoid';
 
-export type ReportPlatform = 
-  | 'DRISHTI Web App' 
-  | 'Twitter / X' 
-  | 'Telegram Alert' 
-  | 'Reddit Emergency' 
-  | 'GDACS Global Alert' 
-  | 'News Wire' 
+export type ReportPlatform =
+  | 'DRISHTI Web App'
+  | 'Twitter / X'
+  | 'Telegram Alert'
+  | 'Reddit Emergency'
+  | 'GDACS Global Alert'
+  | 'News Wire'
   | 'ReliefWeb';
 
 export interface ReportSourceInfo {

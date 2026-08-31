@@ -140,7 +140,7 @@ export const ReportIncident: React.FC = () => {
           </div>
           <h2 className="success-title">Incident Report Received & Analyzed</h2>
           <p className="success-desc">Your report has been ingested and audited by the DRISHTI AI Verification Agent.</p>
-          
+
           {/* AI Assessment Banner on Success */}
           <div style={{
             width: '100%',
@@ -154,10 +154,10 @@ export const ReportIncident: React.FC = () => {
             gap: '6px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ 
-                fontSize: '0.8rem', 
-                fontWeight: 700, 
-                color: verdict === 'Genuine' ? '#22c55e' : verdict === 'Avoid' ? '#ef4444' : '#f97316' 
+              <span style={{
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                color: verdict === 'Genuine' ? '#22c55e' : verdict === 'Avoid' ? '#ef4444' : '#f97316'
               }}>
                 🤖 AI VERDICT: {verdict === 'Genuine' ? 'HIGH CONFIDENCE (GENUINE)' : verdict === 'Avoid' ? 'AVOID (SUSPECTED FALSE/SPAM)' : 'MEDIUM CONFIDENCE (INVESTIGATING)'}
               </span>
@@ -236,8 +236,8 @@ export const ReportIncident: React.FC = () => {
                 className={`type-card ${selectedType === type.id ? 'selected' : ''}`}
                 onClick={() => setSelectedType(type.id)}
               >
-                <div 
-                  className="type-icon-wrapper" 
+                <div
+                  className="type-icon-wrapper"
                   style={{ color: type.color }}
                 >
                   {type.icon}
@@ -283,14 +283,14 @@ export const ReportIncident: React.FC = () => {
                     <path d="M-20 80 L180 15 M70 140 L250 15 M150 140 L320 40" stroke="rgba(255,255,255,0.12)" strokeWidth="2.5" strokeDasharray="4 4" />
                     <path d="M0 60 Q 130 80, 300 45" stroke="rgba(255,255,255,0.16)" strokeWidth="3" />
                     <path d="M80 0 Q 160 65, 220 130" stroke="rgba(255,255,255,0.16)" strokeWidth="3" />
-                    
+
                     {/* Pulsing red pin marker */}
                     <circle cx="150" cy="65" r="18" fill="rgba(239, 68, 68, 0.2)" />
                     <circle cx="150" cy="65" r="9" fill="rgba(239, 68, 68, 0.4)" />
                     <g transform="translate(140, 44)">
-                      <path 
-                        d="M10 0 C4.5 0 0 4.5 0 10 C0 17 10 26 10 26 C10 26 20 17 20 10 C20 4.5 15.5 0 10 0 Z" 
-                        fill="#ef4444" 
+                      <path
+                        d="M10 0 C4.5 0 0 4.5 0 10 C0 17 10 26 10 26 C10 26 20 17 20 10 C20 4.5 15.5 0 10 0 Z"
+                        fill="#ef4444"
                         filter="drop-shadow(0 2px 4px rgba(0,0,0,0.8))"
                       />
                       <circle cx="10" cy="9" r="3.5" fill="#ffffff" />
