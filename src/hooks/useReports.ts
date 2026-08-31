@@ -1,54 +1,76 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { IncidentReport, ReportSourceInfo } from '../types/report';
-import { analyzeIncidentReport, SEEDED_REPORTS } from '../utils/aiVerification';
+import { analyzeIncidentReport } from '../utils/aiVerification';
 import { dbGetAll, dbPut, dbPutBatch } from '../utils/indexedDB';
 import { offlineSyncManager } from '../utils/offlineSyncManager';
+import { fetchLiveIncidentReports } from '../utils/liveIngestion';
 
-const STORAGE_KEY = 'drishti_reports_v7';
+const STORAGE_KEY = 'drishti_reports_live_v1';
 
-export const useReports = () => {
+export const useReports = (userLat = 20.4625, userLon = 85.8828) => {
   const [reports, setReports] = useState<IncidentReport[]>([]);
   const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load initial from IndexedDB (with localStorage and SEEDED_REPORTS fallback)
-  useEffect(() => {
-    const loadReports = async () => {
-      try {
-        // Try IndexedDB first
-        const idbReports = await dbGetAll<IncidentReport>('reports');
-        if (idbReports && idbReports.length > 0) {
-          setReports(idbReports);
-          setIsInitialized(true);
-          return;
+  // Load initial reports from live telemetry feeds and local IndexedDB user submissions
+  const loadReports = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      // 1. Fetch user's local submitted reports from IndexedDB
+      const userReports = await dbGetAll<IncidentReport>('reports') || [];
+
+      // 2. Fetch live real-time reports generated from USGS and Open-Meteo feeds
+      let liveSensorReports: IncidentReport[] = [];
+      if (navigator.onLine) {
+        liveSensorReports = await fetchLiveIncidentReports(userLat, userLon);
+      }
+
+      // 3. Merge live sensor reports with user submitted reports (user reports on top)
+      const existingIds = new Set(userReports.map(r => r.id));
+      const combined = [...userReports];
+      
+      for (const liveReport of liveSensorReports) {
+        if (!existingIds.has(liveReport.id)) {
+          combined.push(liveReport);
         }
+      }
 
-        // Fallback to localStorage
+      if (combined.length > 0) {
+        setReports(combined);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(combined));
+        await dbPutBatch('reports', combined);
+      } else {
         const cached = localStorage.getItem(STORAGE_KEY);
         if (cached) {
-          const parsed = JSON.parse(cached) as IncidentReport[];
-          if (parsed && parsed.length > 0) {
-            setReports(parsed);
-            await dbPutBatch('reports', parsed);
-            setIsInitialized(true);
-            return;
-          }
+          setReports(JSON.parse(cached));
         }
-
-        // Default seed
-        setReports(SEEDED_REPORTS);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(SEEDED_REPORTS));
-        await dbPutBatch('reports', SEEDED_REPORTS);
-      } catch (e) {
-        console.warn('Failed to load IndexedDB reports, falling back to seed', e);
-        setReports(SEEDED_REPORTS);
-      } finally {
-        setIsInitialized(true);
       }
-    };
+    } catch (e) {
+      console.warn('Failed to load live reports, using local cache:', e);
+      const cached = localStorage.getItem(STORAGE_KEY);
+      if (cached) {
+        setReports(JSON.parse(cached));
+      }
+    } finally {
+      setIsInitialized(true);
+      setIsLoading(false);
+    }
+  }, [userLat, userLon]);
 
+  useEffect(() => {
     loadReports();
-  }, []);
+
+    // Poll live sensor feeds every 60 seconds
+    const interval = setInterval(() => {
+      if (navigator.onLine) {
+        loadReports();
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [loadReports]);
 
   // Persist to both IndexedDB and localStorage whenever reports change
   useEffect(() => {
@@ -67,6 +89,7 @@ export const useReports = () => {
     const handleOnline = () => {
       setIsOffline(false);
       offlineSyncManager.processSyncQueue();
+      loadReports();
     };
 
     const handleOffline = () => setIsOffline(true);
@@ -99,7 +122,7 @@ export const useReports = () => {
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('drishti-sync-complete', handleSyncComplete);
     };
-  }, []);
+  }, [loadReports]);
 
   // Submit report with real-time local AI verification & automatic offline sync queueing
   const submitReport = useCallback(async (
@@ -204,9 +227,11 @@ export const useReports = () => {
 
   return {
     reports,
+    loading: isLoading,
     isOffline,
     submitReport,
     updateReportStatus,
-    manuallyVerifyReport
+    manuallyVerifyReport,
+    refreshReports: loadReports
   };
 };
