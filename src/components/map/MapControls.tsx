@@ -19,7 +19,22 @@ export const MapControls: React.FC<MapControlsProps> = ({
   const handleZoomIn = () => map.zoomIn();
   const handleZoomOut = () => map.zoomOut();
   const handleLocate = () => {
-    map.locate({ setView: true, maxZoom: 16 });
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          map.flyTo([position.coords.latitude, position.coords.longitude], 16, {
+            animate: true,
+            duration: 1.2
+          });
+        },
+        () => {
+          map.locate({ setView: true, maxZoom: 16 });
+        },
+        { enableHighAccuracy: true, timeout: 6000 }
+      );
+    } else {
+      map.locate({ setView: true, maxZoom: 16 });
+    }
   };
 
   const isSatellite = currentLayer === 'satellite';

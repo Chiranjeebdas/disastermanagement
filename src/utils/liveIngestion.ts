@@ -6,6 +6,7 @@
 import type { Alert } from '../types/alert';
 import type { IncidentReport, ReportSourceInfo, ReportUrgency, ReportType } from '../types/report';
 import { analyzeIncidentReport } from './aiVerification';
+import { getDistance } from './distance';
 
 export interface LiveTelemetryReading {
   source: 'USGS_SEISMIC' | 'OPEN_METEO_WEATHER' | 'OSM_GEOSPATIAL';
@@ -19,9 +20,9 @@ export interface LiveTelemetryReading {
 }
 
 /**
- * Fetch live real-time seismic earthquakes from USGS Hazards API
+ * Fetch worldwide real-time seismic events from USGS Global Seismographic Network
  */
-export async function fetchLiveUSGSAlerts(): Promise<Alert[]> {
+export async function fetchGlobalUSGSAlerts(limit = 20): Promise<Alert[]> {
   try {
     const response = await fetch(
       'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson',
@@ -32,7 +33,71 @@ export async function fetchLiveUSGSAlerts(): Promise<Alert[]> {
 
     if (!data.features || !Array.isArray(data.features)) return [];
 
-    return data.features.slice(0, 10).map((feat: any, idx: number) => {
+    return data.features.slice(0, limit).map((feat: any, idx: number) => {
+      const p = feat.properties;
+      const [lon, lat, depth] = feat.geometry.coordinates;
+      const mag = typeof p.mag === 'number' ? p.mag : 3.0;
+
+      const severity: 'Critical' | 'Warning' | 'Advisory' = 
+        mag >= 5.5 ? 'Critical' : mag >= 4.0 ? 'Warning' : 'Advisory';
+
+      const detectedTime = new Date(p.time || Date.now()).toISOString();
+
+      return {
+        id: `usgs-${feat.id || idx}`,
+        title: `Seismic Event: M${mag.toFixed(1)} - ${p.place || 'Global Quake'}`,
+        severity,
+        type: 'Earthquake' as const,
+        location: p.place || `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`,
+        latitude: lat,
+        longitude: lon,
+        detectedAt: detectedTime,
+        updatedAt: detectedTime,
+        source: 'USGS Global Seismic Telemetry Feed',
+        isVerified: true,
+        description: `Live seismological detection: Magnitude ${mag.toFixed(1)} at focal depth of ${depth?.toFixed(1) || 10}km. Monitored via Global Seismographic Network (GSN).`,
+        status: 'Active' as const,
+        measurements: [
+          { label: 'Magnitude', value: `${mag.toFixed(1)} Richter` },
+          { label: 'Depth', value: `${depth?.toFixed(1) || 10} km` },
+          { label: 'MMI Intensity', value: p.mmi ? `Level ${p.mmi}` : 'Automated' },
+          { label: 'PGA Est.', value: `${(Math.pow(10, (mag - 4) * 0.4) * 0.05).toFixed(2)} g` }
+        ],
+        affectedRadiusKm: Math.round(Math.max(15, mag * 18)),
+        recommendedAction: mag >= 5.0
+          ? 'Drop, Cover, and Hold On. Avoid damaged structures and check for gas/electrical leaks.'
+          : 'Monitor regional disaster bulletins and stay clear of unstable structures.',
+        isAcknowledged: false
+      };
+    });
+  } catch (err) {
+    console.warn('Global USGS feed fetch error:', err);
+    return [];
+  }
+}
+
+/**
+ * Fetch live real-time seismic earthquakes from USGS Hazards API (strictly within local radius)
+ */
+export async function fetchLiveUSGSAlerts(userLat = 20.4625, userLon = 85.8828, maxRadiusKm = 30): Promise<Alert[]> {
+  try {
+    const response = await fetch(
+      'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson',
+      { cache: 'no-store' }
+    );
+    if (!response.ok) throw new Error(`USGS HTTP ${response.status}`);
+    const data = await response.json();
+
+    if (!data.features || !Array.isArray(data.features)) return [];
+
+    // Filter events strictly within the local assessment radius
+    const localFeatures = data.features.filter((feat: any) => {
+      const [lon, lat] = feat.geometry.coordinates;
+      const dist = getDistance(userLat, userLon, lat, lon);
+      return dist <= maxRadiusKm;
+    });
+
+    return localFeatures.map((feat: any, idx: number) => {
       const p = feat.properties;
       const [lon, lat, depth] = feat.geometry.coordinates;
       const mag = typeof p.mag === 'number' ? p.mag : 3.0;
@@ -89,9 +154,9 @@ export async function fetchLiveWeatherAlerts(lat = 20.4625, lon = 85.8828): Prom
     const alerts: Alert[] = [];
     const nowIso = new Date().toISOString();
 
-    // 1. Precipitation / Flood Analysis
-    if (cur.precipitation >= 0.5 || cur.weather_code >= 60) {
-      const isSevere = cur.precipitation >= 5.0 || cur.weather_code >= 80;
+    // 1. Heavy Rainfall / Flash Flood Analysis (Meteorological Hazardous Thresholds)
+    if (cur.precipitation >= 7.5 || cur.weather_code >= 65) {
+      const isSevere = cur.precipitation >= 15.0 || cur.weather_code >= 82;
       alerts.push({
         id: `meteo-rain-${Date.now()}`,
         title: isSevere ? 'Active Flash Flood Warning (Live Sensor)' : 'Heavy Rainfall & Waterlogging Alert',
@@ -104,7 +169,7 @@ export async function fetchLiveWeatherAlerts(lat = 20.4625, lon = 85.8828): Prom
         updatedAt: nowIso,
         source: 'Open-Meteo Global Environmental Telemetry',
         isVerified: true,
-        description: `Live atmospheric telemetry shows active precipitation of ${cur.precipitation.toFixed(1)} mm/hr with surface pressure at ${cur.surface_pressure?.toFixed(1) || 1004} hPa.`,
+        description: `Live atmospheric telemetry shows active heavy precipitation of ${cur.precipitation.toFixed(1)} mm/hr with surface pressure at ${cur.surface_pressure?.toFixed(1) || 1004} hPa.`,
         status: 'Active' as const,
         measurements: [
           { label: 'Rainfall', value: `${cur.precipitation.toFixed(1)} mm/h` },
@@ -118,57 +183,30 @@ export async function fetchLiveWeatherAlerts(lat = 20.4625, lon = 85.8828): Prom
       });
     }
 
-    // 2. High Wind / Storm Analysis
-    if (cur.wind_speed_10m >= 15 || (cur.wind_gusts_10m && cur.wind_gusts_10m >= 25)) {
+    // 2. High Wind / Gale / Cyclonic Storm Analysis (WMO/IMD Gale Threshold >= 50 km/h or Gusts >= 70 km/h)
+    if (cur.wind_speed_10m >= 50 || (cur.wind_gusts_10m && cur.wind_gusts_10m >= 70)) {
+      const isStorm = cur.wind_speed_10m >= 65 || (cur.wind_gusts_10m && cur.wind_gusts_10m >= 85);
       alerts.push({
         id: `meteo-wind-${Date.now()}`,
-        title: 'High Wind Velocity & Gale Advisory',
-        severity: cur.wind_speed_10m >= 35 ? 'Critical' : 'Warning',
+        title: isStorm ? 'Severe Gale & Cyclonic Storm Warning' : 'High Wind Velocity & Gale Advisory',
+        severity: isStorm ? 'Critical' : 'Warning',
         type: 'Extreme Weather' as const,
         location: 'Coastal & River Delta Zone, Odisha',
         latitude: lat,
         longitude: lon,
         detectedAt: nowIso,
         updatedAt: nowIso,
-        source: 'Open-Meteo Doppler Wind Telemetry',
+        source: 'Open-Meteo Meteorological Anemometer Telemetry',
         isVerified: true,
-        description: `Surface wind velocity detected at ${cur.wind_speed_10m.toFixed(1)} km/h (Gusts: ${cur.wind_gusts_10m?.toFixed(1) || 28} km/h). Direction: ${cur.wind_direction_10m}° North-East.`,
+        description: `Surface gale wind velocity detected at ${cur.wind_speed_10m.toFixed(1)} km/h (Gusts: ${cur.wind_gusts_10m?.toFixed(1) || 75} km/h). Direction: ${cur.wind_direction_10m}° North-East.`,
         status: 'Active' as const,
         measurements: [
           { label: 'Wind Speed', value: `${cur.wind_speed_10m.toFixed(1)} km/h` },
-          { label: 'Wind Gusts', value: `${cur.wind_gusts_10m?.toFixed(1) || 30} km/h` },
+          { label: 'Wind Gusts', value: `${cur.wind_gusts_10m?.toFixed(1) || 75} km/h` },
           { label: 'Temp', value: `${cur.temperature_2m.toFixed(1)} °C` }
         ],
         affectedRadiusKm: 35.0,
         recommendedAction: 'Secure outdoor hoardings and antennas. Avoid staying under large trees or weak structures.',
-        isAcknowledged: false
-      });
-    }
-
-    // 3. Baseline Environmental Monitoring Advisory
-    if (alerts.length === 0) {
-      alerts.push({
-        id: `meteo-base-${Date.now()}`,
-        title: 'Atmospheric Stability Advisory (Live Telemetry)',
-        severity: 'Advisory',
-        type: 'Extreme Weather' as const,
-        location: 'Cuttack-Bhubaneswar Region, Odisha',
-        latitude: lat,
-        longitude: lon,
-        detectedAt: nowIso,
-        updatedAt: nowIso,
-        source: 'Live Meteorological Station Network',
-        isVerified: true,
-        description: `Live sensors report temperature of ${cur.temperature_2m.toFixed(1)}°C, ${cur.relative_humidity_2m}% humidity, and pressure ${cur.surface_pressure?.toFixed(1) || 1005} hPa. Normal baseline.`,
-        status: 'Monitoring' as const,
-        measurements: [
-          { label: 'Temperature', value: `${cur.temperature_2m.toFixed(1)} °C` },
-          { label: 'Humidity', value: `${cur.relative_humidity_2m}%` },
-          { label: 'Precipitation', value: `${cur.precipitation.toFixed(1)} mm` },
-          { label: 'Pressure', value: `${cur.surface_pressure?.toFixed(1) || 1005} hPa` }
-        ],
-        affectedRadiusKm: 25.0,
-        recommendedAction: 'Conditions optimal. Maintain standard disaster readiness kits.',
         isAcknowledged: false
       });
     }
@@ -185,7 +223,7 @@ export async function fetchLiveWeatherAlerts(lat = 20.4625, lon = 85.8828): Prom
  */
 export async function fetchAllLiveAlerts(lat = 20.4625, lon = 85.8828): Promise<Alert[]> {
   const [usgsAlerts, weatherAlerts] = await Promise.all([
-    fetchLiveUSGSAlerts(),
+    fetchLiveUSGSAlerts(lat, lon, 30),
     fetchLiveWeatherAlerts(lat, lon)
   ]);
 
@@ -193,15 +231,16 @@ export async function fetchAllLiveAlerts(lat = 20.4625, lon = 85.8828): Promise<
 }
 
 /**
- * Fetch live real-time incident reports dynamically generated from live USGS seismic and weather sensor feeds
+ * Fetch live real-time incident reports only for genuine Critical sensor detections (e.g. M5.0+ earthquakes or severe flash floods)
  */
 export async function fetchLiveIncidentReports(lat = 20.4625, lon = 85.8828): Promise<IncidentReport[]> {
   const liveAlerts = await fetchAllLiveAlerts(lat, lon);
   const liveReports: IncidentReport[] = [];
 
-  for (const alert of liveAlerts) {
+  // Only convert genuine Critical alerts into ground incident markers
+  for (const alert of liveAlerts.filter(a => a.severity === 'Critical')) {
     const reportType: ReportType = alert.type === 'Earthquake' ? 'Earthquake' : alert.type === 'Flood' ? 'Flood' : 'Other';
-    const urgency: ReportUrgency = alert.severity === 'Critical' ? 'Critical' : 'Medium';
+    const urgency: ReportUrgency = 'Critical';
     
     const sourceInfo: ReportSourceInfo = {
       platform: 'GDACS Global Alert',
@@ -233,12 +272,12 @@ export async function fetchLiveIncidentReports(lat = 20.4625, lon = 85.8828): Pr
       description: alert.description,
       mediaBase64: null,
       urgency,
-      peopleAffected: alert.severity === 'Critical' ? 'Immediate Sector Warning' : 'Monitoring Zone',
+      peopleAffected: 'Immediate Sector Warning',
       tags: ['Live Sensor Telemetry', alert.type, 'Real-time Feed'],
       status: 'Verified',
       verificationStatus: 'Verified',
-      responseStatus: alert.severity === 'Critical' ? 'EnRoute' : 'Unassigned',
-      assignedResponder: alert.severity === 'Critical' ? 'ODRAF / Disaster Rapid Response Unit' : undefined,
+      responseStatus: 'EnRoute',
+      assignedResponder: 'ODRAF / Disaster Rapid Response Unit',
       timestamp: alert.detectedAt,
       sourceInfo,
       aiAnalysis

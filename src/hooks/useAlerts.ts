@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Alert } from '../types/alert';
-import { dbGetAll, dbPutBatch } from '../utils/indexedDB';
+import { dbPutBatch } from '../utils/indexedDB';
 import { fetchAllLiveAlerts } from '../utils/liveIngestion';
+import { getDistance } from '../utils/distance';
 
 const STORAGE_KEY = 'drishti_alerts_cache_live_v1';
 
@@ -12,32 +13,41 @@ export const useAlerts = (userLat = 20.4625, userLon = 85.8828) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch live real-time hazard alerts directly from USGS Seismic & Open-Meteo APIs
+  // Fetch live real-time hazard alerts directly from USGS Seismic & Open-Meteo APIs (within local radius)
   const fetchLiveAlertsData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // 1. Fetch live multi-source data
+      // 1. Fetch live multi-source data (filtered strictly to 30km)
       const liveData = await fetchAllLiveAlerts(userLat, userLon);
 
-      if (liveData && liveData.length > 0) {
-        setAlerts(liveData);
-        setLastSyncTime(new Date());
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(liveData));
-        await dbPutBatch('alerts', liveData);
-      } else {
-        // Fallback to local cache if offline or API empty
-        const cached = localStorage.getItem(STORAGE_KEY);
-        if (cached) {
-          setAlerts(JSON.parse(cached));
-        } else {
-          const idbAlerts = await dbGetAll<Alert>('alerts');
-          if (idbAlerts && idbAlerts.length > 0) {
-            setAlerts(idbAlerts);
-          }
+      // 2. Retrieve existing Early Warning and official alerts from cache (filter out any old distant quakes)
+      const cachedRaw = localStorage.getItem(STORAGE_KEY);
+      const existingCached: Alert[] = cachedRaw ? JSON.parse(cachedRaw) : [];
+      const validCached = existingCached.filter(a => {
+        if (a.id.startsWith('meteo-base-')) return false;
+        if (a.type === 'Earthquake' && a.latitude && a.longitude) {
+          const dist = getDistance(userLat, userLon, a.latitude, a.longitude);
+          if (dist > 30) return false;
+        }
+        return (a.source === 'DRISHTI Early Warning' || a.id.startsWith('ew-'));
+      });
+
+      // 3. Merge: EW alerts + Live USGS / Weather telemetry alerts
+      const combinedAlerts = [...validCached];
+      const seenIds = new Set(validCached.map(a => a.id));
+      for (const liveAlert of (liveData || [])) {
+        if (!seenIds.has(liveAlert.id)) {
+          seenIds.add(liveAlert.id);
+          combinedAlerts.push(liveAlert);
         }
       }
+
+      setAlerts(combinedAlerts);
+      setLastSyncTime(new Date());
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(combinedAlerts));
+      await dbPutBatch('alerts', combinedAlerts);
     } catch (err) {
       console.warn('Error fetching live hazard data, loading cached buffer:', err);
       const cached = localStorage.getItem(STORAGE_KEY);
@@ -101,6 +111,16 @@ export const useAlerts = (userLat = 20.4625, userLon = 85.8828) => {
     });
   }, []);
 
+  // Update single alert
+  const updateAlert = useCallback((updatedAlert: Alert) => {
+    setAlerts(prev => {
+      const updated = prev.map(a => a.id === updatedAlert.id ? updatedAlert : a);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      dbPutBatch('alerts', updated).catch(console.warn);
+      return updated;
+    });
+  }, []);
+
   return {
     alerts,
     loading: isLoading,
@@ -108,6 +128,7 @@ export const useAlerts = (userLat = 20.4625, userLon = 85.8828) => {
     isOffline,
     lastSyncTime,
     refreshAlerts: fetchLiveAlertsData,
+    updateAlert,
     acknowledgeAlert,
     dismissAlert
   };

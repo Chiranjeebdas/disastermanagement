@@ -47,82 +47,77 @@ export const useLocation = () => {
     setLocation(prev => ({ ...prev, status: 'granting', error: null }));
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
-        
-        // Fetch reverse geocode address
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`)
-          .then(res => res.json())
-          .then(data => {
-            let addressName = data.display_name;
-            if (data.address) {
-              // Try to construct a concise precise address like Google Maps (Road/Street, Area, City)
-              const parts = [
-                data.address.road || data.address.pedestrian,
-                data.address.neighbourhood || data.address.suburb || data.address.residential || data.address.village,
-                data.address.city_district,
-                data.address.city || data.address.town || data.address.county
-              ].filter(Boolean);
-              
-              // Remove duplicate consecutive parts
-              const uniqueParts = parts.filter((val, idx, arr) => idx === 0 || val !== arr[idx - 1]);
-              
-              if (uniqueParts.length > 0) {
-                addressName = uniqueParts.join(', ');
-              } else if (data.display_name) {
-                 // Fallback to first 3 segments of display name
-                 addressName = data.display_name.split(',').slice(0, 3).join(', ');
+        let addressName: string | null = null;
+
+        // Strategy 1: BigDataCloud Client Reverse Geocoder (High speed, CORS friendly)
+        try {
+          const bdcRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
+          if (bdcRes.ok) {
+            const bdcData = await bdcRes.json();
+            const parts = [
+              bdcData.locality || bdcData.city,
+              bdcData.principalSubdivision || bdcData.countryName
+            ].filter(Boolean);
+            if (parts.length > 0) {
+              addressName = parts.join(', ');
+            }
+          }
+        } catch {}
+
+        // Strategy 2: OpenStreetMap Nominatim Geocoder if Strategy 1 didn't return a name
+        if (!addressName) {
+          try {
+            const osmRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`);
+            if (osmRes.ok) {
+              const data = await osmRes.json();
+              if (data.address) {
+                const parts = [
+                  data.address.suburb || data.address.neighbourhood || data.address.road || data.address.village,
+                  data.address.city || data.address.town || data.address.county,
+                  data.address.state
+                ].filter(Boolean);
+                const uniqueParts = parts.filter((val, idx, arr) => idx === 0 || val !== arr[idx - 1]);
+                if (uniqueParts.length > 0) {
+                  addressName = uniqueParts.join(', ');
+                }
+              }
+              if (!addressName && data.display_name) {
+                addressName = data.display_name.split(',').slice(0, 2).join(', ');
               }
             }
-            
-            const newState: LocationState = {
-              coords: {
-                latitude: lat,
-                longitude: lon,
-                accuracy: position.coords.accuracy,
-              },
-              address: addressName,
-              status: 'granted',
-              lastUpdated: new Date(),
-              error: null,
-            };
+          } catch {}
+        }
 
-            // Cache for offline use
-            try {
-              localStorage.setItem('drishti_location', JSON.stringify({
-                coords: newState.coords,
-                address: newState.address,
-                timestamp: Date.now(),
-              }));
-            } catch {}
+        // Strategy 3: Coordinates fallback if geocoders fail
+        if (!addressName) {
+          addressName = `${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E`;
+        }
 
-            setLocation(newState);
-          })
-          .catch(() => {
-            // Fallback if geocoding fails
-            const newState: LocationState = {
-              coords: {
-                latitude: lat,
-                longitude: lon,
-                accuracy: position.coords.accuracy,
-              },
-              address: null,
-              status: 'granted',
-              lastUpdated: new Date(),
-              error: null,
-            };
+        const newState: LocationState = {
+          coords: {
+            latitude: lat,
+            longitude: lon,
+            accuracy: position.coords.accuracy,
+          },
+          address: addressName,
+          status: 'granted',
+          lastUpdated: new Date(),
+          error: null,
+        };
 
-            try {
-              localStorage.setItem('drishti_location', JSON.stringify({
-                coords: newState.coords,
-                address: null,
-                timestamp: Date.now(),
-              }));
-            } catch {}
+        // Cache for offline use
+        try {
+          localStorage.setItem('drishti_location', JSON.stringify({
+            coords: newState.coords,
+            address: newState.address,
+            timestamp: Date.now(),
+          }));
+        } catch {}
 
-            setLocation(newState);
-          });
+        setLocation(newState);
       },
       (error) => {
         let errorMsg = 'An unknown error occurred.';
@@ -162,6 +157,7 @@ export const useLocation = () => {
     } else if (!location.coords) {
       requestLocation();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { location, requestLocation };

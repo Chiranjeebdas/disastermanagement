@@ -6,6 +6,7 @@ import { useLocation } from '../../hooks/useLocation';
 import { useNearbyFacilities } from '../../hooks/useNearbyFacilities';
 import { MapPin, Activity, ShieldAlert, Cross } from 'lucide-react';
 import { MapPopup } from './MapPopup';
+import { getDistance } from '../../utils/distance';
 
 export const LocalMapCard: React.FC = () => {
   const { location } = useLocation();
@@ -59,21 +60,31 @@ export const LocalMapCard: React.FC = () => {
           {facilities
             .filter(f => typeof f.lat === 'number' && typeof f.lon === 'number' && !isNaN(f.lat) && !isNaN(f.lon) && Math.abs(f.lat) <= 90 && Math.abs(f.lon) <= 180)
             .slice(0, 5)
-            .map(f => (
-            <MapMarker 
-              key={f.id} 
-              position={[f.lat, f.lon]} 
-              icon={getIconForType(f.type)}
-              type={f.type === 'hospital' || f.type === 'pharmacy' ? 'hospital' : 'police'}
-            >
-              <MapPopup 
-                title={f.name} 
-                type={f.type} 
-                distance={f.distance} 
-                metadata={[{ label: 'Verified', value: 'OpenStreetMap' }]}
-              />
-            </MapMarker>
-          ))}
+            .map(f => {
+              const hasValidCoords = typeof f.lat === 'number' && typeof f.lon === 'number' && !isNaN(f.lat) && !isNaN(f.lon);
+              const facilityDistanceKm = hasValidCoords
+                ? getDistance(coords[0], coords[1], f.lat, f.lon)
+                : undefined;
+
+              return (
+                <MapMarker 
+                  key={f.id} 
+                  position={[f.lat, f.lon]} 
+                  icon={getIconForType(f.type)}
+                  type={f.type === 'hospital' || f.type === 'pharmacy' ? 'hospital' : 'police'}
+                >
+                  <MapPopup 
+                    title={f.name} 
+                    type={f.type} 
+                    distance={facilityDistanceKm} 
+                    metadata={[
+                      { label: 'Distance', value: facilityDistanceKm !== undefined ? `${facilityDistanceKm.toFixed(1)} km` : 'Distance unavailable' },
+                      { label: 'Verified', value: 'OpenStreetMap' }
+                    ]}
+                  />
+                </MapMarker>
+              );
+            })}
         </InteractiveMap>
       </div>
       <div className="p-3 bg-surface border-t border-border/40 text-[0.65rem] text-text-secondary flex justify-between items-center">

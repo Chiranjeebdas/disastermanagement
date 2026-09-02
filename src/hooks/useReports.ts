@@ -18,16 +18,17 @@ export const useReports = (userLat = 20.4625, userLon = 85.8828) => {
     try {
       setIsLoading(true);
 
-      // 1. Fetch user's local submitted reports from IndexedDB
-      const userReports = await dbGetAll<IncidentReport>('reports') || [];
+      // 1. Fetch user's local submitted reports from IndexedDB (filter out legacy synthetic meteo reports)
+      const rawUserReports = await dbGetAll<IncidentReport>('reports') || [];
+      const userReports = rawUserReports.filter(r => !r.id.startsWith('LIVE-meteo-'));
 
-      // 2. Fetch live real-time reports generated from USGS and Open-Meteo feeds
+      // 2. Fetch live real-time reports only for genuine Critical events
       let liveSensorReports: IncidentReport[] = [];
       if (navigator.onLine) {
         liveSensorReports = await fetchLiveIncidentReports(userLat, userLon);
       }
 
-      // 3. Merge live sensor reports with user submitted reports (user reports on top)
+      // 3. Merge genuine reports
       const existingIds = new Set(userReports.map(r => r.id));
       const combined = [...userReports];
       
@@ -37,16 +38,9 @@ export const useReports = (userLat = 20.4625, userLon = 85.8828) => {
         }
       }
 
-      if (combined.length > 0) {
-        setReports(combined);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(combined));
-        await dbPutBatch('reports', combined);
-      } else {
-        const cached = localStorage.getItem(STORAGE_KEY);
-        if (cached) {
-          setReports(JSON.parse(cached));
-        }
-      }
+      setReports(combined);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(combined));
+      await dbPutBatch('reports', combined);
     } catch (e) {
       console.warn('Failed to load live reports, using local cache:', e);
       const cached = localStorage.getItem(STORAGE_KEY);

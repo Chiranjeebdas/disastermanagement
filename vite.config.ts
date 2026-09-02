@@ -4,12 +4,22 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    port: 4173,
+    strictPort: true,
+    host: true
+  },
+  preview: {
+    port: 4173,
+    strictPort: true,
+    host: true
+  },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: {
-        enabled: true,  // Enable SW in dev mode too
+        enabled: false,  // Disable SW in dev mode to prevent stale browser cache
       },
       includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {

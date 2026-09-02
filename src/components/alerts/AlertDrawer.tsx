@@ -1,19 +1,41 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Alert, AlertSeverity } from '../../types/alert';
 import { X, Map, Check, ShieldAlert, AlertTriangle, Info, CheckCircle2 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { useSettings } from '../../hooks/useSettings';
+import { InformationQualitySection } from './InformationQualitySection';
 
 interface AlertDrawerProps {
   alert: Alert | null;
   isOpen: boolean;
   onClose: () => void;
   onAcknowledge: (id: string) => void;
+  onAlertUpdated?: (updatedAlert: Alert) => void;
 }
 
-export const AlertDrawer: React.FC<AlertDrawerProps> = ({ alert, isOpen, onClose, onAcknowledge }) => {
+export const AlertDrawer: React.FC<AlertDrawerProps> = ({
+  alert,
+  isOpen,
+  onClose,
+  onAcknowledge,
+  onAlertUpdated
+}) => {
   const navigate = useNavigate();
+  const { settings } = useSettings();
+  const [localAlert, setLocalAlert] = useState<Alert | null>(alert);
+
+  useEffect(() => {
+    setLocalAlert(alert);
+  }, [alert]);
+
+  const handleAlertUpdated = (updated: Alert) => {
+    setLocalAlert(updated);
+    if (onAlertUpdated) {
+      onAlertUpdated(updated);
+    }
+  };
 
   // Escape key to close
   useEffect(() => {
@@ -51,9 +73,11 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ alert, isOpen, onClose
     navigate('/app/map'); // Navigate to map route as approved in plan
   };
 
+  const activeAlert = localAlert || alert;
+
   return (
         <AnimatePresence>
-          {isOpen && alert && (
+          {isOpen && activeAlert && (
             <>
               {/* Backdrop */}
               <motion.div
@@ -61,7 +85,7 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ alert, isOpen, onClose
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="drawer-overlay"
+                className="alert-drawer-backdrop"
               />
 
               {/* Drawer Panel */}
@@ -70,7 +94,7 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ alert, isOpen, onClose
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="drawer-panel"
+                className="alert-drawer"
               >
                 {/* Header */}
                 <div className="drawer-header">
@@ -86,25 +110,25 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ alert, isOpen, onClose
                   {/* Title & Severity */}
                   <div>
                     <div className="drawer-severity-badge">
-                      {getSeverityStyles(alert.severity).icon}
-                      {alert.severity}
+                      {getSeverityStyles(activeAlert.severity).icon}
+                      {activeAlert.severity}
                     </div>
-                    <h2 className="drawer-alert-title">{alert.title}</h2>
+                    <h2 className="drawer-alert-title">{activeAlert.title}</h2>
                   </div>
 
                   {/* Key Details Grid */}
                   <div className="drawer-data-grid">
                     <div className="drawer-data-item">
                       <span className="drawer-data-label">Location</span>
-                      <span className="drawer-data-value">{alert.location}</span>
+                      <span className="drawer-data-value">{activeAlert.location}</span>
                     </div>
                     <div className="drawer-data-item">
                       <span className="drawer-data-label">Detected</span>
-                      <span className="drawer-data-value">{format(new Date(alert.detectedAt), 'dd MMM yyyy, HH:mm')}</span>
+                      <span className="drawer-data-value">{format(new Date(activeAlert.detectedAt), 'dd MMM yyyy, HH:mm')}</span>
                     </div>
                     <div className="drawer-data-item">
                       <span className="drawer-data-label">Last updated</span>
-                      <span className="drawer-data-value">{formatDistanceToNow(new Date(alert.updatedAt), { addSuffix: true })}</span>
+                      <span className="drawer-data-value">{formatDistanceToNow(new Date(activeAlert.updatedAt), { addSuffix: true })}</span>
                     </div>
                   </div>
 
@@ -113,27 +137,59 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ alert, isOpen, onClose
                     <div className="drawer-data-grid">
                       <div className="drawer-data-item">
                         <span className="drawer-data-label">Source</span>
-                        <span className="drawer-data-value">{alert.source}</span>
+                        <span className="drawer-data-value">{activeAlert.source}</span>
                       </div>
                       <div className="drawer-data-item">
                         <span className="drawer-data-label">Status</span>
-                        <span className="drawer-data-value" style={{ textTransform: 'uppercase' }}>{alert.status}</span>
+                        <span className="drawer-data-value" style={{ textTransform: 'uppercase' }}>{activeAlert.status}</span>
                       </div>
+                      {activeAlert.riskScore !== undefined && (
+                        <div className="drawer-data-item">
+                          <span className="drawer-data-label">Assessed Risk</span>
+                          <span className="drawer-data-value font-bold text-amber-400">{activeAlert.riskScore}/100 ({activeAlert.warningStage || 'Watch'})</span>
+                        </div>
+                      )}
+                      {activeAlert.confidence !== undefined && (
+                        <div className="drawer-data-item">
+                          <span className="drawer-data-label">Evidence Confidence</span>
+                          <span className="drawer-data-value font-bold text-emerald-400">{activeAlert.confidence}%</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Description */}
                   <div className="drawer-section">
                     <h4 className="drawer-section-title">Description</h4>
-                    <p className="drawer-description">{alert.description}</p>
+                    <p className="drawer-description" style={{ whiteSpace: 'pre-line' }}>{activeAlert.description}</p>
                   </div>
 
+                  {/* Lifecycle Event History */}
+                  {activeAlert.lifecycleHistory && activeAlert.lifecycleHistory.length > 0 && (
+                    <div className="drawer-section">
+                      <h4 className="drawer-section-title">Warning Lifecycle History</h4>
+                      <div className="flex flex-col gap-2 bg-surface-secondary/50 p-3 rounded-lg border border-border">
+                        {activeAlert.lifecycleHistory.map((item, idx) => (
+                          <div key={idx} className="flex items-start justify-between text-xs py-1 border-b border-border/40 last:border-0">
+                            <div>
+                              <span className="font-bold text-accent uppercase tracking-wider">[{item.stage}]</span>{' '}
+                              <span className="text-zinc-300">{item.note}</span>
+                            </div>
+                            <span className="text-[10px] text-zinc-500 flex-shrink-0 ml-2">
+                              {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Telemetry */}
-                  {alert.measurements && alert.measurements.length > 0 && (
+                  {activeAlert.measurements && activeAlert.measurements.length > 0 && (
                     <div className="drawer-section">
                       <h4 className="drawer-section-title">Environmental Signals</h4>
                       <div className="env-signals-grid">
-                        {alert.measurements.map((m, idx) => (
+                        {activeAlert.measurements.map((m, idx) => (
                           <div key={idx} className="env-signal-card">
                             <span className="env-signal-label">{m.label}</span>
                             <span className="env-signal-value">{m.value}</span>
@@ -143,12 +199,19 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ alert, isOpen, onClose
                     </div>
                   )}
 
+                  {/* Information Quality & Verification Section */}
+                  <InformationQualitySection
+                    alert={activeAlert}
+                    onAlertUpdated={handleAlertUpdated}
+                    userRole={settings.role}
+                  />
+
                   {/* Action */}
-                  {alert.recommendedAction && (
+                  {activeAlert.recommendedAction && (
                     <div className="drawer-section">
                       <h4 className="drawer-section-title">Recommended Action</h4>
                       <div className="recommended-action-box">
-                        <p className="recommended-action-text">{alert.recommendedAction}</p>
+                        <p className="recommended-action-text">{activeAlert.recommendedAction}</p>
                       </div>
                     </div>
                   )}
@@ -159,10 +222,10 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ alert, isOpen, onClose
                   <button onClick={handleViewOnMap} className="btn-drawer-action btn-view-map">
                     <Map size={16} /> View on Map
                   </button>
-                  {!alert.isAcknowledged && (
+                  {!activeAlert.isAcknowledged && (
                     <button 
                       onClick={() => {
-                        onAcknowledge(alert.id);
+                        onAcknowledge(activeAlert.id);
                         onClose();
                       }}
                       className="btn-drawer-action btn-acknowledge"

@@ -80,6 +80,35 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onClick }) => {
           <span>{alert.location}</span>
         </div>
         
+        {/* Early Warning & Verification Badges */}
+        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+          {alert.riskScore !== undefined && alert.warningStage && (
+            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              Risk {alert.riskScore}/100 • {alert.warningStage.toUpperCase()}
+            </span>
+          )}
+          {alert.verificationStatus === 'Under Review' && (
+            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              Under Review
+            </span>
+          )}
+          {alert.verificationStatus === 'Corrected' && (
+            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-sky-500/15 text-sky-400 border border-sky-500/30">
+              Corrected
+            </span>
+          )}
+          {alert.verificationStatus === 'Retracted' && (
+            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-red-500/15 text-red-400 border border-red-500/30">
+              Retracted
+            </span>
+          )}
+          {alert.confidence !== undefined && (
+            <span className="text-[10px] text-zinc-400">
+              Confidence: {alert.confidence}%
+            </span>
+          )}
+        </div>
+
         <p className="alert-card-desc">
           "{alert.description}"
         </p>

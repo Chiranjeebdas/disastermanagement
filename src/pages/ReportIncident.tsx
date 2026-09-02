@@ -125,7 +125,7 @@ export const ReportIncident: React.FC = () => {
     setSubmittedReport(null);
   };
 
-  const locationDisplayText = location.address || (location.coords ? `${location.coords.latitude.toFixed(4)}, ${location.coords.longitude.toFixed(4)}` : 'Khapuria, Cuttack');
+  const locationDisplayText = location.address || (location.coords ? `${location.coords.latitude.toFixed(4)}, ${location.coords.longitude.toFixed(4)}` : 'Locating GPS...');
 
   if (submittedReport) {
     const analysis = submittedReport.aiAnalysis;

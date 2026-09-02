@@ -9,7 +9,6 @@ const legendItems: MapLegendItem[] = [
   { label: 'Hospital', type: 'hospital' },
   { label: 'Police Station', type: 'police' },
   { label: 'Fire Station', type: 'fire' },
-  { label: 'Relief Shelter', type: 'shelter' },
   { label: '24/7 Medical Store', type: 'pharmacy' },
   { label: 'Critical Incident', type: 'alert-critical' },
   { label: 'Your Location', type: 'user' }

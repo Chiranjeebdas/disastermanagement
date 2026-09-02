@@ -15,6 +15,20 @@ interface ConfidenceRadarChartProps {
   longitude?: number;
 }
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-[#141517] border border-[#222222] p-2 rounded-lg shadow-xl text-xs">
+        <p className="text-text-secondary uppercase tracking-widest mb-1">{label}</p>
+        <p className="font-bold text-[#ff9500]">
+          Live Confidence Index: {payload[0].value}%
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export const ConfidenceRadarChart: React.FC<ConfidenceRadarChartProps> = ({
   latitude = 20.4625,
   longitude = 85.8828
@@ -38,13 +52,13 @@ export const ConfidenceRadarChart: React.FC<ConfidenceRadarChartProps> = ({
     const cycloneScore = Math.min(95, Math.max(10, Math.round((wind * 2.2) + (humidity > 85 ? 15 : 0))));
 
     // 4. Drought Risk (High temp + low humidity)
-    const droughtScore = Math.min(90, Math.max(5, Math.round(humidity < 45 ? 50 + (45 - humidity) : 12)));
+    const droughtScore = Math.min(90, Math.max(5, Math.round((temp > 32 ? (temp - 32) * 5 : 5) + (humidity < 40 ? (40 - humidity) * 1.5 : 0))));
 
-    // 5. Earthquake (Tectonic baseline in seismic zone III/IV)
-    const earthquakeScore = 24;
+    // 5. Tsunami Vector (Correlated with coastal surge indicators & extreme storms)
+    const tsunamiScore = Math.min(90, Math.max(5, Math.round((wind > 60 ? (wind - 60) * 1.2 : 5) + (precip > 50 ? 15 : 0))));
 
-    // 6. Tsunami Risk (Coastal baseline)
-    const tsunamiScore = 8;
+    // 6. Seismic Vector (Baseline tectonic strain monitoring)
+    const earthquakeScore = 15; // Nominal regional tectonic baseline
 
     return [
       { subject: 'Cyclone', A: cycloneScore, fullMark: 100 },
@@ -55,20 +69,6 @@ export const ConfidenceRadarChart: React.FC<ConfidenceRadarChartProps> = ({
       { subject: 'Tsunami', A: tsunamiScore, fullMark: 100 },
     ];
   }, [weather]);
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-[#141517] border border-[#222222] p-2 rounded-lg shadow-xl text-xs">
-          <p className="text-text-secondary uppercase tracking-widest mb-1">{label}</p>
-          <p className="font-bold text-[#ff9500]">
-            Live Confidence Index: {payload[0].value}%
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <Card className="h-full flex flex-col">

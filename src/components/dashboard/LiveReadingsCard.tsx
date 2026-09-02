@@ -1,38 +1,25 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
-import { Thermometer, RefreshCw, Wind } from 'lucide-react';
+import { Thermometer, Droplets, Wind, CloudRain, MapPin, RefreshCw, Radio } from 'lucide-react';
 import { useWeather } from '../../hooks/useWeather';
 
 interface LiveReadingsCardProps {
   latitude?: number;
   longitude?: number;
+  address?: string | null;
 }
 
-// Generate smooth deterministic mock data for the sparklines
-const generateSparklineData = (baseVal: number, variance: number, seed: number, timeOffset: number) => {
-  const data = [];
-  for (let i = 0; i < 30; i++) {
-    // We add timeOffset to simulate the wave moving to the left
-    const random = Math.sin(seed * (i + timeOffset)) * variance;
-    // Add some secondary noise for realism
-    const noise = Math.cos(seed * 2.5 * (i + timeOffset)) * (variance * 0.2);
-    const current = baseVal + (random + noise) * 0.5;
-    data.push({ value: current });
-  }
-  return data;
-};
-
-const Sparkline = ({ data, color, height = 50 }: { data: any[], color: string, height?: number }) => (
-  <div style={{ width: '100%', height: `${height}px`, marginTop: '8px' }}>
+const Sparkline = ({ data, color, height = 48 }: { data: { value: number }[], color: string, height?: number }) => (
+  <div style={{ width: '100%', height: `${height}px`, marginTop: '6px' }}>
     <ResponsiveContainer width="100%" height="100%" className="animated-sparkline">
-      <AreaChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+      <AreaChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id={`color-${color}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={color} stopOpacity={0.5} />
+            <stop offset="5%" stopColor={color} stopOpacity={0.45} />
             <stop offset="95%" stopColor={color} stopOpacity={0.0} />
           </linearGradient>
         </defs>
-        <YAxis domain={['dataMin - 2', 'dataMax + 2']} hide />
+        <YAxis domain={['dataMin - 1', 'dataMax + 1']} hide />
         <Area
           type="monotone"
           dataKey="value"
@@ -46,9 +33,9 @@ const Sparkline = ({ data, color, height = 50 }: { data: any[], color: string, h
     </ResponsiveContainer>
     <style>{`
       @keyframes breath-chart {
-        0% { opacity: 0.5; }
+        0% { opacity: 0.75; }
         50% { opacity: 1; }
-        100% { opacity: 0.5; }
+        100% { opacity: 0.75; }
       }
       .animated-sparkline path.recharts-area-area,
       .animated-sparkline path.recharts-area-curve {
@@ -58,182 +45,215 @@ const Sparkline = ({ data, color, height = 50 }: { data: any[], color: string, h
   </div>
 );
 
-export const LiveReadingsCard: React.FC<LiveReadingsCardProps> = ({ latitude, longitude }) => {
-  const { data: weather } = useWeather(latitude, longitude);
+export const LiveReadingsCard: React.FC<LiveReadingsCardProps> = ({ latitude, longitude, address }) => {
+  const effectiveLat = latitude ?? 20.2961;
+  const effectiveLon = longitude ?? 85.8245;
 
-  // State to drive the animation
-  const [timeOffset, setTimeOffset] = useState(0);
+  const { data: weather, loading, forceRefresh } = useWeather(effectiveLat, effectiveLon);
 
-  useEffect(() => {
-    let animationFrameId: number;
-    let lastTime = performance.now();
+  // Use genuine 24h past hourly measurements from Open-Meteo
+  const tempData = useMemo(() => {
+    if (weather?.hourlyHistory?.temperature && weather.hourlyHistory.temperature.length > 0) {
+      return weather.hourlyHistory.temperature.map(t => ({ value: t }));
+    }
+    if (weather?.temperature !== undefined) {
+      return Array(24).fill(0).map(() => ({ value: weather.temperature }));
+    }
+    return [];
+  }, [weather]);
 
-    const animate = (time: number) => {
-      // Calculate delta time to ensure smooth animation regardless of frame rate
-      const deltaTime = time - lastTime;
-      if (deltaTime > 50) { // Update roughly every 50ms (20fps) to save CPU while looking smooth
-        setTimeOffset(prev => prev + 0.05);
-        lastTime = time;
-      }
-      animationFrameId = requestAnimationFrame(animate);
-    };
+  const humData = useMemo(() => {
+    if (weather?.hourlyHistory?.humidity && weather.hourlyHistory.humidity.length > 0) {
+      return weather.hourlyHistory.humidity.map(h => ({ value: h }));
+    }
+    if (weather?.humidity !== undefined) {
+      return Array(24).fill(0).map(() => ({ value: weather.humidity }));
+    }
+    return [];
+  }, [weather]);
 
-    animationFrameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, []);
+  const precipData = useMemo(() => {
+    if (weather?.hourlyHistory?.precipitation && weather.hourlyHistory.precipitation.length > 0) {
+      return weather.hourlyHistory.precipitation.map(p => ({ value: Math.max(0, p) }));
+    }
+    if (weather?.precipitation !== undefined) {
+      return Array(24).fill(0).map(() => ({ value: weather.precipitation }));
+    }
+    return [];
+  }, [weather]);
 
-  const tempData = useMemo(() => generateSparklineData(weather?.temperature || 25.9, 2, 0.4, timeOffset), [weather, timeOffset]);
-  const humData = useMemo(() => generateSparklineData(weather?.humidity || 96, 5, 0.6, timeOffset * 1.5), [weather, timeOffset]);
-  const precipData = useMemo(() => generateSparklineData(weather?.precipitation || 0, 8, 0.8, timeOffset * 2).map(d => ({ value: Math.max(0, d.value) })), [weather, timeOffset]);
-
-
-
-
-  const valueStyle = {
-    fontSize: '2rem',
-    fontWeight: 300,
+  const valueStyle: React.CSSProperties = {
+    fontSize: '1.9rem',
+    fontWeight: 700,
     color: '#ffffff',
     lineHeight: 1,
-    marginBottom: '8px'
+    letterSpacing: '-0.02em',
+    marginBottom: '4px'
   };
 
-  const axisLabelsStyle = {
+  const axisLabelsStyle: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
-    fontSize: '0.55rem',
-    color: '#555555',
-    marginTop: '4px',
-    fontWeight: 500,
-    letterSpacing: '0.1em',
-    textTransform: 'uppercase' as const,
+    fontSize: '0.52rem',
+    color: '#64748b',
+    marginTop: '3px',
+    fontWeight: 600,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase'
   };
 
-  const boxStyle = {
-    backgroundColor: '#1a1b1e',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '16px',
+  const boxStyle: React.CSSProperties = {
+    backgroundColor: '#12151a',
+    border: '1px solid rgba(255, 255, 255, 0.09)',
+    borderRadius: '14px',
     padding: 0,
     overflow: 'hidden',
     display: 'flex',
-    flexDirection: 'column' as const
+    flexDirection: 'column'
   };
 
-  const headerStyle = {
-    padding: '16px 20px',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+  const headerStyle: React.CSSProperties = {
+    padding: '12px 16px',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    background: 'rgba(255, 255, 255, 0.02)'
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px', width: '100%' }}>
-      {/* Temperature Card */}
-      <div style={boxStyle}>
-        <div style={headerStyle}>
-          <h3 style={{ fontSize: '0.7rem', color: '#8a8f98', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>Temperature</h3>
-          <Thermometer size={14} color="#8a8f98" />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+      {/* Live Coordinate Status Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '6px 14px',
+        background: 'rgba(18, 21, 26, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderRadius: '10px',
+        fontSize: '0.72rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#cbd5e1' }}>
+          <MapPin size={12} className="text-orange-400" />
+          <span style={{ fontWeight: 600 }}>
+            {address || `${effectiveLat.toFixed(4)}°N, ${effectiveLon.toFixed(4)}°E (Bhubaneswar)`}
+          </span>
         </div>
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={valueStyle}>
-            {weather?.temperature?.toFixed(1) || '--'}°C
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', marginTop: '12px' }}>
-            <Sparkline data={tempData} color="#fb923c" height={50} />
-            <div style={axisLabelsStyle}>
-              <span>6am</span><span>12pm</span><span>6pm</span><span>12am</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Humidity Card */}
-      <div style={boxStyle}>
-        <div style={headerStyle}>
-          <h3 style={{ fontSize: '0.7rem', color: '#8a8f98', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>Humidity</h3>
-          <RefreshCw size={14} color="#8a8f98" />
-        </div>
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={valueStyle}>
-            {weather?.humidity || '--'}%
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#34d399', fontWeight: 700, fontSize: '0.65rem' }}>
+            <Radio size={10} className="animate-pulse" />
+            <span>REAL-TIME SENSOR FEED</span>
           </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', marginTop: '12px' }}>
-            <Sparkline data={humData} color="#fb923c" height={50} />
-            <div style={axisLabelsStyle}>
-              <span>6am</span><span>12pm</span><span>6pm</span><span>12am</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Wind Card */}
-      <div style={boxStyle}>
-        <div style={headerStyle}>
-          <h3 style={{ fontSize: '0.7rem', color: '#8a8f98', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>Wind</h3>
-          <Wind size={14} color="#8a8f98" />
-        </div>
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={valueStyle}>
-            {weather?.windSpeed?.toFixed(1) || '--'} <span style={{ fontSize: '1.2rem', color: '#8a8f98' }}>km/h</span>
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '12px', position: 'relative' }}>
-            <div style={{
-              position: 'absolute',
-              width: '50px',
-              height: '50px',
-              borderRadius: '50%',
-              border: '1px dashed rgba(255,255,255,0.2)',
-              animation: `spin-wind ${weather?.windSpeed ? Math.max(1, 20 / weather.windSpeed) : 5}s linear infinite`
-            }} />
-            <div style={{
-              position: 'absolute',
-              width: '34px',
-              height: '34px',
-              borderRadius: '50%',
-              border: '1px solid rgba(255,255,255,0.05)',
-            }} />
-            <div style={{
-              position: 'absolute',
-              transform: `rotate(${weather?.windDirection || 0}deg)`,
-              transition: 'transform 1s ease-out',
+          <button
+            onClick={forceRefresh}
+            style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <div style={{ transform: 'translateY(-12px)' }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="#fb923c" stroke="#fb923c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
-                </svg>
-              </div>
-            </div>
-            <div style={{
-              position: 'absolute',
-              bottom: '-5px',
-              fontSize: '0.55rem',
-              color: '#555555',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em'
-            }}>DIR: {weather?.windDirection || 0}°</div>
-            <style>{`
-              @keyframes spin-wind { 100% { transform: rotate(360deg); } }
-            `}</style>
-          </div>
+              gap: '4px',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '6px',
+              padding: '2px 8px',
+              color: '#94a3b8',
+              fontSize: '0.65rem',
+              cursor: 'pointer'
+            }}
+            title="Force refresh live weather telemetry"
+          >
+            <RefreshCw size={10} className={loading ? 'animate-spin' : ''} />
+            <span>{loading ? 'Syncing...' : 'Sync'}</span>
+          </button>
         </div>
       </div>
 
-      {/* Precipitation Card */}
-      <div style={boxStyle}>
-        <div style={headerStyle}>
-          <h3 style={{ fontSize: '0.7rem', color: '#8a8f98', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>Precipitation</h3>
-        </div>
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={valueStyle}>
-            {weather?.precipitation ?? '--'} <span style={{ fontSize: '1.2rem', color: '#8a8f98' }}>mm</span>
+      {/* 4 Telemetry Metrics Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px', width: '100%' }}>
+        {/* 1. Temperature Card */}
+        <div style={boxStyle}>
+          <div style={headerStyle}>
+            <h3 style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>Temperature</h3>
+            <Thermometer size={13} className="text-orange-400" />
           </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', marginTop: '12px' }}>
-            <Sparkline data={precipData} color="#fb923c" height={50} />
-            <div style={axisLabelsStyle}>
-              <span>6am</span><span>12pm</span><span>6pm</span><span>12am</span>
+          <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <div style={valueStyle}>
+              {weather?.temperature !== undefined ? `${weather.temperature.toFixed(1)}°C` : loading ? '...' : '--'}
+            </div>
+            <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginBottom: '6px' }}>
+              Feels like: <strong style={{ color: '#e2e8f0' }}>{weather?.feelsLike !== undefined ? `${weather.feelsLike.toFixed(1)}°C` : '--'}</strong>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+              <Sparkline data={tempData} color="#f97316" height={44} />
+              <div style={axisLabelsStyle}>
+                <span>-24h</span><span>-18h</span><span>-12h</span><span>-6h</span><span>Now</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Humidity Card */}
+        <div style={boxStyle}>
+          <div style={headerStyle}>
+            <h3 style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>Humidity</h3>
+            <Droplets size={13} className="text-sky-400" />
+          </div>
+          <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <div style={valueStyle}>
+              {weather?.humidity !== undefined ? `${weather.humidity}%` : loading ? '...' : '--'}
+            </div>
+            <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginBottom: '6px' }}>
+              Pressure: <strong style={{ color: '#e2e8f0' }}>{weather?.surfacePressure !== undefined ? `${weather.surfacePressure.toFixed(0)} hPa` : '--'}</strong>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+              <Sparkline data={humData} color="#38bdf8" height={44} />
+              <div style={axisLabelsStyle}>
+                <span>-24h</span><span>-18h</span><span>-12h</span><span>-6h</span><span>Now</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Precipitation Card */}
+        <div style={boxStyle}>
+          <div style={headerStyle}>
+            <h3 style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>Precipitation</h3>
+            <CloudRain size={13} className="text-emerald-400" />
+          </div>
+          <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <div style={valueStyle}>
+              {weather?.precipitation !== undefined ? `${weather.precipitation.toFixed(1)} mm` : loading ? '...' : '--'}
+            </div>
+            <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginBottom: '6px' }}>
+              24h Total: <strong style={{ color: '#e2e8f0' }}>{weather?.precipitationAccumulation24h !== undefined ? `${weather.precipitationAccumulation24h.toFixed(1)} mm` : '0.0 mm'}</strong>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+              <Sparkline data={precipData} color="#10b981" height={44} />
+              <div style={axisLabelsStyle}>
+                <span>-24h</span><span>-18h</span><span>-12h</span><span>-6h</span><span>Now</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. Wind Velocity Card */}
+        <div style={boxStyle}>
+          <div style={headerStyle}>
+            <h3 style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0, lineHeight: 1 }}>Wind Velocity</h3>
+            <Wind size={13} className="text-amber-400" />
+          </div>
+          <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <div style={valueStyle}>
+              {weather?.windSpeed !== undefined ? `${weather.windSpeed.toFixed(1)}` : loading ? '...' : '--'} <span style={{ fontSize: '0.95rem', color: '#94a3b8', fontWeight: 500 }}>km/h</span>
+            </div>
+            <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginBottom: '6px' }}>
+              Direction: <strong style={{ color: '#e2e8f0' }}>{weather?.windDirection !== undefined ? `${weather.windDirection}°` : '--'}</strong>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', padding: '8px', marginTop: '6px' }}>
+              <div style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 600 }}>
+                {weather?.windGusts !== undefined ? `Gusts: ${weather.windGusts.toFixed(1)} km/h` : 'Calm Conditions'}
+              </div>
             </div>
           </div>
         </div>
@@ -241,3 +261,5 @@ export const LiveReadingsCard: React.FC<LiveReadingsCardProps> = ({ latitude, lo
     </div>
   );
 };
+
+export default LiveReadingsCard;

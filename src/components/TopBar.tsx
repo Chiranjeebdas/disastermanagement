@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -14,6 +14,17 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
   const location = useLocation();
   const { location: geoLocation } = useGeoLocation();
   const [activeMapFilter, setActiveMapFilter] = useState('all');
+  const [navState, setNavState] = useState<{ isNavigating: boolean; destinationTitle?: string }>({ isNavigating: false });
+
+  useEffect(() => {
+    const handleNavState = (e: any) => {
+      if (e.detail) {
+        setNavState(e.detail);
+      }
+    };
+    window.addEventListener('map-navigation-state', handleNavState);
+    return () => window.removeEventListener('map-navigation-state', handleNavState);
+  }, []);
 
   const isHome = location.pathname === '/app';
 
@@ -21,8 +32,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
     { id: 'all', label: 'All' },
     { id: 'hospital', label: 'Hospital' },
     { id: 'police', label: 'Police Station' },
-    { id: 'fire', label: 'Fire Station' },
-    { id: 'shelter', label: 'Shelter' }
+    { id: 'fire', label: 'Fire Station' }
   ];
 
   return (
@@ -56,40 +66,75 @@ const TopBar: React.FC<TopBarProps> = ({ onMobileMenuClick }) => {
           </motion.div>
         )}
 
-        {/* Map filter buttons with fluid animated orange indicator */}
+        {/* Map filter buttons or Active Navigation Cancel Bar */}
         {location.pathname.includes('/map') && (
-          <div className="map-filter-bar" role="toolbar" aria-label="Map filters">
-            {mapFilters.map(filter => {
-              const isActive = activeMapFilter === filter.id;
-              return (
-                <motion.button
-                  key={filter.id}
-                  type="button"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => {
-                    setActiveMapFilter(filter.id);
-                    window.dispatchEvent(new CustomEvent('map-filter-change', { detail: filter.id }));
-                  }}
-                  className={`map-filter-btn ${isActive ? 'active' : ''}`}
-                  data-filter={filter.id}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="map-filter-active-pill"
-                      className="map-filter-active-bg"
-                      transition={{
-                        type: "spring",
-                        stiffness: 420,
-                        damping: 32
-                      }}
-                    />
-                  )}
-                  <span className="map-filter-label">{filter.label}</span>
-                </motion.button>
-              );
-            })}
-          </div>
+          navState.isNavigating ? (
+            <div className="flex items-center gap-3 bg-rose-500/15 border border-rose-500/40 rounded-xl px-3.5 py-1.5 shadow-lg">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                </span>
+                <span className="text-xs font-bold text-white max-w-[220px] truncate">
+                  Route to {navState.destinationTitle || 'Target'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('map-cancel-route'));
+                }}
+                style={{
+                  backgroundColor: '#ef4444',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+                }}
+                className="hover:opacity-90 active:scale-95 transition-all"
+              >
+                ✕ Cancel Navigation
+              </button>
+            </div>
+          ) : (
+            <div className="map-filter-bar" role="toolbar" aria-label="Map filters">
+              {mapFilters.map(filter => {
+                const isActive = activeMapFilter === filter.id;
+                return (
+                  <motion.button
+                    key={filter.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveMapFilter(filter.id);
+                      window.dispatchEvent(new CustomEvent('map-filter-change', { detail: filter.id }));
+                    }}
+                    className={`map-filter-btn ${isActive ? 'active' : ''}`}
+                    data-filter={filter.id}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="map-filter-active-pill"
+                        className="map-filter-active-bg"
+                        transition={{
+                          type: "spring",
+                          stiffness: 420,
+                          damping: 32
+                        }}
+                      />
+                    )}
+                    <span className="map-filter-label">{filter.label}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          )
         )}
       </div>
 

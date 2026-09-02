@@ -8,18 +8,25 @@ import { LoaderOne } from './components/ui/loader';
 const Home = lazy(() => import('./pages/Home'));
 const PlaceholderModule = lazy(() => import('./pages/PlaceholderModule'));
 const Alerts = lazy(() => import('./pages/Alerts').then(module => ({ default: module.Alerts })));
+const EarlyWarning = lazy(() => import('./pages/EarlyWarning'));
 const DisasterMap = lazy(() => import('./pages/DisasterMap').then(module => ({ default: module.DisasterMap })));
 const LiveTelemetry = lazy(() => import('./pages/LiveTelemetry').then(module => ({ default: module.LiveTelemetry })));
 const Reports = lazy(() => import('./pages/Reports').then(module => ({ default: module.Reports })));
 const ReportIncident = lazy(() => import('./pages/ReportIncident').then(module => ({ default: module.ReportIncident })));
 const VolunteerDashboard = lazy(() => import('./pages/VolunteerDashboard').then(module => ({ default: module.VolunteerDashboard })));
 const SettingsDashboard = lazy(() => import('./pages/Settings').then(module => ({ default: module.SettingsDashboard })));
+const UserHome = lazy(() => import('./pages/UserHome'));
+const UserMap = lazy(() => import('./pages/UserMap'));
+const UserAlerts = lazy(() => import('./pages/UserAlerts'));
+const UserHelp = lazy(() => import('./pages/UserHelp'));
+const UserPrepare = lazy(() => import('./pages/UserPrepare'));
 
 const prefetchRoutes = () => {
   // Preload all chunks in the background so transitions are instant
   // Added catch to prevent unhandled promise rejections if chunk fails to load
   import('./pages/Home').catch(() => {});
   import('./pages/Alerts').catch(() => {});
+  import('./pages/EarlyWarning').catch(() => {});
   import('./pages/DisasterMap').catch(() => {});
   import('./pages/LiveTelemetry').catch(() => {});
   import('./pages/Reports').catch(() => {});
@@ -27,6 +34,11 @@ const prefetchRoutes = () => {
   import('./pages/VolunteerDashboard').catch(() => {});
   import('./pages/Settings').catch(() => {});
   import('./pages/PlaceholderModule').catch(() => {});
+  import('./pages/UserHome').catch(() => {});
+  import('./pages/UserMap').catch(() => {});
+  import('./pages/UserAlerts').catch(() => {});
+  import('./pages/UserHelp').catch(() => {});
+  import('./pages/UserPrepare').catch(() => {});
 };
 
 const App: React.FC = () => {
@@ -48,10 +60,16 @@ const App: React.FC = () => {
       }>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/user" element={<UserHome />} />
+          <Route path="/user/map" element={<UserMap />} />
+          <Route path="/user/alerts" element={<UserAlerts />} />
+          <Route path="/user/help" element={<UserHelp />} />
+          <Route path="/user/prepare" element={<UserPrepare />} />
           
           <Route path="/app" element={<AppLayout />}>
             <Route index element={<Home />} />
             <Route path="alerts" element={<Alerts />} />
+            <Route path="early-warning" element={<EarlyWarning />} />
             <Route path="map" element={<DisasterMap />} />
             <Route path="telemetry" element={<LiveTelemetry />} />
             <Route path="reports" element={<Reports />} />

@@ -121,10 +121,7 @@
 }
 
 .sidebar.collapsed .sidebar-section-title {
-  text-align: center;
-  padding: 0;
-  font-size: 0.7rem;
-  color: #71717a;
+  display: none;
 }
 
 /* Navigation List */
@@ -175,6 +172,9 @@
 .sidebar-item:hover {
   color: #f4f4f5;
   background-color: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar:not(.collapsed) .sidebar-item:hover {
   transform: translateX(1.5px);
 }
 
@@ -224,12 +224,18 @@
 .sidebar.collapsed .sidebar-item {
   justify-content: center;
   padding: 0;
+  height: 38px;
+  width: 38px;
+  margin: 1px auto;
+  border-radius: 10px;
 }
 
 .sidebar.collapsed .sidebar-badge-dot {
   position: absolute;
-  top: 5px;
-  right: 10px;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
 }
 
 /* Footer / Emergency Helpline Card */

@@ -12,8 +12,11 @@ import { ShieldCheck, WifiOff, RefreshCw, MapPin, ChevronDown } from 'lucide-rea
 import '../styles/Alerts.css';
 
 export const Alerts: React.FC = () => {
-  const { alerts, isOffline, acknowledgeAlert } = useAlerts();
-  const { location } = useLocation();
+  const { location, requestLocation } = useLocation();
+  const { alerts, isOffline, refreshAlerts, acknowledgeAlert, updateAlert } = useAlerts(
+    location.coords?.latitude,
+    location.coords?.longitude
+  );
 
   // State for filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -138,15 +141,36 @@ export const Alerts: React.FC = () => {
 
         {/* Right Header Area with Location + Actions */}
         <div className="alerts-header-right">
-          <div className="alerts-location-pill">
-            <MapPin size={13} className="text-zinc-400" />
-            <span>Khapuria, Cuttack</span>
+          <button
+            className="alerts-location-pill interactive-cursor"
+            onClick={() => requestLocation()}
+            title="Click to refresh live GPS location"
+            style={{ cursor: 'pointer' }}
+          >
+            <MapPin size={13} className={location.status === 'granting' ? 'text-orange-400 animate-pulse' : 'text-zinc-400'} />
+            <span className="alerts-location-text">
+              {location.status === 'granting'
+                ? 'Detecting GPS...'
+                : location.address
+                ? location.address
+                : location.coords
+                ? `${location.coords.latitude.toFixed(3)}°N, ${location.coords.longitude.toFixed(3)}°E`
+                : 'Detect Location'}
+            </span>
             <ChevronDown size={13} className="text-zinc-500" />
-          </div>
+          </button>
 
           <div className="alerts-actions-row">
-            <button className="btn-refresh" aria-label="Refresh alerts">
-              <RefreshCw size={13} />
+            <button
+              className="btn-refresh"
+              onClick={() => {
+                requestLocation();
+                refreshAlerts();
+              }}
+              aria-label="Refresh alerts"
+              title="Refresh live telemetry & alerts"
+            >
+              <RefreshCw size={13} className={location.status === 'granting' ? 'animate-spin' : ''} />
             </button>
             <div className={`alerts-live-indicator ${isOffline ? 'offline' : ''}`}>
               {isOffline ? (
@@ -223,6 +247,7 @@ export const Alerts: React.FC = () => {
         isOpen={!!selectedAlertId}
         onClose={() => setSelectedAlertId(null)}
         onAcknowledge={acknowledgeAlert}
+        onAlertUpdated={updateAlert}
       />
     </div>
   );

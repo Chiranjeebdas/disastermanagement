@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 const SETTINGS_STORAGE_KEY = 'drishti_settings_v1';
 
-export type UserRole = 'citizen' | 'volunteer';
+export type UserRole = 'citizen' | 'volunteer' | 'authorized_reviewer';
 
 export interface AlertPreferences {
   critical: boolean;

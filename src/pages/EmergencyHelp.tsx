@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import {
   Shield, Flame, Plus, MapPin, Navigation, Eye,
   Building2, Phone, ChevronRight,
-  LifeBuoy, AlertCircle, Footprints, Car, MoreHorizontal
+  LifeBuoy, AlertCircle, Footprints, Car, MoreHorizontal,
+  ShieldAlert
 } from 'lucide-react';
 import { useLocation } from '../hooks/useLocation';
 import { useNearbyFacilities, type Facility } from '../hooks/useNearbyFacilities';
+import { useEarlyWarning } from '../hooks/useEarlyWarning';
 import { LoaderOne } from '../components/ui/loader';
 import '../styles/EmergencyHelp.css';
 
@@ -58,10 +60,10 @@ const QUICK_ASSIST_OPTIONS: {
     },
     {
       label: 'Report accident',
-      type: 'RoadBlockage',
+      type: 'InfrastructureDamage',
       urgency: 'Critical',
       icon: <Car size={16} className="text-amber-500" />,
-      description: 'Traffic / Structural accident incident'
+      description: 'Road traffic or structural accident report'
     },
     {
       label: 'Other emergency',
@@ -75,6 +77,7 @@ const QUICK_ASSIST_OPTIONS: {
 export const EmergencyHelp: React.FC = () => {
   const navigate = useNavigate();
   const { location } = useLocation();
+  const { highestRisk } = useEarlyWarning();
   const { facilities, loading } = useNearbyFacilities(
     location.coords?.latitude || 20.4625,
     location.coords?.longitude || 85.8828,
@@ -143,9 +146,41 @@ export const EmergencyHelp: React.FC = () => {
         {/* Real-time Location Badge */}
         <div className="emergency-location-pill">
           <MapPin size={13} className="text-zinc-400" />
-          <span>{location.address || 'Khapuria, Cuttack'}</span>
+          <span>{location.address || (location.coords ? `${location.coords.latitude.toFixed(3)}°N, ${location.coords.longitude.toFixed(3)}°E` : 'Locating GPS...')}</span>
         </div>
       </header>
+
+      {/* Early Warning Intelligence Live Banner */}
+      <motion.div
+        whileHover={{ scale: 1.008 }}
+        whileTap={{ scale: 0.992 }}
+        onClick={() => navigate('/app/early-warning')}
+        className="cursor-pointer bg-[#18191c] hover:bg-[#202227] border border-orange-500/30 hover:border-orange-500/60 rounded-xl p-3.5 flex items-center justify-between shadow-lg transition-all"
+        title="Open Early Warning & Risk Intelligence Center"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center flex-shrink-0">
+            <ShieldAlert size={20} className="text-orange-400" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-orange-400">
+                EARLY WARNING INTELLIGENCE
+              </span>
+              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                {highestRisk.warningStage} • {highestRisk.hazardType}
+              </span>
+            </div>
+            <p className="text-xs text-zinc-300 font-medium m-0 mt-0.5">
+              Risk Score: <strong className="text-white font-mono">{highestRisk.riskScore}/100</strong> • Confidence: <strong className="text-emerald-400 font-mono">{highestRisk.confidence}%</strong> • Radius: ~{highestRisk.impactRadiusKm}km
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 text-xs font-bold text-sky-400 bg-sky-500/10 px-3 py-1.5 rounded-lg border border-sky-500/20 hover:bg-sky-500/20">
+          <span>Open Center</span>
+          <ChevronRight size={14} />
+        </div>
+      </motion.div>
 
       {/* Top 3 Emergency Action Cards */}
       <section className="top-emergency-cards-grid" aria-label="Direct Emergency Contacts">

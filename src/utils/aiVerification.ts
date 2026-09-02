@@ -4,7 +4,7 @@ import type { IncidentReport, AIReportAnalysis, ReportType, ReportUrgency, Repor
  * Regional terrain & climate hazard feasibility database.
  * Used to determine whether a reported disaster TYPE is physically possible at a given LOCATION.
  */
-const TERRAIN_DB: Record<string, {
+export const TERRAIN_DB: Record<string, {
   isHilly: boolean;
   isCoastal: boolean;
   isFloodPlain: boolean;
@@ -286,7 +286,7 @@ export function analyzeIncidentReport(
       confidenceScore: finalScore,
       confidenceLevel: 'High',
       reasoning: reasons,
-      sensorCorrelation: `Corroborated with active ${type.toLowerCase()} sensor telemetry feeds (Anomaly Index: ${(0.7 + Math.random() * 0.28).toFixed(2)}).`,
+      sensorCorrelation: `Corroborated with active ${type.toLowerCase()} sensor telemetry feeds (Anomaly Index: ${(finalScore / 100).toFixed(2)}).`,
       satelliteValidation: 'Sentinel-2 SAR backscatter confirms physical disruption footprint in sector.',
       crowdConsensus: 'Multiple corroborating signals registered from adjacent grid cells.',
       computerVisionAudit: imageResult.note,

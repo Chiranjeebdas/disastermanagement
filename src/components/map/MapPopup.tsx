@@ -4,7 +4,7 @@ import { Navigation2 } from 'lucide-react';
 interface MapPopupProps {
   title: string;
   type?: string;
-  distance?: number;
+  distance?: number | null;
   metadata?: { label: string; value: string }[];
   onNavigate?: () => void;
   actionLabel?: string;
@@ -26,9 +26,11 @@ export const MapPopup: React.FC<MapPopupProps> = ({
         )}
         <h4 className="map-popup-title">{title}</h4>
         
-        {distance !== undefined && (
-          <span className="map-popup-distance">{distance.toFixed(1)} km from your location</span>
-        )}
+        {typeof distance === 'number' && !isNaN(distance) ? (
+          <span className="map-popup-distance">{distance.toFixed(1)} km away</span>
+        ) : distance === null ? (
+          <span className="map-popup-distance text-zinc-400">Distance unavailable</span>
+        ) : null}
       </div>
 
       {metadata.length > 0 && (

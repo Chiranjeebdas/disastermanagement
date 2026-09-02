@@ -161,15 +161,24 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
                   <Navigation size={12} className="animate-pulse" /> LIVE GPS ROUTE
                 </span>
               </div>
-              {urgency && (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
-                  urgency === 'Critical' ? 'bg-danger/20 text-danger border border-danger/40' :
-                  urgency === 'Medium' ? 'bg-warning/20 text-warning border border-warning/40' :
-                  'bg-success/20 text-success border border-success/40'
-                }`}>
-                  {urgency}
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {urgency && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                    urgency === 'Critical' ? 'bg-danger/20 text-danger border border-danger/40' :
+                    urgency === 'Medium' ? 'bg-warning/20 text-warning border border-warning/40' :
+                    'bg-success/20 text-success border border-success/40'
+                  }`}>
+                    {urgency}
+                  </span>
+                )}
+                <button
+                  onClick={onClose}
+                  className="p-1 text-zinc-400 hover:text-white rounded-md hover:bg-white/10 transition-colors cursor-pointer"
+                  title="Close and cancel active route"
+                >
+                  <X size={15} />
+                </button>
+              </div>
             </div>
 
             {/* Destination & ETA Display */}
@@ -230,10 +239,10 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
 
               <button 
                 onClick={onClose}
-                className="w-full py-1.5 text-text-muted hover:text-white text-xs font-medium text-center transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg text-xs font-bold text-center transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
               >
-                <X size={12} />
-                Exit Active Route
+                <X size={14} />
+                Cancel & End Navigation
               </button>
             </div>
           </div>

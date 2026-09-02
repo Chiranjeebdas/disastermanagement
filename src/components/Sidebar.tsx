@@ -12,7 +12,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  PhoneCall
+  PhoneCall,
+  ShieldAlert
 } from 'lucide-react';
 import { Logo } from './ui/Logo';
 import { Tooltip } from './ui/Tooltip';
@@ -31,6 +32,7 @@ const navSections = [
     items: [
       { label: 'Home', path: '/app', icon: <Home size={17} strokeWidth={2} />, exact: true },
       { label: 'Alerts', path: '/app/alerts', icon: <Bell size={17} strokeWidth={2} />, hasBadge: true },
+      { label: 'Early Warning', path: '/app/early-warning', icon: <ShieldAlert size={17} strokeWidth={2} />, hasBadge: true },
       { label: 'Disaster Map', path: '/app/map', icon: <Map size={17} strokeWidth={2} /> },
       { label: 'Live Telemetry', path: '/app/telemetry', icon: <Activity size={17} strokeWidth={2} /> },
     ]
@@ -88,8 +90,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="sidebar-header">
           <motion.div
             className="flex items-center cursor-pointer select-none"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
             onClick={() => navigate('/')}
             title="Go to Landing Page"
           >
@@ -130,9 +130,11 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="sidebar-content custom-sidebar-scrollbar">
           {navSections.map((section, idx) => (
             <div key={idx} className="sidebar-section">
-              <div className="sidebar-section-title">
-                {!isCollapsed ? section.title : '•'}
-              </div>
+              {!isCollapsed && (
+                <div className="sidebar-section-title">
+                  {section.title}
+                </div>
+              )}
               <nav className="sidebar-nav">
                 {section.items.map((item, itemIdx) => {
                   const active = isItemActive(item.path, item.exact);

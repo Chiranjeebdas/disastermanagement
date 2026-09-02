@@ -26,6 +26,7 @@ export const LiveTelemetry: React.FC = () => {
             <LiveReadingsCard 
               latitude={location.coords?.latitude}
               longitude={location.coords?.longitude}
+              address={location.address}
             />
           </div>
           <div className="telemetry-panel-large">

@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import ReactDOM from 'react-dom';
+import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './MapStyles.css';
-import { MapControls } from './MapControls';
-import { Map as MapIcon, Globe, Moon } from 'lucide-react';
+import { Globe, Plus, Minus, Crosshair, Layers } from 'lucide-react';
 
 interface InteractiveMapProps {
   center: [number, number];
   zoom?: number;
   children?: React.ReactNode;
   className?: string;
+  onMapClick?: (lat: number, lng: number) => void;
+  onMapDoubleClick?: (lat: number, lng: number) => void;
 }
 
 export type MapLayerType = 'street' | 'satellite' | 'dark';
@@ -27,19 +29,17 @@ const TILE_LAYERS: Record<MapLayerType, { url: string; attribution: string; maxZ
   street: {
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-    subdomains: ['a', 'b', 'c']
+    maxZoom: 19
   },
   satellite: {
-    // High-resolution Google Hybrid satellite imagery with roads & landmarks
-    url: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
-    attribution: 'Imagery &copy; Google Maps',
-    maxZoom: 22
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '&copy; <a href="https://www.esri.com">Esri</a>, Maxar, Earthstar Geographics',
+    maxZoom: 19
   },
   dark: {
     url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; CARTO &copy; OpenStreetMap',
-    maxZoom: 20,
+    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 19,
     subdomains: ['a', 'b', 'c', 'd']
   }
 };
@@ -69,33 +69,139 @@ const MapUpdater = ({ center, zoom }: { center: [number, number], zoom: number }
   return null;
 };
 
-// Capture Map Instance
-const MapEvents = ({ setMap }: { setMap: (map: L.Map) => void }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (map) setMap(map);
-  }, [map, setMap]);
+// Handle Map Click & Double-Click Events to Pinpoint & Assess Location
+const MapClickHandler = ({
+  onMapClick,
+  onMapDoubleClick
+}: {
+  onMapClick?: (lat: number, lng: number) => void;
+  onMapDoubleClick?: (lat: number, lng: number) => void;
+}) => {
+  useMapEvents({
+    click(e) {
+      if (onMapClick) {
+        onMapClick(e.latlng.lat, e.latlng.lng);
+      }
+    },
+    dblclick(e) {
+      if (onMapDoubleClick) {
+        onMapDoubleClick(e.latlng.lat, e.latlng.lng);
+      }
+    }
+  });
   return null;
+};
+
+// Top-Right Tactical Controls Portal inside Leaflet Control Container
+const LeafletTopRightControls: React.FC<{
+  mapType: MapLayerType;
+  onToggleSatellite: () => void;
+}> = ({
+  mapType,
+  onToggleSatellite
+}) => {
+  const map = useMap();
+  const [container, setContainer] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const mapEl = map.getContainer();
+    const corner = mapEl.querySelector('.leaflet-top.leaflet-right') as HTMLElement;
+    if (corner) {
+      setContainer(corner);
+    }
+  }, [map]);
+
+  if (!container) return null;
+
+  const handleLocate = () => {
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { animate: true, duration: 1.2 });
+        },
+        () => {
+          map.locate({ setView: true, maxZoom: 16 });
+        },
+        { enableHighAccuracy: true, timeout: 6000 }
+      );
+    } else {
+      map.locate({ setView: true, maxZoom: 16 });
+    }
+  };
+
+  return ReactDOM.createPortal(
+    <div className="leaflet-control drishti-map-controls-container">
+      {/* Tactical Button Controls (Zoom +, Zoom -, Locate Me, Toggle Satellite) */}
+      <div className="drishti-tool-stack">
+        {/* Zoom In & Out */}
+        <div className="drishti-tool-group">
+          <button
+            type="button"
+            className="drishti-tool-btn"
+            onClick={() => map.zoomIn()}
+            title="Zoom In"
+            aria-label="Zoom In"
+          >
+            <Plus size={18} />
+          </button>
+          <button
+            type="button"
+            className="drishti-tool-btn"
+            onClick={() => map.zoomOut()}
+            title="Zoom Out"
+            aria-label="Zoom Out"
+          >
+            <Minus size={18} />
+          </button>
+        </div>
+
+        {/* Locate Me Button */}
+        <div className="drishti-tool-group">
+          <button
+            type="button"
+            className="drishti-tool-btn"
+            onClick={handleLocate}
+            title="Center on My Exact GPS Location"
+            aria-label="Locate Me"
+          >
+            <Crosshair size={18} />
+          </button>
+        </div>
+
+        {/* Quick Satellite Toggle Button */}
+        <div className="drishti-tool-group">
+          <button
+            type="button"
+            className={`drishti-tool-btn ${mapType === 'satellite' ? 'active' : ''}`}
+            onClick={onToggleSatellite}
+            title={mapType === 'satellite' ? 'Switch back to Street Map' : 'Switch to Satellite Map'}
+            aria-label="Toggle Satellite"
+          >
+            {mapType === 'satellite' ? (
+              <Globe size={18} className="text-orange-400 animate-spin" />
+            ) : (
+              <Layers size={18} />
+            )}
+          </button>
+        </div>
+      </div>
+    </div>,
+    container
+  );
 };
 
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   center,
   zoom = 13,
   children,
-  className = ""
+  className = "",
+  onMapClick,
+  onMapDoubleClick
 }) => {
-  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
   const [mapType, setMapType] = useState<MapLayerType>('street');
-  const [showLayerMenu, setShowLayerMenu] = useState<boolean>(false);
 
-  // Directly toggles between Street and Satellite on one click
   const toggleSatellite = () => {
     setMapType(prev => (prev === 'satellite' ? 'street' : 'satellite'));
-  };
-
-  const selectLayerType = (type: MapLayerType) => {
-    setMapType(type);
-    setShowLayerMenu(false);
   };
 
   return (
@@ -104,10 +210,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         center={center}
         zoom={zoom}
         zoomControl={false}
+        doubleClickZoom={false}
         style={{ width: '100%', height: '100%', background: '#090b0c', zIndex: 1 }}
         attributionControl={false}
       >
-        <MapEvents setMap={setMapInstance} />
+        <MapClickHandler onMapClick={onMapClick} onMapDoubleClick={onMapDoubleClick} />
         
         {/* Native React-Leaflet TileLayer with dynamic key for instantaneous clean layer replacement */}
         <TileLayer
@@ -119,96 +226,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         />
 
         <MapUpdater center={center} zoom={zoom} />
+        
+        {/* Top-Right Tactical Controls: Zoom + Locate + Satellite Toggle */}
+        <LeafletTopRightControls
+          mapType={mapType}
+          onToggleSatellite={toggleSatellite}
+        />
+
         {children}
       </MapContainer>
-
-      {/* Floating Tactical Layer Mode Switcher at top-right */}
-      <div className="absolute top-4 right-16 z-[450] flex items-center bg-[#0d0f12]/90 backdrop-blur-md border border-white/20 rounded-xl p-1 shadow-2xl">
-        <button
-          type="button"
-          onClick={() => selectLayerType('street')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-            mapType === 'street'
-              ? 'bg-accent text-[#090b0c] shadow-md font-extrabold'
-              : 'text-text-secondary hover:text-white hover:bg-white/10'
-          }`}
-          title="Standard Vector Street Map"
-        >
-          <MapIcon size={13} />
-          <span>Street</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => selectLayerType('satellite')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-            mapType === 'satellite'
-              ? 'bg-accent text-[#090b0c] shadow-md font-extrabold ring-2 ring-accent/50'
-              : 'text-text-secondary hover:text-white hover:bg-white/10'
-          }`}
-          title="High-Resolution Satellite & Aerial Imagery"
-        >
-          <Globe size={13} />
-          <span>Satellite</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => selectLayerType('dark')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-            mapType === 'dark'
-              ? 'bg-accent text-[#090b0c] shadow-md font-extrabold'
-              : 'text-text-secondary hover:text-white hover:bg-white/10'
-          }`}
-          title="Tactical Night Dark Mode"
-        >
-          <Moon size={13} />
-          <span>Dark</span>
-        </button>
-      </div>
-
-      {/* Map Zoom / Locate / Layer Toggle Controls on right sidebar */}
-      {mapInstance && (
-        <MapControls 
-          map={mapInstance} 
-          currentLayer={mapType}
-          onToggleSatellite={toggleSatellite}
-          onToggleLayerMenu={() => setShowLayerMenu(prev => !prev)}
-        />
-      )}
-
-      {/* Layer quick flyout dropdown menu beside the layers button */}
-      {showLayerMenu && (
-        <div className="absolute top-36 right-16 z-[450] bg-[#0d0f12]/95 backdrop-blur-xl border border-white/20 rounded-xl p-2 shadow-2xl flex flex-col gap-1 min-w-[150px] animate-in fade-in zoom-in-95 duration-150">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-text-secondary px-2 py-1">
-            Map Mode
-          </div>
-          <button
-            onClick={() => selectLayerType('street')}
-            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-left transition-colors cursor-pointer ${
-              mapType === 'street' ? 'bg-accent/20 text-accent font-bold' : 'text-text hover:bg-white/10'
-            }`}
-          >
-            <MapIcon size={14} /> Street Map
-          </button>
-          <button
-            onClick={() => selectLayerType('satellite')}
-            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-left transition-colors cursor-pointer ${
-              mapType === 'satellite' ? 'bg-accent/20 text-accent font-bold' : 'text-text hover:bg-white/10'
-            }`}
-          >
-            <Globe size={14} /> Satellite Imagery
-          </button>
-          <button
-            onClick={() => selectLayerType('dark')}
-            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-left transition-colors cursor-pointer ${
-              mapType === 'dark' ? 'bg-accent/20 text-accent font-bold' : 'text-text hover:bg-white/10'
-            }`}
-          >
-            <Moon size={14} /> Tactical Dark
-          </button>
-        </div>
-      )}
     </div>
   );
 };
+
+export default InteractiveMap;

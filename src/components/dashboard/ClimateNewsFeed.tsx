@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Newspaper, ExternalLink, Clock, X, Radio } from 'lucide-react';
 import '../../styles/ClimateNewsFeed.css';
-import { fetchLiveUSGSAlerts, fetchLiveWeatherAlerts } from '../../utils/liveIngestion';
+import { fetchGlobalUSGSAlerts, fetchLiveWeatherAlerts } from '../../utils/liveIngestion';
 
 interface NewsItem {
   id: string;
@@ -22,7 +22,7 @@ export const ClimateNewsFeed: React.FC = () => {
     try {
       setLoading(true);
       const [usgs, weather] = await Promise.all([
-        fetchLiveUSGSAlerts(),
+        fetchGlobalUSGSAlerts(15),
         fetchLiveWeatherAlerts(20.4625, 85.8828)
       ]);
 
