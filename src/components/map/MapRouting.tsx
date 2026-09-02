@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useMap, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import { Navigation, Compass, ExternalLink, CheckCircle, X } from 'lucide-react';
+import { getOfflineTacticalRoute } from '../../utils/offlineData';
 
 interface MapRoutingProps {
   start: [number, number] | null;
@@ -31,6 +32,7 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
   const [routeCoordinates, setRouteCoordinates] = useState<[number, number][] | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isTacticalOffline, setIsTacticalOffline] = useState(false);
 
   useEffect(() => {
     if (!start || !end) {
@@ -41,10 +43,29 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
 
     const fetchRoute = async () => {
       setLoading(true);
+      setIsTacticalOffline(false);
+
+      if (!navigator.onLine) {
+        // Instant offline tactical route calculation
+        const offlineRoute = getOfflineTacticalRoute(start, end, destinationTitle);
+        setRouteCoordinates(offlineRoute.coordinates);
+        setRouteInfo({
+          distanceKm: offlineRoute.distanceKm,
+          durationMinutes: offlineRoute.durationMinutes,
+          instructions: offlineRoute.instructions
+        });
+        setIsTacticalOffline(true);
+        const bounds = L.latLngBounds(offlineRoute.coordinates);
+        map.flyToBounds(bounds, { padding: [60, 60], animate: true, duration: 0.8 });
+        setLoading(false);
+        return;
+      }
+
       try {
         // OSRM expects longitude, latitude order
         const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson&steps=true`
+          `https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson&steps=true`,
+          { signal: AbortSignal.timeout(4000) }
         );
         const data = await response.json();
         
@@ -57,7 +78,6 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
           const distanceKm = route.distance ? route.distance / 1000 : 0;
           const durationMinutes = route.duration ? Math.ceil(route.duration / 60) : 1;
           
-          // Extract up to 3 instructions
           const instructions: string[] = [];
           if (route.legs && route.legs[0] && route.legs[0].steps) {
             route.legs[0].steps.forEach((step: any) => {
@@ -69,7 +89,7 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
             });
           }
           if (instructions.length === 0) {
-            instructions.push('Follow the highlighted tactical route towards the incident coordinate.');
+            instructions.push(`Follow the highlighted emergency route towards ${destinationTitle || 'target coordinate'}.`);
           }
 
           setRouteInfo({
@@ -78,33 +98,32 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
             instructions
           });
 
-          // Fit map bounds to the route with padding
           const bounds = L.latLngBounds(coords);
           map.flyToBounds(bounds, { padding: [60, 60], animate: true, duration: 1.2 });
         } else {
-          // Fallback geodesic line
-          const fallbackCoords: [number, number][] = [start, end];
-          setRouteCoordinates(fallbackCoords);
-          const rDistance = calculateEuclideanDistance(start[0], start[1], end[0], end[1]);
+          // Fallback to tactical geodesic vector
+          const offlineRoute = getOfflineTacticalRoute(start, end, destinationTitle);
+          setRouteCoordinates(offlineRoute.coordinates);
           setRouteInfo({
-            distanceKm: rDistance,
-            durationMinutes: Math.max(1, Math.ceil((rDistance / 35) * 60)),
-            instructions: ['Direct geodesic approach vector to target coordinate.']
+            distanceKm: offlineRoute.distanceKm,
+            durationMinutes: offlineRoute.durationMinutes,
+            instructions: offlineRoute.instructions
           });
-          const bounds = L.latLngBounds(fallbackCoords);
+          setIsTacticalOffline(true);
+          const bounds = L.latLngBounds(offlineRoute.coordinates);
           map.flyToBounds(bounds, { padding: [60, 60], animate: true, duration: 1 });
         }
       } catch (err) {
-        console.warn("Failed to fetch OSRM route, falling back to direct line:", err);
-        const fallbackCoords: [number, number][] = [start, end];
-        setRouteCoordinates(fallbackCoords);
-        const rDistance = calculateEuclideanDistance(start[0], start[1], end[0], end[1]);
+        console.warn("OSRM routing server unreachable, generating offline tactical route:", err);
+        const offlineRoute = getOfflineTacticalRoute(start, end, destinationTitle);
+        setRouteCoordinates(offlineRoute.coordinates);
         setRouteInfo({
-          distanceKm: rDistance,
-          durationMinutes: Math.max(1, Math.ceil((rDistance / 35) * 60)),
-          instructions: ['Direct geodesic approach vector to target coordinate.']
+          distanceKm: offlineRoute.distanceKm,
+          durationMinutes: offlineRoute.durationMinutes,
+          instructions: offlineRoute.instructions
         });
-        const bounds = L.latLngBounds(fallbackCoords);
+        setIsTacticalOffline(true);
+        const bounds = L.latLngBounds(offlineRoute.coordinates);
         map.flyToBounds(bounds, { padding: [60, 60], animate: true, duration: 1 });
       } finally {
         setLoading(false);
@@ -112,7 +131,7 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
     };
 
     fetchRoute();
-  }, [start, end, map]);
+  }, [start, end, destinationTitle, map]);
 
   if (!start || !end) return null;
 
@@ -158,7 +177,7 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
                 <span className="text-[11px] font-bold text-accent tracking-widest uppercase flex items-center gap-1">
-                  <Navigation size={12} className="animate-pulse" /> LIVE GPS ROUTE
+                  <Navigation size={12} className="animate-pulse" /> {isTacticalOffline ? 'TACTICAL OFFLINE ROUTE' : 'LIVE GPS ROUTE'}
                 </span>
               </div>
               {urgency && (
@@ -243,14 +262,4 @@ export const MapRouting: React.FC<MapRoutingProps> = ({
     </>
   );
 };
-
-function calculateEuclideanDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
 

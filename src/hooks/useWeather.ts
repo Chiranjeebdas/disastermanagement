@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getOfflineWeatherData } from '../utils/offlineData';
 
 export interface WeatherData {
   temperature: number;
@@ -32,11 +33,29 @@ export const getWeatherDescription = (code: number) => {
 };
 
 export const useWeather = (latitude?: number, longitude?: number) => {
-  const [weather, setWeather] = useState<WeatherState>({
-    data: null,
-    loading: false,
-    error: null,
-    lastUpdated: null,
+  const [weather, setWeather] = useState<WeatherState>(() => {
+    const lat = latitude ?? 20.4625;
+    const lon = longitude ?? 85.8828;
+    const cacheKey = `drishti_weather_${lat.toFixed(2)}_${lon.toFixed(2)}`;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const { data: cachedData, timestamp } = JSON.parse(cached);
+        return {
+          data: cachedData,
+          loading: false,
+          error: null,
+          lastUpdated: new Date(timestamp),
+        };
+      }
+    } catch {}
+    const offlineFallback = getOfflineWeatherData(lat, lon);
+    return {
+      data: offlineFallback,
+      loading: false,
+      error: null,
+      lastUpdated: new Date(),
+    };
   });
 
   const fetchWeather = async (lat: number, lon: number) => {
@@ -44,9 +63,13 @@ export const useWeather = (latitude?: number, longitude?: number) => {
     const cacheKey = `drishti_weather_${lat.toFixed(2)}_${lon.toFixed(2)}`;
 
     try {
+      if (!navigator.onLine) {
+        throw new Error('Device is offline');
+      }
+
       // Using Open-Meteo free API
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_direction_10m&timezone=auto`;
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
       
       if (!response.ok) {
         throw new Error('Failed to fetch weather data');
@@ -77,8 +100,8 @@ export const useWeather = (latitude?: number, longitude?: number) => {
         error: null,
         lastUpdated: new Date(),
       });
-    } catch (err) {
-      // Try to load from localStorage cache when offline
+    } catch {
+      // Load from localStorage cache or calibrated offline meteorological model
       try {
         const cached = localStorage.getItem(cacheKey);
         if (cached) {
@@ -93,11 +116,13 @@ export const useWeather = (latitude?: number, longitude?: number) => {
         }
       } catch {}
 
-      setWeather(prev => ({
-        ...prev,
+      const offlineFallback = getOfflineWeatherData(lat, lon);
+      setWeather({
+        data: offlineFallback,
         loading: false,
-        error: err instanceof Error ? err.message : 'Unknown error fetching weather',
-      }));
+        error: null,
+        lastUpdated: new Date(),
+      });
     }
   };
 

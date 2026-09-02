@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { IncidentReport, ReportSourceInfo } from '../types/report';
-import { analyzeIncidentReport } from '../utils/aiVerification';
+import { analyzeIncidentReport, SEEDED_REPORTS } from '../utils/aiVerification';
 import { dbGetAll, dbPut, dbPutBatch } from '../utils/indexedDB';
 import { offlineSyncManager } from '../utils/offlineSyncManager';
 import { fetchLiveIncidentReports } from '../utils/liveIngestion';
@@ -8,10 +8,16 @@ import { fetchLiveIncidentReports } from '../utils/liveIngestion';
 const STORAGE_KEY = 'drishti_reports_live_v1';
 
 export const useReports = (userLat = 20.4625, userLon = 85.8828) => {
-  const [reports, setReports] = useState<IncidentReport[]>([]);
-  const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
+  const [reports, setReports] = useState<IncidentReport[]>(() => {
+    try {
+      const cached = localStorage.getItem(STORAGE_KEY);
+      if (cached) return JSON.parse(cached);
+    } catch {}
+    return SEEDED_REPORTS;
+  });
+  const [isOffline, setIsOffline] = useState<boolean>(typeof navigator !== 'undefined' ? !navigator.onLine : false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Load initial reports from live telemetry feeds and local IndexedDB user submissions
   const loadReports = useCallback(async () => {
@@ -21,19 +27,30 @@ export const useReports = (userLat = 20.4625, userLon = 85.8828) => {
       // 1. Fetch user's local submitted reports from IndexedDB
       const userReports = await dbGetAll<IncidentReport>('reports') || [];
 
-      // 2. Fetch live real-time reports generated from USGS and Open-Meteo feeds
+      // 2. Fetch live real-time reports generated from USGS and Open-Meteo feeds if online
       let liveSensorReports: IncidentReport[] = [];
       if (navigator.onLine) {
         liveSensorReports = await fetchLiveIncidentReports(userLat, userLon);
       }
 
-      // 3. Merge live sensor reports with user submitted reports (user reports on top)
+      // 3. Merge live sensor reports, user submitted reports, and base seeded reports
       const existingIds = new Set(userReports.map(r => r.id));
       const combined = [...userReports];
       
       for (const liveReport of liveSensorReports) {
         if (!existingIds.has(liveReport.id)) {
           combined.push(liveReport);
+          existingIds.add(liveReport.id);
+        }
+      }
+
+      // If still empty (first run offline), seed base reports
+      if (combined.length === 0) {
+        for (const seed of SEEDED_REPORTS) {
+          if (!existingIds.has(seed.id)) {
+            combined.push(seed);
+            existingIds.add(seed.id);
+          }
         }
       }
 
@@ -45,6 +62,8 @@ export const useReports = (userLat = 20.4625, userLon = 85.8828) => {
         const cached = localStorage.getItem(STORAGE_KEY);
         if (cached) {
           setReports(JSON.parse(cached));
+        } else {
+          setReports(SEEDED_REPORTS);
         }
       }
     } catch (e) {
@@ -52,6 +71,8 @@ export const useReports = (userLat = 20.4625, userLon = 85.8828) => {
       const cached = localStorage.getItem(STORAGE_KEY);
       if (cached) {
         setReports(JSON.parse(cached));
+      } else {
+        setReports(SEEDED_REPORTS);
       }
     } finally {
       setIsInitialized(true);

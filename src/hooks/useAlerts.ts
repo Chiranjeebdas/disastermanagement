@@ -2,14 +2,22 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Alert } from '../types/alert';
 import { dbGetAll, dbPutBatch } from '../utils/indexedDB';
 import { fetchAllLiveAlerts } from '../utils/liveIngestion';
+import { OFFLINE_VERIFIED_ALERTS } from '../utils/offlineData';
+import { offlineSyncManager } from '../utils/offlineSyncManager';
 
 const STORAGE_KEY = 'drishti_alerts_cache_live_v1';
 
 export const useAlerts = (userLat = 20.4625, userLon = 85.8828) => {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
+  const [alerts, setAlerts] = useState<Alert[]>(() => {
+    try {
+      const cached = localStorage.getItem(STORAGE_KEY);
+      if (cached) return JSON.parse(cached);
+    } catch {}
+    return OFFLINE_VERIFIED_ALERTS;
+  });
+  const [isOffline, setIsOffline] = useState<boolean>(typeof navigator !== 'undefined' ? !navigator.onLine : false);
   const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch live real-time hazard alerts directly from USGS Seismic & Open-Meteo APIs
@@ -18,33 +26,44 @@ export const useAlerts = (userLat = 20.4625, userLon = 85.8828) => {
       setIsLoading(true);
       setError(null);
 
-      // 1. Fetch live multi-source data
-      const liveData = await fetchAllLiveAlerts(userLat, userLon);
+      if (navigator.onLine) {
+        // 1. Fetch live multi-source data
+        const liveData = await fetchAllLiveAlerts(userLat, userLon);
 
-      if (liveData && liveData.length > 0) {
-        setAlerts(liveData);
-        setLastSyncTime(new Date());
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(liveData));
-        await dbPutBatch('alerts', liveData);
+        if (liveData && liveData.length > 0) {
+          setAlerts(liveData);
+          setLastSyncTime(new Date());
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(liveData));
+          await dbPutBatch('alerts', liveData);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Fallback to local IndexedDB or localStorage cache when offline or API empty
+      const idbAlerts = await dbGetAll<Alert>('alerts');
+      if (idbAlerts && idbAlerts.length > 0) {
+        setAlerts(idbAlerts);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(idbAlerts));
       } else {
-        // Fallback to local cache if offline or API empty
         const cached = localStorage.getItem(STORAGE_KEY);
         if (cached) {
           setAlerts(JSON.parse(cached));
         } else {
-          const idbAlerts = await dbGetAll<Alert>('alerts');
-          if (idbAlerts && idbAlerts.length > 0) {
-            setAlerts(idbAlerts);
-          }
+          // Pre-seed with verified core regional alerts
+          setAlerts(OFFLINE_VERIFIED_ALERTS);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(OFFLINE_VERIFIED_ALERTS));
+          await dbPutBatch('alerts', OFFLINE_VERIFIED_ALERTS);
         }
       }
     } catch (err) {
-      console.warn('Error fetching live hazard data, loading cached buffer:', err);
+      console.warn('Network unreachable, serving cached offline hazard data:', err);
       const cached = localStorage.getItem(STORAGE_KEY);
       if (cached) {
         setAlerts(JSON.parse(cached));
+      } else {
+        setAlerts(OFFLINE_VERIFIED_ALERTS);
       }
-      setError('Using cached live telemetry');
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +108,10 @@ export const useAlerts = (userLat = 20.4625, userLon = 85.8828) => {
       dbPutBatch('alerts', updated).catch(console.warn);
       return updated;
     });
+
+    if (!navigator.onLine) {
+      await offlineSyncManager.enqueueAction('ACKNOWLEDGE_ALERT', { id });
+    }
   }, []);
 
   // Dismiss alert

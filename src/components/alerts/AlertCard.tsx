@@ -6,9 +6,10 @@ import { formatDistanceToNow } from 'date-fns';
 interface AlertCardProps {
   alert: Alert;
   onClick: (alert: Alert) => void;
+  isSelected?: boolean;
 }
 
-export const AlertCard: React.FC<AlertCardProps> = ({ alert, onClick }) => {
+export const AlertCard: React.FC<AlertCardProps> = ({ alert, onClick, isSelected }) => {
   const getSeverityConfig = (severity: AlertSeverity) => {
     switch (severity) {
       case 'Critical': 
@@ -56,7 +57,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onClick }) => {
   return (
     <div 
       onClick={() => onClick(alert)}
-      className={`alert-card ${severityClass}`}
+      className={`alert-card ${severityClass} ${isSelected ? 'selected' : ''}`}
       role="button"
       tabIndex={0}
     >

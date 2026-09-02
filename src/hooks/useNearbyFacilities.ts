@@ -426,8 +426,8 @@ export const useNearbyFacilities = (lat?: number, lon?: number, radiusKm: number
         // Pre-populate with verified base facilities
         VERIFIED_CORE_FACILITIES.forEach(f => {
           const dist = calculateDistance(currentLat, currentLon, f.lat, f.lon);
-          // If the verified item is within 35km of current location, include it
-          if (dist <= 35) {
+          // If the verified item is within 45km of current location, include it
+          if (dist <= 45) {
             seenCoords.add(`${f.lat.toFixed(3)}_${f.lon.toFixed(3)}`);
             liveItems.push({
               ...f,
@@ -436,7 +436,30 @@ export const useNearbyFacilities = (lat?: number, lon?: number, radiusKm: number
           }
         });
 
-        // Parallel geocoding queries against live OpenStreetMap index (Photon/Komoot API)
+        // If device is offline, serve the verified facilities immediately from local memory & IDB
+        if (!navigator.onLine) {
+          try {
+            const { dbGetAll } = await import('../utils/indexedDB');
+            const cached = await dbGetAll<Facility>('facilities');
+            if (cached && cached.length > 0) {
+              cached.forEach(f => {
+                const key = `${f.lat.toFixed(3)}_${f.lon.toFixed(3)}`;
+                if (!seenCoords.has(key)) {
+                  seenCoords.add(key);
+                  liveItems.push({
+                    ...f,
+                    distance: calculateDistance(currentLat, currentLon, f.lat, f.lon)
+                  });
+                }
+              });
+            }
+          } catch {}
+
+          liveItems.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+          setFacilities(liveItems);
+          setLoading(false);
+          return;
+        }
         const fetchPromises = SEARCH_QUERIES.map(async ({ type, q }) => {
           try {
             const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=${currentLat}&lon=${currentLon}&limit=12`;

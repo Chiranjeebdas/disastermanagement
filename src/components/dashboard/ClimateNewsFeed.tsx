@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Newspaper, ExternalLink, Clock, X, Radio } from 'lucide-react';
+import { Newspaper, ExternalLink, Clock, X, Radio, WifiOff } from 'lucide-react';
 import '../../styles/ClimateNewsFeed.css';
 import { fetchLiveUSGSAlerts, fetchLiveWeatherAlerts } from '../../utils/liveIngestion';
+import { OFFLINE_CLIMATE_NEWS } from '../../utils/offlineData';
 
 interface NewsItem {
   id: string;
@@ -13,13 +14,20 @@ interface NewsItem {
 }
 
 export const ClimateNewsFeed: React.FC = () => {
-  const [news, setNews] = useState<NewsItem[]>([]);
+  const [news, setNews] = useState<NewsItem[]>(OFFLINE_CLIMATE_NEWS);
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   // Fetch real-time live seismic events and meteorological intelligence
   const loadLiveFeed = async () => {
     try {
+      setIsOffline(!navigator.onLine);
+      if (!navigator.onLine) {
+        setNews(OFFLINE_CLIMATE_NEWS);
+        return;
+      }
+
       setLoading(true);
       const [usgs, weather] = await Promise.all([
         fetchLiveUSGSAlerts(),
@@ -74,9 +82,12 @@ export const ClimateNewsFeed: React.FC = () => {
 
       if (liveItems.length > 0) {
         setNews(liveItems);
+      } else {
+        setNews(OFFLINE_CLIMATE_NEWS);
       }
     } catch (err) {
-      console.warn('Error fetching live climate feed:', err);
+      console.warn('Error fetching live climate feed, using offline bulletin:', err);
+      setNews(OFFLINE_CLIMATE_NEWS);
     } finally {
       setLoading(false);
     }
@@ -85,9 +96,22 @@ export const ClimateNewsFeed: React.FC = () => {
   useEffect(() => {
     loadLiveFeed();
 
+    const handleOnline = () => loadLiveFeed();
+    const handleOffline = () => {
+      setIsOffline(true);
+      setNews(OFFLINE_CLIMATE_NEWS);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
     // Auto-poll live news every 60 seconds
     const interval = setInterval(loadLiveFeed, 60000);
-    return () => clearInterval(interval);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -98,11 +122,23 @@ export const ClimateNewsFeed: React.FC = () => {
             <Newspaper size={16} />
             LIVE HAZARD & SEISMIC FEED
           </h2>
-          <p className="climate-news-subtitle">100% Real-Time USGS Global & Regional Meteorological Telemetry</p>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-          <Radio size={10} className="animate-pulse text-emerald-400" />
-          <span>LIVE API</span>
+        <div className={`flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+          isOffline 
+            ? 'text-orange-400 bg-orange-500/10 border-orange-500/20' 
+            : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+        }`}>
+          {isOffline ? (
+            <>
+              <WifiOff size={10} className="text-orange-400" />
+              <span>OFFLINE CACHE</span>
+            </>
+          ) : (
+            <>
+              <Radio size={10} className="animate-pulse text-emerald-400" />
+              <span>LIVE API</span>
+            </>
+          )}
         </div>
       </header>
 

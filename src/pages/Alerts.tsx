@@ -200,6 +200,7 @@ export const Alerts: React.FC = () => {
             <AlertCard
               key={alert.id}
               alert={alert}
+              isSelected={alert.id === selectedAlertId}
               onClick={(a) => setSelectedAlertId(a.id)}
             />
           ))

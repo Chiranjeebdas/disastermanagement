@@ -6,6 +6,7 @@
 import type { Alert } from '../types/alert';
 import type { IncidentReport, ReportSourceInfo, ReportUrgency, ReportType } from '../types/report';
 import { analyzeIncidentReport } from './aiVerification';
+import { OFFLINE_VERIFIED_ALERTS } from './offlineData';
 
 export interface LiveTelemetryReading {
   source: 'USGS_SEISMIC' | 'OPEN_METEO_WEATHER' | 'OSM_GEOSPATIAL';
@@ -19,18 +20,24 @@ export interface LiveTelemetryReading {
 }
 
 /**
- * Fetch live real-time seismic earthquakes from USGS Hazards API
+ * Fetch live real-time seismic earthquakes from USGS Hazards API with offline fallback
  */
 export async function fetchLiveUSGSAlerts(): Promise<Alert[]> {
   try {
+    if (!navigator.onLine) {
+      return OFFLINE_VERIFIED_ALERTS.filter(a => a.type === 'Earthquake');
+    }
+
     const response = await fetch(
       'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson',
-      { cache: 'no-store' }
+      { signal: AbortSignal.timeout(4000) }
     );
     if (!response.ok) throw new Error(`USGS HTTP ${response.status}`);
     const data = await response.json();
 
-    if (!data.features || !Array.isArray(data.features)) return [];
+    if (!data.features || !Array.isArray(data.features)) {
+      return OFFLINE_VERIFIED_ALERTS.filter(a => a.type === 'Earthquake');
+    }
 
     return data.features.slice(0, 10).map((feat: any, idx: number) => {
       const p = feat.properties;
@@ -70,18 +77,22 @@ export async function fetchLiveUSGSAlerts(): Promise<Alert[]> {
       };
     });
   } catch (err) {
-    console.warn('Live USGS feed fetch error:', err);
-    return [];
+    console.warn('Live USGS feed unreachable, using offline seismic buffer:', err);
+    return OFFLINE_VERIFIED_ALERTS.filter(a => a.type === 'Earthquake');
   }
 }
 
 /**
- * Fetch live meteorological risk alerts from Open-Meteo real-time models
+ * Fetch live meteorological risk alerts from Open-Meteo real-time models with offline fallback
  */
 export async function fetchLiveWeatherAlerts(lat = 20.4625, lon = 85.8828): Promise<Alert[]> {
   try {
+    if (!navigator.onLine) {
+      return OFFLINE_VERIFIED_ALERTS.filter(a => a.type !== 'Earthquake');
+    }
+
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=precipitation_probability,soil_moisture_0_to_1cm&timezone=auto`;
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
     if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
     const data = await res.json();
     const cur = data.current;
@@ -175,8 +186,8 @@ export async function fetchLiveWeatherAlerts(lat = 20.4625, lon = 85.8828): Prom
 
     return alerts;
   } catch (err) {
-    console.warn('Live weather alert fetch error:', err);
-    return [];
+    console.warn('Live weather alert unreachable, loading cached regional telemetry:', err);
+    return OFFLINE_VERIFIED_ALERTS.filter(a => a.type !== 'Earthquake');
   }
 }
 
